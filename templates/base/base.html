@@ -1,0 +1,28 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoinHub Dashboard</title>
+    <!-- Bulma CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <!-- Optionally, your project's custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+
+</head>
+<body>
+    <div class="container">
+        {% include 'base/header.html' %}
+        <div class="columns">
+            <div class="column is-one-quarter">
+                {% include 'base/sidebar.html' %}
+            </div>
+            <div class="column">
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+    <!-- Optionally, include JavaScript files here -->
+</body>
+</html>

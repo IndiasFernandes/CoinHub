@@ -1,0 +1,17 @@
+/* Custom Navbar Styles */
+.navbar {
+    background-color: #0055a4; /* Deep blue background */
+    box-shadow: 0 2px 3px rgba(0,0,0,.1); /* Slight shadow for depth */
+}
+
+.navbar-item, .navbar-link {
+    color: #ffffff !important; /* White text for contrast */
+}
+
+.navbar-item:hover, .navbar-link:hover {
+    background-color: #003d7a; /* Slightly darker blue on hover */
+}
+
+.navbar-burger span {
+    background-color: #ffffff; /* White burger icon */
+}
