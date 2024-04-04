@@ -2,23 +2,24 @@
 
 {% block content %}
 <div class="ui container">
-    <h2>Bots List</h2>
+    <h1>My Bots</h1>
+    <a href="{% url 'bot:bot_new' %}" class="ui button">Create New Bot</a>
     <div class="ui cards">
-        <!-- Dummy Data for Display -->
         {% for bot in bots %}
         <div class="card">
             <div class="content">
-                <div class="header">{{ bot.name }}</div>
+                <div class="header">{{ bot.exchange.name }} - {{ bot.market.name }}</div>
                 <div class="description">
-                    {{ bot.description }}
+                    Strategy: {{ bot.strategy.name }}<br>
+                    Active: {{ bot.is_active|yesno:"Yes,No" }}
                 </div>
             </div>
             <div class="extra content">
-                <span>Status: {{ bot.status }}</span><br>
-                <span>Strategy: {{ bot.strategy }}</span><br>
-                <a href="{% url 'bot:bot_detail' bot.id %}">View Details</a>
+                <a href="{% url 'bot:bot_detail' bot_id=bot.pk %}">View Details</a>
             </div>
         </div>
+        {% empty %}
+        <p>No bots found.</p>
         {% endfor %}
     </div>
 </div>

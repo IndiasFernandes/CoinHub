@@ -2,10 +2,40 @@
 
 {% block content %}
 <div class="ui container">
-    <h2>{{ bot.name }}</h2>
-    <p>Description: {{ bot.description }}</p>
-    <p>Status: {{ bot.status }}</p>
-    <p>Strategy: {{ bot.strategy }}</p>
-    <!-- Placeholder for additional bot details -->
+    <h1>Bot Details: {{ bot.exchange.name }} - {{ bot.market.name }}</h1>
+    <p><strong>Strategy:</strong> {{ bot.strategy.name }}</p>
+    <p><strong>Active:</strong> {{ bot.is_active|yesno:"Yes,No" }}</p>
+
+    <h2>Trades</h2>
+    {% if trades %}
+    <table class="ui celled table">
+        <thead>
+            <tr>
+                <th>Market</th>
+                <th>Volume</th>
+                <th>Price</th>
+                <th>Fee</th>
+                <th>Leverage</th>
+                <th>Type</th>
+                <th>Timestamp</th>
+            </tr>
+        </thead>
+        <tbody>
+            {% for trade in trades %}
+            <tr>
+                <td>{{ trade.market.name }}</td>
+                <td>{{ trade.volume }}</td>
+                <td>{{ trade.price }}</td>
+                <td>{{ trade.fee }}</td>
+                <td>{{ trade.leverage }}</td>
+                <td>{{ trade.get_trade_type_display }}</td>
+                <td>{{ trade.timestamp }}</td>
+            </tr>
+            {% endfor %}
+        </tbody>
+    </table>
+    {% else %}
+    <p>No trades found for this bot.</p>
+    {% endif %}
 </div>
 {% endblock %}
