@@ -1,10 +1,25 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base/base.html' %}
 
-</body>
-</html>
+{% block content %}
+<div class="ui container">
+    <h2>Bots List</h2>
+    <div class="ui cards">
+        <!-- Dummy Data for Display -->
+        {% for bot in bots %}
+        <div class="card">
+            <div class="content">
+                <div class="header">{{ bot.name }}</div>
+                <div class="description">
+                    {{ bot.description }}
+                </div>
+            </div>
+            <div class="extra content">
+                <span>Status: {{ bot.status }}</span><br>
+                <span>Strategy: {{ bot.strategy }}</span><br>
+                <a href="{% url 'bot:bot_detail' bot.id %}">View Details</a>
+            </div>
+        </div>
+        {% endfor %}
+    </div>
+</div>
+{% endblock %}

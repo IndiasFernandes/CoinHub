@@ -1,20 +1,10 @@
-<nav class="navbar" role="navigation" aria-label="main navigation">
-    <div class="navbar-brand">
-        <a class="navbar-item" href="{% url 'main' %}">
-            CoinHub
-        </a>
-        <a role="button" class="navbar-burger" aria-label="menu" aria-expanded="false" data-target="navbarBasicExample">
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-            <span aria-hidden="true"></span>
-        </a>
-    </div>
-    <div id="navbarBasicExample" class="navbar-menu">
-        <div class="navbar-start">
-            <a class="navbar-item" href="#">Dashboard</a>
-            <a class="navbar-item" href="#">Bots</a>
-            <a class="navbar-item" href="#">Exchanges</a>
-        </div>
-        <!-- Additional navbar items -->
-    </div>
-</nav>
+<div class="ui fixed inverted menu">
+    <a href="{% url 'main' %}" class="header item">
+        CoinHub
+    </a>
+    <a onclick="showMenu('dashboard')" class="header item">Dashboard</a>
+    <a onclick="showMenu('accounts')" class="header item">Accounts</a>
+    <a onclick="showMenu('bots')" class="header item">Bots</a>
+    <a onclick="showMenu('exchanges')" class="header item">Exchanges</a>
+
+</div>

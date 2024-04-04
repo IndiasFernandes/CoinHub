@@ -5,24 +5,43 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CoinHub Dashboard</title>
-    <!-- Bulma CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bulma/0.9.3/css/bulma.min.css">
+    <!-- Semantic UI CSS -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
     <!-- Optionally, your project's custom CSS -->
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
-
 </head>
 <body>
-    <div class="container">
+    <div class="ui container">
+
         {% include 'base/header.html' %}
-        <div class="columns">
-            <div class="column is-one-quarter">
+
+        <div class="ui grid margin-top-20">
+            <div class="four wide column">
                 {% include 'base/sidebar.html' %}
             </div>
-            <div class="column">
-                {% block content %}{% endblock %}
+            <div class="twelve wide stretched column margin-top-20">
+                <div class="ui segment">
+                    {% block content %}{% endblock %}
+                </div>
             </div>
         </div>
     </div>
-    <!-- Optionally, include JavaScript files here -->
+    <!-- Semantic UI JavaScript -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
+    <!-- Optionally, include other JavaScript files here -->
+
+    <script>
+    function showMenu(menuId) {
+        // Hide all menus
+        document.getElementById('dashboard-menu').style.display = 'none';
+        document.getElementById('accounts-menu').style.display = 'none';
+        document.getElementById('bots-menu').style.display = 'none';
+        document.getElementById('exchanges-menu').style.display = 'none';
+
+        // Show the selected menu
+        document.getElementById(menuId + '-menu').style.display = '';
+    }
+    </script>
 </body>
 </html>

@@ -1,11 +1,24 @@
-<aside class="menu">
-    <p class="menu-label">
-        General
-    </p>
-    <ul class="menu-list">
-        <li><a href="#">Dashboard</a></li>
-        <li><a href="#">Bots</a></li>
-        <li><a href="#">Exchanges</a></li>
-    </ul>
-    <!-- Add more sections as needed -->
-</aside>
+<div id="sidebar-menu">
+    <div id="main-menu" class="ui vertical menu" style="display: none;">
+        <a class="item"></a>
+    </div>
+    <div id="dashboard-menu" class="ui vertical menu" style="display: none;">
+        <!-- Dashboard specific menu items -->
+        <a class="item">Dashboard</a>
+        <a class="item">Reports</a>
+    </div>
+   <div id="bots-menu" class="ui vertical menu" style="display: {% if section == 'bots' %}block{% else %}none{% endif %};">
+        <a class="item" href="{% url 'bot:bot_list' %}">Bots List</a>
+        <a class="item" href="{% url 'bot:bot_new' %}">Add New Bot</a>
+    </div>
+    <div id="exchanges-menu" class="ui vertical menu" style="display: none;">
+        <!-- Exchanges specific menu items -->
+        <a class="item">Exchange Rates</a>
+        <a class="item">Trade History</a>
+    </div>
+    <div id="accounts-menu" class="ui vertical menu" style="display: {% if section == 'accounts' %}block{% else %}none{% endif %};">
+        <a class="item" href="{% url 'accounts:login' %}">Login</a>
+        <a class="item" href="{% url 'accounts:register' %}">Register</a>
+
+    </div>
+</div>

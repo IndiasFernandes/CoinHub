@@ -9,12 +9,12 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return redirect('dashboard')
+            return render(request, 'main.html')
         else:
             # Return an 'invalid login' error message.
-            return render(request, 'page/accounts/login.html', {'error': 'Invalid username or password.'})
+            return render(request, 'pages/accounts/login.html', {'error': 'Invalid username or password.'})
     else:
-        return render(request, 'page/accounts/login.html')
+        return render(request, 'pages/accounts/login.html')
 
 def logout_view(request):
     logout(request)
@@ -29,4 +29,4 @@ def register_view(request):
             return redirect('login')
     else:
         form = UserCreationForm()
-    return render(request, 'page/accounts/register.html', {'form': form})
+    return render(request, 'pages/accounts/register.html', {'form': form})

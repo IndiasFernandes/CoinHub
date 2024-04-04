@@ -1,17 +1,10 @@
-/* Custom Navbar Styles */
-.navbar {
-    background-color: #0055a4; /* Deep blue background */
-    box-shadow: 0 2px 3px rgba(0,0,0,.1); /* Slight shadow for depth */
+.margin-top-20 {
+    margin-top: 20px;
 }
 
-.navbar-item, .navbar-link {
-    color: #ffffff !important; /* White text for contrast */
-}
-
-.navbar-item:hover, .navbar-link:hover {
-    background-color: #003d7a; /* Slightly darker blue on hover */
-}
-
-.navbar-burger span {
-    background-color: #ffffff; /* White burger icon */
+/* Remove top margin on smaller screens */
+@media (max-width: 768px) {
+    .margin-top-20 {
+        margin-top: 0;
+    }
 }

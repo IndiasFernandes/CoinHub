@@ -1,0 +1,21 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="ui container">
+    <h2>Create New Bot</h2>
+    <form class="ui form" method="post">
+        {% csrf_token %}
+        <!-- Dummy fields for example -->
+        <div class="field">
+            <label>Name</label>
+            <input type="text" name="name" placeholder="Bot Name">
+        </div>
+        <div class="field">
+            <label>Description</label>
+            <input type="text" name="description" placeholder="Description">
+        </div>
+        <!-- Additional fields here -->
+        <button class="ui button" type="submit">Create</button>
+    </form>
+</div>
+{% endblock %}
