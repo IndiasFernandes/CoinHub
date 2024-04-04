@@ -1,10 +1,18 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base/base.html' %}
 
-</body>
-</html>
+{% block content %}
+<div class="container mt-3">
+    <h2>Exchange List</h2>
+    <a href="{% url 'exchange:exchange_new' %}" class="btn btn-primary">Add New Exchange</a>
+    <ul class="list-group mt-3">
+        {% for exchange in exchanges %}
+        <li class="list-group-item">
+            {{ exchange.name }}
+            <a href="{% url 'exchange:exchange_detail' exchange.id %}" class="btn btn-info btn-sm float-end">Details</a>
+        </li>
+        {% empty %}
+        <li class="list-group-item">No exchanges found.</li>
+        {% endfor %}
+    </ul>
+</div>
+{% endblock %}

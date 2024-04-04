@@ -24,4 +24,5 @@ urlpatterns = [
     path('', main_view, name='main'),
     path('accounts/', include(('accounts.urls', 'accounts'), namespace='accounts')),
     path('bots/', include(('bots.urls', 'bots'), namespace='bots')),
+    path('exchanges/', include(('exchanges.urls', 'exchanges'), namespace='exchanges')),
 ]

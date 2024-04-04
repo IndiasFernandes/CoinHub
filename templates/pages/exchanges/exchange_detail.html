@@ -1,10 +1,11 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8">
-    <title>Title</title>
-</head>
-<body>
+{% extends 'base/base.html' %}
 
-</body>
-</html>
+{% block content %}
+<div class="container mt-3">
+    <h2>Exchange Detail: {{ exchange.name }}</h2>
+    <p>Description: {{ exchange.description }}</p>
+    <!-- Add more details as needed -->
+
+    <a href="{% url 'exchange:exchange_list' %}" class="btn btn-secondary">Back to List</a>
+</div>
+{% endblock %}

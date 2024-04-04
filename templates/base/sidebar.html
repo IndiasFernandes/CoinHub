@@ -11,10 +11,10 @@
         <a class="item" href="{% url 'bot:bot_list' %}">Bots List</a>
         <a class="item" href="{% url 'bot:bot_new' %}">Add New Bot</a>
     </div>
-    <div id="exchanges-menu" class="ui vertical menu" style="display: none;">
+    <div id="exchanges-menu" class="ui vertical menu" style="display: {% if section == 'exchanges' %}block{% else %}none{% endif %};">
         <!-- Exchanges specific menu items -->
-        <a class="item">Exchange Rates</a>
-        <a class="item">Trade History</a>
+        <a class="item" href="{% url 'exchange:exchange_list' %}">Exchange List</a>
+        <a class="item" href="{% url 'exchange:exchange_new' %}">Add New Exchange</a>
     </div>
     <div id="accounts-menu" class="ui vertical menu" style="display: {% if section == 'accounts' %}block{% else %}none{% endif %};">
         <a class="item" href="{% url 'accounts:login' %}">Login</a>
