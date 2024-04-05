@@ -5,13 +5,18 @@ from exchanges.models import Exchange, Market
 class Strategy(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()
+    def __str__(self):
+        return self.name
 
 class Bot(models.Model):
+    name = models.CharField(max_length=100)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
     exchange = models.ForeignKey(Exchange, on_delete=models.CASCADE)
     market = models.ForeignKey(Market, on_delete=models.SET_NULL, null=True)
     strategy = models.ForeignKey(Strategy, on_delete=models.SET_NULL, null=True)
     is_active = models.BooleanField(default=False)
+    def __str__(self):
+        return f'{self.user.username} {self.exchange.name} {self.market.symbol}'
 
 class Trade(models.Model):
     TRADE_TYPES = (
@@ -26,3 +31,5 @@ class Trade(models.Model):
     leverage = models.IntegerField(null=True, blank=True)  # Added leverage field, optional
     trade_type = models.CharField(max_length=1, choices=TRADE_TYPES, default='L')
     timestamp = models.DateTimeField(auto_now_add=True)
+    def __str__(self):
+        return f'{self.bot.user.username} {self.market.symbol} {self.timestamp}'

@@ -5,8 +5,12 @@
     <div id="dashboard-menu" class="ui vertical menu" style="display: none;">
         <!-- Dashboard specific menu items -->
         <a class="item">Dashboard</a>
-        <a class="item">Reports</a>
     </div>
+    <div id="market-menu" class="ui vertical menu" style="display: none;">
+        <!-- Dashboard specific menu items -->
+        <a class="item">Market</a>
+    </div>
+
    <div id="bots-menu" class="ui vertical menu" style="display: {% if section == 'bots' %}block{% else %}none{% endif %};">
         <a class="item" href="{% url 'bot:bot_list' %}">Bots List</a>
         <a class="item" href="{% url 'bot:bot_new' %}">Add New Bot</a>

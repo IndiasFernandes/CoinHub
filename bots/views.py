@@ -1,8 +1,10 @@
-from django.shortcuts import redirect
 from .forms import BotForm
 from django.shortcuts import render, get_object_or_404
-from .models import Bot, Trade
-from django.contrib.auth.decorators import login_required
+from .models import Trade
+from django.shortcuts import get_object_or_404, redirect
+from django.urls import reverse
+from .models import Bot  # Assuming your model is named Bot
+from django.contrib.auth.decorators import login_required  # If you're using user authentication
 
 @login_required
 def bot_list(request):
@@ -29,3 +31,16 @@ def bot_new(request):
     else:
         form = BotForm()
     return render(request, 'pages/bots/bot_new.html', {'form': form})
+
+
+
+@login_required
+def delete_bot(request, bot_id):
+    bot = get_object_or_404(Bot, pk=bot_id)
+    if request.method == 'POST':
+        bot.delete()
+        bots = Bot.objects.filter(user=request.user)
+        return render(request, 'pages/bots/bot_list.html', {'bots': bots})
+    else:
+        # If not a POST request, redirect to bot detail page or show a confirmation page
+        return redirect(reverse('bot:bot_detail', kwargs={'bot_id': bot_id}))

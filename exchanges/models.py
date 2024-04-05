@@ -11,6 +11,8 @@ class Exchange(models.Model):
 class Market(models.Model):
     exchange = models.ForeignKey(Exchange, on_delete=models.CASCADE)
     symbol = models.CharField(max_length=10)  # Example: BTC/USD
+    def __str__(self):
+        return self.symbol
 
 class HistoricalData(models.Model):
     market = models.ForeignKey(Market, on_delete=models.CASCADE)
@@ -20,3 +22,5 @@ class HistoricalData(models.Model):
     low_price = models.DecimalField(max_digits=15, decimal_places=5)
     volume = models.DecimalField(max_digits=15, decimal_places=5)
     timestamp = models.DateTimeField()
+    def __str__(self):
+        return f'{self.market.symbol} {self.timestamp}'

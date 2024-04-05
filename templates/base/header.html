@@ -1,10 +1,62 @@
-<div class="ui fixed inverted menu">
-    <a href="{% url 'main' %}" class="header item">
-        CoinHub
-    </a>
-    <a onclick="showMenu('dashboard')" class="header item">Dashboard</a>
-    <a onclick="showMenu('accounts')" class="header item">Accounts</a>
-    <a onclick="showMenu('bots')" class="header item">Bots</a>
-    <a onclick="showMenu('exchanges')" class="header item">Exchanges</a>
 
-</div>
+
+<nav class="navbar is-black" role="navigation" aria-label="dropdown navigation">
+  <div class="container">
+
+    <div id="navMenu" class="navbar-menu">
+
+
+      <a class="navbar-item">
+          CoinHub
+      </a>
+
+      <a class="navbar-item">
+          Dashboard
+      </a>
+
+      <div class="navbar-item has-dropdown is-hoverable">
+        <a class="navbar-link">
+          Bots
+        </a>
+        <div class="navbar-dropdown">
+            <a class="navbar-item" href="{% url 'bot:bot_list' %}">Bots List</a>
+            <a class="navbar-item" href="{% url 'bot:bot_new' %}">Add New Bot</a>
+        </div>
+      </div>
+
+      <div class="navbar-item has-dropdown is-hoverable">
+          <a class="navbar-link">
+          Exchanges
+          </a>
+          <div class="navbar-dropdown">
+              <a class="navbar-item" href="{% url 'exchange:exchange_list' %}">Exchanges List</a>
+              <a class="navbar-item" href="{% url 'exchange:exchange_new' %}">Add New Exchange</a>
+          </div>
+      </div>
+
+        <div class="navbar-item has-dropdown is-hoverable">
+            <a class="navbar-link">
+            Accounts
+            </a>
+            <div class="navbar-dropdown">
+                <a class="navbar-item" href="{% url 'accounts:login' %}">Login</a>
+                <a class="navbar-item" href="{% url 'accounts:register' %}">Register</a>
+                <hr class="navbar-divider">
+                <div class="navbar-item">
+                     Version 0.0.1
+                </div>
+            </div>
+        </div>
+      </div>
+
+      <div class="navbar-end">
+        <div class="navbar-item">
+          <div class="buttons">
+            <a class="button is-dark">Learn</a>
+            <a class="button is-link">Pro Version</a>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</nav>

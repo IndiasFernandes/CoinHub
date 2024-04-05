@@ -6,26 +6,42 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CoinHub Dashboard</title>
     <!-- Semantic UI CSS -->
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
     <!-- Optionally, your project's custom CSS -->
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
 </head>
 <body>
-    <div class="ui container">
+
 
         {% include 'base/header.html' %}
 
-        <div class="ui grid margin-top-20">
-            <div class="four wide column">
-                {% include 'base/sidebar.html' %}
-            </div>
-            <div class="twelve wide stretched column margin-top-20">
-                <div class="ui segment">
-                    {% block content %}{% endblock %}
-                </div>
-            </div>
-        </div>
-    </div>
+        <section class="section">
+        <div class="container">
+  <div class="grid is-row-gap-1.5">
+    {% block content %}{% endblock %}
+  </div>
+</div>
+
+        </section>
+
+            {% include 'base/sidebar.html' %}
+
+
+{#    <div class="ui container">#}
+{##}
+{##}
+{#        <div class="ui grid margin-top-20">#}
+{#            <div class="four wide column">#}
+{#                {% include 'base/sidebar.html' %}#}
+{#            </div>#}
+{#            <div class="twelve wide stretched column margin-top-20">#}
+{#                <div class="ui segment">#}
+{#                    {% block content %}{% endblock %}#}
+{#                </div>#}
+{#            </div>#}
+{#        </div>#}
+{#    </div>#}
     <!-- Semantic UI JavaScript -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/semantic-ui/2.4.1/semantic.min.js"></script>
@@ -35,9 +51,11 @@
     function showMenu(menuId) {
         // Hide all menus
         document.getElementById('dashboard-menu').style.display = 'none';
-        document.getElementById('accounts-menu').style.display = 'none';
         document.getElementById('bots-menu').style.display = 'none';
+        document.getElementById('market-menu').style.display = 'none';
         document.getElementById('exchanges-menu').style.display = 'none';
+        document.getElementById('accounts-menu').style.display = 'none';
+
 
         // Show the selected menu
         document.getElementById(menuId + '-menu').style.display = '';

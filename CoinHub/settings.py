@@ -40,7 +40,9 @@ INSTALLED_APPS = [
     'rest_framework',
     'bots',
     'exchanges',
-    'accounts'
+    'accounts',
+    'market',
+    'widget_tweaks',
 ]
 
 MIDDLEWARE = [
