@@ -1,13 +1,23 @@
 {% extends 'base/base.html' %}
-
+{% load widget_tweaks %}
 {% block content %}
-<div class="container mt-3">
-    <h2>Add New Exchange</h2>
-    <form method="post">
+<div class="container">
+    <h2 class="title">Create New Exchange</h2>
+    <form method="post" action="" class="box">
         {% csrf_token %}
-        {{ form.as_p }}
-        <button type="submit" class="btn btn-primary">Save Exchange</button>
-        <a href="{% url 'exchange:exchange_list' %}" class="btn btn-secondary">Cancel</a>
+        {% for field in form %}
+        <div class="field">
+            <label class="label">{{ field.label }}</label>
+            <div class="control">
+                {% render_field field|add_class:"input" %}
+            </div>
+        </div>
+        {% endfor %}
+        <div class="field">
+            <div class="control">
+                <button type="submit" class="button is-link">Create Bot</button>
+            </div>
+        </div>
     </form>
 </div>
 {% endblock %}

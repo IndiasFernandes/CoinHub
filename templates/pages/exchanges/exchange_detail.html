@@ -1,11 +1,21 @@
 {% extends 'base/base.html' %}
 
 {% block content %}
-<div class="container mt-3">
-    <h2>Exchange Detail: {{ exchange.name }}</h2>
-    <p>Description: {{ exchange.description }}</p>
-    <!-- Add more details as needed -->
 
-    <a href="{% url 'exchange:exchange_list' %}" class="btn btn-secondary">Back to List</a>
-</div>
+    <div class="container">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">Exchange Detail: {{ exchange.name }}</p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <p><strong>Description:</strong> {{ exchange.description }}</p>
+                    <!-- Add more details as needed -->
+                </div>
+            </div>
+            <footer class="card-footer">
+                <a href="{% url 'exchange:exchange_list' %}" class="card-footer-item">Back to List</a>
+            </footer>
+        </div>
+    </div>
 {% endblock %}

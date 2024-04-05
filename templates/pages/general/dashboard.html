@@ -1,0 +1,49 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+
+<div class="container">
+    <h1 class="title">Dashboard</h1>
+    <div class="columns">
+        <!-- Bots Summary -->
+        <div class="column">
+            <div class="box">
+                <h2 class="subtitle">Your Bots</h2>
+                <p><strong>Total Bots:</strong> {{ bots.count }}</p>
+                <p><strong>Active Bots:</strong> {{ active_bots_count }}</p> <!-- Custom template tag or method to filter active bots -->
+                <a href="{% url 'bot:bot_list' %}" class="button is-link">Manage Bots</a>
+            </div>
+        </div>
+        <!-- Trades Summary -->
+        {% if trades %}
+        <div class="column">
+            <div class="box">
+                <h2 class="subtitle">Recent Trades</h2>
+                {% for trade in trades|slice:":5" %}
+                    <p>{{ trade.market.name }}: {{ trade.volume }}</p>
+                {% empty %}
+                    <p>No recent trades.</p>
+                {% endfor %}
+                <a href="#" class="button is-link">View All Trades</a>
+            </div>
+        </div>
+        {% else %}
+    <article class="message is-warning">
+        <div class="message-body">
+            No trades found.
+        </div>
+    </article>
+    {% endif %}
+    </div>
+
+    <!-- Additional Information -->
+    <div class="columns">
+        <div class="column is-full">
+            <div class="box">
+                <h2 class="subtitle">Market Insights</h2>
+                <p>Market trends, analysis, or other data-driven insights can go here.</p>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

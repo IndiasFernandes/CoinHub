@@ -10,9 +10,7 @@
           CoinHub
       </a>
 
-      <a class="navbar-item">
-          Dashboard
-      </a>
+      <a class="navbar-item" href="{% url 'dashboard' %}">Dashboard</a>
 
       <div class="navbar-item has-dropdown is-hoverable">
         <a class="navbar-link">
@@ -52,7 +50,7 @@
       <div class="navbar-end">
         <div class="navbar-item">
           <div class="buttons">
-            <a class="button is-dark">Learn</a>
+            <a class="button is-dark" href="{% url 'accounts:login' %}">Login</a>
             <a class="button is-link">Pro Version</a>
           </div>
         </div>

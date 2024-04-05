@@ -1,18 +1,27 @@
 {% extends 'base/base.html' %}
 
 {% block content %}
-<div class="container mt-3">
-    <h2>Exchange List</h2>
-    <a href="{% url 'exchange:exchange_new' %}" class="btn btn-primary">Add New Exchange</a>
-    <ul class="list-group mt-3">
-        {% for exchange in exchanges %}
-        <li class="list-group-item">
-            {{ exchange.name }}
-            <a href="{% url 'exchange:exchange_detail' exchange.id %}" class="btn btn-info btn-sm float-end">Details</a>
-        </li>
-        {% empty %}
-        <li class="list-group-item">No exchanges found.</li>
-        {% endfor %}
-    </ul>
-</div>
+
+    <div class="container">
+        <h2 class="title">Exchange List</h2>
+        <a href="{% url 'exchange:exchange_new' %}" class="button is-primary">Add New Exchange</a>
+        <div class="box">
+            {% for exchange in exchanges %}
+            <article class="media">
+                <div class="media-content">
+                    <div class="content">
+                        <p>
+                            <strong>{{ exchange.name }}</strong>
+                            <br>
+                            <a href="{% url 'exchange:exchange_detail' exchange.id %}" class="button is-info is-small">Details</a>
+                        </p>
+                    </div>
+                </div>
+            </article>
+            {% empty %}
+            <p>No exchanges found.</p>
+            {% endfor %}
+        </div>
+    </div>
+
 {% endblock %}

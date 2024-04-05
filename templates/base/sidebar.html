@@ -1,28 +1,37 @@
-<div id="sidebar-menu">
-    <div id="main-menu" class="ui vertical menu" style="display: none;">
-        <a class="item"></a>
-    </div>
-    <div id="dashboard-menu" class="ui vertical menu" style="display: none;">
-        <!-- Dashboard specific menu items -->
-        <a class="item">Dashboard</a>
-    </div>
-    <div id="market-menu" class="ui vertical menu" style="display: none;">
-        <!-- Dashboard specific menu items -->
-        <a class="item">Market</a>
-    </div>
+<aside class="menu">
+    <!-- Main Menu -->
+    <p class="menu-label">
+        General
+    </p>
+    <ul class="menu-list">
+        <li><a class="navbar-item" href="{% url 'dashboard' %}">Dashboard</a></li>
 
-   <div id="bots-menu" class="ui vertical menu" style="display: {% if section == 'bots' %}block{% else %}none{% endif %};">
-        <a class="item" href="{% url 'bot:bot_list' %}">Bots List</a>
-        <a class="item" href="{% url 'bot:bot_new' %}">Add New Bot</a>
-    </div>
-    <div id="exchanges-menu" class="ui vertical menu" style="display: {% if section == 'exchanges' %}block{% else %}none{% endif %};">
-        <!-- Exchanges specific menu items -->
-        <a class="item" href="{% url 'exchange:exchange_list' %}">Exchange List</a>
-        <a class="item" href="{% url 'exchange:exchange_new' %}">Add New Exchange</a>
-    </div>
-    <div id="accounts-menu" class="ui vertical menu" style="display: {% if section == 'accounts' %}block{% else %}none{% endif %};">
-        <a class="item" href="{% url 'accounts:login' %}">Login</a>
-        <a class="item" href="{% url 'accounts:register' %}">Register</a>
+    </ul>
 
-    </div>
-</div>
+    <!-- Bots Menu -->
+    <p class="menu-label">
+        Bots
+    </p>
+    <ul class="menu-list">
+        <li><a class="{% if section == 'bots' %}is-active{% endif %}" href="{% url 'bot:bot_list' %}">Bots List</a></li>
+        <li><a href="{% url 'bot:bot_new' %}">Add New Bot</a></li>
+    </ul>
+
+    <!-- Exchanges Menu -->
+    <p class="menu-label">
+        Exchanges
+    </p>
+    <ul class="menu-list">
+        <li><a class="{% if section == 'exchanges' %}is-active{% endif %}" href="{% url 'exchange:exchange_list' %}">Exchange List</a></li>
+        <li><a href="{% url 'exchange:exchange_new' %}">Add New Exchange</a></li>
+    </ul>
+
+    <!-- Accounts Menu -->
+    <p class="menu-label">
+        Account
+    </p>
+    <ul class="menu-list">
+        <li><a href="{% url 'accounts:login' %}">Login</a></li>
+        <li><a href="{% url 'accounts:register' %}">Register</a></li>
+    </ul>
+</aside>

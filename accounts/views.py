@@ -9,7 +9,7 @@ def login_view(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             login(request, user)
-            return render(request, 'main.html')
+            return render(request, 'pages/general/dashboard.html')
         else:
             # Return an 'invalid login' error message.
             return render(request, 'pages/accounts/login.html', {'error': 'Invalid username or password.'})

@@ -2,66 +2,80 @@
 
 {% block content %}
 
-<div class="container">
-    <h1 class="title">Bot Details: {{ bot.name }}</h1>
-    <p><strong>Strategy:</strong> {{ bot.strategy.name }}</p>
-    <p><strong>Active:</strong> {{ bot.is_active|yesno:"Yes,No" }}</p>
-    <p><strong>Created:</strong> {{ bot.created_at|date:"Y-m-d H:i" }}</p>
-    <p><strong>Updated:</strong> {{ bot.updated_at|date:"Y-m-d H:i" }}</p>
-    <p><strong>Start Balance:</strong> <span id="startBalance">{{ bot.start_balance }}</span></p>
-    <p><strong>Balance:</strong> <span id="currentBalance">{{ bot.balance }}</span></p>
-    <p><strong>Profit:</strong> <span id="profit"></span></p>
-    <p><strong>Profit Percentage:</strong> <span id="profitPercentage"></span>%</p>
-    <p><strong>Max Drawdown:</strong> {{ bot.max_drawdown }}</p>
-    <p><strong>Max Drawdown Percentage:</strong> {{ bot.max_drawdown_percentage }}</p>
+<section class="section">
+    <div class="container">
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title">Bot Details: {{ bot.name }}</p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <p><strong>Strategy:</strong> {{ bot.strategy.name }}</p>
+                    <p><strong>Active:</strong> {{ bot.is_active|yesno:"Yes,No" }}</p>
+                    <p><strong>Created:</strong> {{ bot.created_at|date:"Y-m-d H:i" }}</p>
+                    <p><strong>Updated:</strong> {{ bot.updated_at|date:"Y-m-d H:i" }}</p>
+                    <p><strong>Start Balance:</strong> <span id="startBalance">{{ bot.start_balance }}</span></p>
+                    <p><strong>Balance:</strong> <span id="currentBalance">{{ bot.balance }}</span></p>
+                    <p><strong>Profit:</strong> <span id="profit"></span></p>
+                    <p><strong>Profit Percentage:</strong> <span id="profitPercentage"></span>%</p>
+                    <p><strong>Max Drawdown:</strong> {{ bot.max_drawdown }}</p>
+                    <p><strong>Max Drawdown Percentage:</strong> {{ bot.max_drawdown_percentage }}%</p>
+                </div>
+            </div>
+        </div>
 
-    <h2 class="subtitle">Trades</h2>
-    {% if trades %}
-    <div class="table-container">
-        <table class="table is-fullwidth is-striped is-hoverable">
-            <thead>
-                <tr>
-                    <th>Market</th>
-                    <th>Volume</th>
-                    <th>Price</th>
-                    <th>Fee</th>
-                    <th>Leverage</th>
-                    <th>Type</th>
-                    <th>Timestamp</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for trade in trades %}
-                <tr>
-                    <td>{{ trade.market.name }}</td>
-                    <td>{{ trade.volume }}</td>
-                    <td>{{ trade.price }}</td>
-                    <td>{{ trade.fee }}</td>
-                    <td>{{ trade.leverage }}</td>
-                    <td>{{ trade.get_trade_type_display }}</td>
-                    <td>{{ trade.timestamp|date:"Y-m-d H:i" }}</td> <!-- Formatting timestamp -->
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <h2 class="title is-4" style="margin-top: 1rem;">Trades</h2>
+        {% if trades %}
+        <div class="table-container">
+            <table class="table is-fullwidth is-striped is-hoverable">
+                <thead>
+                    <tr>
+                        <th>Market</th>
+                        <th>Volume</th>
+                        <th>Price</th>
+                        <th>Fee</th>
+                        <th>Leverage</th>
+                        <th>Type</th>
+                        <th>Timestamp</th>
+                    </tr>
+                </thead>
+                <tbody>
+                    {% for trade in trades %}
+                    <tr>
+                        <td>{{ trade.market.name }}</td>
+                        <td>{{ trade.volume }}</td>
+                        <td>{{ trade.price }}</td>
+                        <td>{{ trade.fee }}</td>
+                        <td>{{ trade.leverage }}</td>
+                        <td>{{ trade.get_trade_type_display }}</td>
+                        <td>{{ trade.timestamp|date:"Y-m-d H:i" }}</td>
+                    </tr>
+                    {% endfor %}
+                </tbody>
+            </table>
+        </div>
+        {% else %}
+        <article class="message is-warning">
+            <div class="message-body">
+                No trades found for this bot.
+            </div>
+        </article>
+        {% endif %}
     </div>
-    {% else %}
-    <p>No trades found for this bot.</p>
-    {% endif %}
-</div>
+</section>
 
-    <script>
-    // JavaScript to calculate profit and profit percentage
-    window.onload = function() {
-        var startBalance = parseFloat(document.getElementById('startBalance').innerText);
-        var currentBalance = parseFloat(document.getElementById('currentBalance').innerText);
-        var profit = currentBalance - startBalance;
-        var profitPercentage = startBalance !== 0 ? (profit / startBalance) * 100 : 0;
+<script>
+// JavaScript to calculate profit and profit percentage
+document.addEventListener('DOMContentLoaded', function() {
+    var startBalance = parseFloat(document.getElementById('startBalance').innerText);
+    var currentBalance = parseFloat(document.getElementById('currentBalance').innerText);
+    var profit = currentBalance - startBalance;
+    var profitPercentage = startBalance !== 0 ? (profit / startBalance) * 100 : 0;
 
-        // Update the DOM with calculated values
-        document.getElementById('profit').innerText = profit.toFixed(2);
-        document.getElementById('profitPercentage').innerText = profitPercentage.toFixed(2);
-    };
+    // Update the DOM with calculated values
+    document.getElementById('profit').innerText = profit.toFixed(2);
+    document.getElementById('profitPercentage').innerText = profitPercentage.toFixed(2);
+});
 </script>
 
 {% endblock %}
