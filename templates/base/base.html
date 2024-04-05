@@ -17,6 +17,16 @@
         {% include 'base/header.html' %}
 
         <section class="section">
+        {% if messages %}
+<div class="container" style="padding-top: 20px;">
+    {% for message in messages %}
+    <div class="notification is-success">
+        <button class="delete"></button>
+        {{ message }}
+    </div>
+    {% endfor %}
+</div>
+{% endif %}
         <div class="container">
   <div class="grid is-row-gap-1.5">
     {% block content %}{% endblock %}
@@ -60,6 +70,16 @@
         // Show the selected menu
         document.getElementById(menuId + '-menu').style.display = '';
     }
+
+    document.addEventListener('DOMContentLoaded', () => {
+    (document.querySelectorAll('.notification .delete') || []).forEach(($delete) => {
+    const $notification = $delete.parentNode;
+
+    $delete.addEventListener('click', () => {
+      $notification.parentNode.removeChild($notification);
+    });
+  });
+});
     </script>
 </body>
 </html>

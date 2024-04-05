@@ -14,6 +14,12 @@ class Bot(models.Model):
     exchange = models.ForeignKey(Exchange, on_delete=models.CASCADE)
     market = models.ForeignKey(Market, on_delete=models.SET_NULL, null=True)
     strategy = models.ForeignKey(Strategy, on_delete=models.SET_NULL, null=True)
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+    balance = models.DecimalField(max_digits=15, decimal_places=5, null=True, blank=True)
+    initial_balance = models.DecimalField(max_digits=15, decimal_places=5, null=True, blank=True)
+    max_drawdown = models.DecimalField(max_digits=15, decimal_places=5, null=True, blank=True)
+    max_drawdown_percentage = models.DecimalField(max_digits=15, decimal_places=5, null=True, blank=True)
     is_active = models.BooleanField(default=False)
     def __str__(self):
         return f'{self.user.username} {self.exchange.name} {self.market.symbol}'

@@ -1,5 +1,5 @@
 {% extends 'base/base.html' %}
-
+{% load widget_tweaks %}
 {% block content %}
 <div class="container">
     <h1 class="title">Create New Bot</h1>
@@ -14,7 +14,7 @@
         <div class="field">
             <label class="label">Exchange</label>
             <div class="control">
-                {{ form.exchange|add_class:"select" }}
+                {{ form.exchange|add_class:"input" }}
             </div>
         </div>
         <div class="field">
@@ -26,7 +26,7 @@
         <div class="field">
             <label class="label">Strategy</label>
             <div class="control">
-                {{ form.strategy|add_class:"select" }}
+                {{ form.strategy|add_class:"input" }}
             </div>
         </div>
         <div class="field">
