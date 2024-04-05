@@ -24,3 +24,14 @@ class HistoricalData(models.Model):
     timestamp = models.DateTimeField()
     def __str__(self):
         return f'{self.market.symbol} {self.timestamp}'
+
+class ExchangeInfo(models.Model):
+    timestamp = models.DateTimeField(auto_now_add=True)
+    account_value = models.DecimalField(max_digits=10, decimal_places=2)
+    total_margin_used = models.DecimalField(max_digits=10, decimal_places=2)
+    total_net_position = models.DecimalField(max_digits=10, decimal_places=2)
+    total_raw_usd = models.DecimalField(max_digits=10, decimal_places=2)
+    withdrawable = models.DecimalField(max_digits=10, decimal_places=2)
+
+    class Meta:
+        verbose_name_plural = "Exchange Information"
