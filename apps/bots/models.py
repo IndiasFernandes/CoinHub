@@ -1,6 +1,6 @@
 from django.db import models
 from django.contrib.auth.models import User
-from exchanges.models import Exchange, Market
+from apps.exchanges.models import Exchange, Market
 
 class Strategy(models.Model):
     name = models.CharField(max_length=100)

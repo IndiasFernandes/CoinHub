@@ -22,8 +22,8 @@ from .views import dashboard
 urlpatterns = [
     path('admin/', admin.site.urls),
     path('', dashboard, name='dashboard'),
-    path('accounts/', include(('accounts.urls', 'accounts'), namespace='accounts')),
-    path('bots/', include(('bots.urls', 'bots'), namespace='bots')),
-    path('exchanges/', include(('exchanges.urls', 'exchanges'), namespace='exchanges')),
+    path('accounts/', include(('apps.accounts.urls', 'apps.accounts'), namespace='accounts')),
+    path('bots/', include(('apps.bots.urls', 'apps.bots'), namespace='bots')),
+    path('exchanges/', include(('apps.exchanges.urls', 'apps.exchanges'), namespace='exchanges')),
 
 ]

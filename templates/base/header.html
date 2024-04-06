@@ -12,25 +12,15 @@
 
       <a class="navbar-item" href="{% url 'dashboard' %}">Dashboard</a>
 
-      <div class="navbar-item has-dropdown is-hoverable">
-        <a class="navbar-link">
-          Bots
-        </a>
-        <div class="navbar-dropdown">
-            <a class="navbar-item" href="{% url 'bot:bot_list' %}">Bots List</a>
-            <a class="navbar-item" href="{% url 'bot:bot_new' %}">Add New Bot</a>
-        </div>
-      </div>
+
+         <a class="navbar-item" href="{% url 'bot:bot_list' %}">Bots</a>
+
+
+
+
+              <a class="navbar-item" href="{% url 'exchange:exchange_list' %}">Exchanges</a>
 
       <div class="navbar-item has-dropdown is-hoverable">
-          <a class="navbar-link">
-          Exchanges
-          </a>
-          <div class="navbar-dropdown">
-              <a class="navbar-item" href="{% url 'exchange:exchange_list' %}">Exchanges List</a>
-              <a class="navbar-item" href="{% url 'exchange:exchange_new' %}">Add New Exchange</a>
-          </div>
-      </div>
 
         <div class="navbar-item has-dropdown is-hoverable">
             <a class="navbar-link">

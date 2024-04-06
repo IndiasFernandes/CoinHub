@@ -38,10 +38,10 @@ INSTALLED_APPS = [
     'django.contrib.messages',
     'django.contrib.staticfiles',
     'rest_framework',
-    'bots',
-    'exchanges',
-    'accounts',
-    'market',
+    'apps.bots',
+    'apps.exchanges',
+    'apps.accounts',
+    'apps.market',
     'widget_tweaks',
 ]
 

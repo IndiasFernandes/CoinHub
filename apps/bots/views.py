@@ -1,12 +1,13 @@
 from django.contrib import messages
-
 from .forms import BotForm
-from django.shortcuts import render, get_object_or_404
+from django.shortcuts import render
 from .models import Trade
-from django.shortcuts import get_object_or_404, redirect
-from django.urls import reverse
-from .models import Bot  # Assuming your model is named Bot
 from django.contrib.auth.decorators import login_required  # If you're using user authentication
+from django.shortcuts import redirect, get_object_or_404
+from django.urls import reverse
+from django.http import HttpResponseRedirect
+from .models import Bot
+from django.views.decorators.http import require_POST
 
 @login_required
 def bot_list(request):
@@ -48,3 +49,11 @@ def delete_bot(request, bot_id):
     else:
         # If not a POST request, redirect to bot detail page or show a confirmation page
         return redirect(reverse('bot:bot_detail', kwargs={'bot_id': bot_id}))
+
+@require_POST
+def toggle_bot_status(request, bot_id):
+    bot = get_object_or_404(Bot, pk=bot_id)
+    bot.is_active = not bot.is_active  # Toggle the is_active status
+    bot.save()
+
+    return HttpResponseRedirect(reverse('bots:bot_list'))  # Adjust 'bots:bot_list' to your actual bot listing URL name

@@ -4,6 +4,7 @@ from django.shortcuts import redirect
 from .forms import ExchangeForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
+from .models import ExchangeInfo
 
 @login_required
 def exchange_list(request):
@@ -25,3 +26,21 @@ def exchange_new(request):
     else:
         form = ExchangeForm()
     return render(request, 'pages/exchanges/exchange_new.html', {'form': form})
+
+
+
+
+@login_required
+def chart_view(request):
+
+    exchange_infos = ExchangeInfo.objects.all().order_by('timestamp')
+    timestamps = [info.timestamp.strftime("%Y-%m-%d %H:%M:%S") for info in exchange_infos]
+    account_values = [float(info.account_value) for info in exchange_infos]  # Convert to float
+    withdrawable_values = [float(info.withdrawable) for info in exchange_infos]  # New line
+
+    context = {
+        'timestamps': timestamps,
+        'account_values': account_values,
+        'withdrawable_values': withdrawable_values,  # New line
+    }
+    return render(request, 'pages/general/graphs/chart.html', context)

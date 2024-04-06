@@ -23,7 +23,16 @@
     </p>
     <ul class="menu-list">
         <li><a class="{% if section == 'exchanges' %}is-active{% endif %}" href="{% url 'exchange:exchange_list' %}">Exchange List</a></li>
+        <li><a href="{% url 'exchange:chart_view' %}">Chart</a></li>
         <li><a href="{% url 'exchange:exchange_new' %}">Add New Exchange</a></li>
+    </ul>
+
+    <!-- Market Menu -->
+    <p class="menu-label">
+        Market
+    </p>
+    <ul class="menu-list">
+        <li><a href="#">Data</a></li>
     </ul>
 
     <!-- Accounts Menu -->

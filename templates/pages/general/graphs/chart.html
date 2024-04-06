@@ -1,0 +1,46 @@
+
+
+{% extends 'base/base.html' %}
+
+{% block content %}
+
+<!-- Inside your template, e.g., `templates/yourapp/chart_template.html` -->
+<head>
+    <!-- Include Chart.js from CDN -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+</head>
+    <body>
+    <div>
+  <canvas id="myChart"></canvas>
+</div>
+    <script>
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const timestamps = {{ timestamps|safe }};
+    const accountValues = {{ account_values|safe }}.map(value => parseFloat(value));
+
+    const chart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: timestamps,
+            datasets: [
+                {
+                    label: 'Account Value',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    data: accountValues,
+                    fill: false,
+                },
+            ]
+        },
+        options: {
+            scales: {
+
+                y: {
+                    beginAtZero: false
+                }
+            }
+        }
+    });
+</script>
+</body>
+{% endblock %}

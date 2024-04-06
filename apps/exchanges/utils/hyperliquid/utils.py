@@ -1,3 +1,5 @@
+from datetime import datetime
+
 import eth_account
 from eth_account.signers.local import LocalAccount
 import json
@@ -5,6 +7,8 @@ import os
 
 from hyperliquid.exchange import Exchange
 from hyperliquid.info import Info
+
+from apps.exchanges.models import ExchangeInfo
 
 
 def print_dict(d, indent=0):
@@ -50,6 +54,7 @@ class BotAccount:
         account: LocalAccount = eth_account.Account.from_key(config["secret_key"])
         return account, config
 
+
     def get_account_address(self):
         address = self.config["account_address"]
         if address == "":
@@ -73,9 +78,38 @@ class BotAccount:
         print_dict(self.user_state)
         print("Margin summary:")
         print_dict(self.margin_summary)
-        print("Account address:", self.address)
+        print("User State:")
+        print_dict(self.user_state)
 
+    def update_exchange_info(self):
+        # Assuming self.user_state is up to date
+        self.user_state = self.info.user_state(self.address)
+        self.margin_summary = self.user_state["marginSummary"]
+        account_value = self.margin_summary["accountValue"]
+        total_margin_used = self.margin_summary["totalMarginUsed"]
+        total_net_position = self.margin_summary["totalNtlPos"]
+        total_raw_usd = self.margin_summary["totalRawUsd"]
+        withdrawable = self.user_state.get("withdrawable", 0)  # Fallback to 0 if not available
 
+        # Update class attributes
+        self.account_value = account_value
+        self.total_margin_used = total_margin_used
+        self.total_net_position = total_net_position
+        self.total_raw_usd = total_raw_usd
+        self.withdrawable = withdrawable
+
+        # Create a new ExchangeInfo record
+        exchange_info = ExchangeInfo.objects.create(
+            timestamp=datetime.now(),
+            account_value=account_value,
+            total_margin_used=total_margin_used,
+            total_net_position=total_net_position,
+            total_raw_usd=total_raw_usd,
+            withdrawable=withdrawable
+        )
+        print(f"Exchange information updated at {exchange_info.timestamp}")
+
+#
 def print_main(bot_account):
     print("\n=== Bot Account Overview ===\n")
     print(f"Account Address: {bot_account.address}")

@@ -1,5 +1,5 @@
 from django.shortcuts import render
-from bots.models import Bot, Trade
+from apps.bots.models import Bot, Trade
 
 def dashboard(request):
     bots = Bot.objects.all()

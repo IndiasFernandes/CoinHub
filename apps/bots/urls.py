@@ -8,4 +8,5 @@ urlpatterns = [
     path('<int:bot_id>/', views.bot_detail, name='bot_detail'),
     path('new/', views.bot_new, name='bot_new'),
     path('delete/<int:bot_id>/', views.delete_bot, name='delete_bot'),
+    path('toggle-status/<int:bot_id>/', views.toggle_bot_status, name='toggle_bot_status'),
 ]
