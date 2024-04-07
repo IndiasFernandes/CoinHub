@@ -1,0 +1,12 @@
+{% extends 'base/base.html' %}  {# or your base template #}
+
+{% block content %}
+  <h2>Delete Strategy</h2>
+  <p>Are you sure you want to delete "{{ object.name }}"?</p>
+
+  <form method="post">{% csrf_token %}
+    <input type="submit" value="Confirm">
+  </form>
+
+  <a href="{% url 'bots:strategy_list' %}">Cancel</a>
+{% endblock %}

@@ -1,0 +1,41 @@
+{% extends 'base/base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title">{% if form.instance.pk %}Edit Strategy{% else %}Create New Strategy{% endif %}</h1>
+        <form method="post">
+            {% csrf_token %}
+            <div class="field">
+                <label class="label">Name</label>
+                <div class="control">
+                    {{ form.name|add_class:"input" }}
+                </div>
+            </div>
+            <div class="field">
+                <label class="label">Type</label>
+                <div class="control">
+                    {{ form.strategy_type|add_class:"select" }}
+                </div>
+            </div>
+            <div class="field">
+                <label class="label">Position</label>
+                <div class="control">
+                    {{ form.position|add_class:"select" }}
+                </div>
+            </div>
+            <div class="field">
+                <label class="label">Code</label>
+                <div class="control">
+                    {{ form.logic|add_class:"textarea" }}
+                </div>
+            </div>
+            <div class="field">
+                <div class="control">
+                    <button type="submit" class="button is-link">Save</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</section>
+{% endblock %}

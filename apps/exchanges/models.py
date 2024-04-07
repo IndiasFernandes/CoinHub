@@ -25,6 +25,10 @@ class HistoricalData(models.Model):
     def __str__(self):
         return f'{self.market.symbol} {self.timestamp}'
 
+    class Meta:
+        verbose_name = "Historical Data"
+        verbose_name_plural = "Historical Data"
+
 class ExchangeInfo(models.Model):
     timestamp = models.DateTimeField(auto_now_add=True)
     account_value = models.DecimalField(max_digits=10, decimal_places=2)

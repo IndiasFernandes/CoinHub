@@ -2,11 +2,31 @@ from django.db import models
 from django.contrib.auth.models import User
 from apps.exchanges.models import Exchange, Market
 
+
 class Strategy(models.Model):
-    name = models.CharField(max_length=100)
+    STRATEGY_TYPE_CHOICES = [
+        ('BUY', 'Buy'),
+        ('SELL', 'Sell'),
+    ]
+    STRATEGY_POSITION_CHOICES = [
+        ('SHORT', 'Short'),
+        ('LONG', 'Long'),
+    ]
+
+    name = models.CharField(max_length=255)
     description = models.TextField()
+    strategy_type = models.CharField(max_length=4, choices=STRATEGY_TYPE_CHOICES, default='BUY')
+    position = models.CharField(max_length=5, choices=STRATEGY_POSITION_CHOICES, default='LONG')
+    logic = models.TextField(help_text="Python code for the strategy logic")
+    created_at = models.DateTimeField(auto_now_add=True)
+    updated_at = models.DateTimeField(auto_now=True)
+
     def __str__(self):
         return self.name
+
+    class Meta:
+        verbose_name = "Strategy"
+        verbose_name_plural = "Strategies"
 
 class Bot(models.Model):
     name = models.CharField(max_length=100)

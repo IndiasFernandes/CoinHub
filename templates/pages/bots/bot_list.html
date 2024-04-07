@@ -20,6 +20,8 @@
                         <p>Exchange: {{ bot.exchange.name }}</p>
                         <p>Market: {{ bot.market.name }}</p>
                         <p>Strategy: {{ bot.strategy.name }}</p>
+                        <p>Status: {% if bot.is_active %}Active{% else %}Inactive{% endif %}</p>
+                        <p>Logic: {{ bot.logic }}</p>
                     </div>
                     <form action="{% url 'bots:toggle_bot_status' bot.pk %}" method="post">
                         {% csrf_token %}

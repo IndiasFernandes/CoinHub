@@ -12,3 +12,10 @@ class BotForm(forms.ModelForm):
             'market': forms.Select(),
             'is_active': forms.CheckboxInput(),
         }
+
+
+
+class StrategyForm(forms.ModelForm):
+    class Meta:
+        model = Strategy
+        fields = ['name', 'strategy_type', 'position', 'logic']

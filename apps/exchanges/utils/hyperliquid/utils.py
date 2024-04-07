@@ -109,7 +109,7 @@ class BotAccount:
         )
         print(f"Exchange information updated at {exchange_info.timestamp}")
 
-#
+
 def print_main(bot_account):
     print("\n=== Bot Account Overview ===\n")
     print(f"Account Address: {bot_account.address}")
