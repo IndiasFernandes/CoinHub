@@ -2,20 +2,38 @@
 
 {% block content %}
 
-    <div class="container">
-        <div class="card">
-            <header class="card-header">
-                <p class="card-header-title">Exchange Detail: {{ exchange.name }}</p>
-            </header>
-            <div class="card-content">
-                <div class="content">
-                    <p><strong>Description:</strong> {{ exchange.description }}</p>
-                    <!-- Add more details as needed -->
-                </div>
+<div class="container">
+
+    <div class="card">
+        <header class="card-header">
+            <p class="card-header-title">Exchange: {{ exchange.name }}</p>
+        </header>
+        <div class="card-content">
+            <div class="content">
+                <p><strong>Description:</strong> {{ exchange.description }}</p>
+                <p><strong>Market:</strong> {{ market.market_type }}</p>
+                <!-- Add more details as needed -->
             </div>
-            <footer class="card-footer">
-                <a href="{% url 'exchange:exchange_list' %}" class="card-footer-item">Back to List</a>
-            </footer>
         </div>
+
+        {% for market in exchange.market_set.all %}
+        <div class="box" style="margin-top: 1rem;">
+            <p class="title is-4">Market: {{ market.market_type }}</p>
+            <!-- Using Bulma's tags for a stackable display -->
+            <div class="tags are-medium">
+                {% for coin in market.coins.all %}
+                <!-- Each coin symbol as a tag -->
+                <span class="tag is-primary is-light">{{ coin.symbol }}</span>
+                {% endfor %}
+            </div>
+            <a href="{% url 'exchange:update_market_coins' market.id %}" class="button is-info" style="margin-top: 0.5rem;">Update Coins</a>
+        </div>
+        {% endfor %}
+
+        <footer class="card-footer">
+            <a href="{% url 'exchange:exchange_list' %}" class="card-footer-item">Back to List</a>
+        </footer>
     </div>
+</div>
+
 {% endblock %}

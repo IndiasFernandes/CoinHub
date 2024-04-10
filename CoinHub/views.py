@@ -9,3 +9,6 @@ def dashboard(request):
     context = {'bots': bots, 'active_bots_count': active_bots_count, 'trades': trades}
 
     return render(request, 'pages/general/dashboard.html', context)
+
+def about(request):
+    return render(request, 'about.html')

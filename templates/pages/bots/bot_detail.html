@@ -10,16 +10,11 @@
             </header>
             <div class="card-content">
                 <div class="content">
-                    <p><strong>Strategy:</strong> {{ bot.strategy.name }}</p>
-                    <p><strong>Active:</strong> {{ bot.is_active|yesno:"Yes,No" }}</p>
                     <p><strong>Created:</strong> {{ bot.created_at|date:"Y-m-d H:i" }}</p>
                     <p><strong>Updated:</strong> {{ bot.updated_at|date:"Y-m-d H:i" }}</p>
-                    <p><strong>Start Balance:</strong> <span id="startBalance">{{ bot.start_balance }}</span></p>
-                    <p><strong>Balance:</strong> <span id="currentBalance">{{ bot.balance }}</span></p>
-                    <p><strong>Profit:</strong> <span id="profit"></span></p>
-                    <p><strong>Profit Percentage:</strong> <span id="profitPercentage"></span>%</p>
-                    <p><strong>Max Drawdown:</strong> {{ bot.max_drawdown }}</p>
-                    <p><strong>Max Drawdown Percentage:</strong> {{ bot.max_drawdown_percentage }}%</p>
+                    <br>
+                    <p><strong>Strategy:</strong> {{ bot.strategy.name }}</p>
+                    <p><strong>Active:</strong> {{ bot.is_active|yesno:"Yes,No" }}</p>
                 </div>
             </div>
         </div>

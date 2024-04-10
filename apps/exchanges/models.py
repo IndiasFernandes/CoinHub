@@ -8,11 +8,17 @@ class Exchange(models.Model):
     def __str__(self):
         return self.name
 
-class Market(models.Model):
-    exchange = models.ForeignKey(Exchange, on_delete=models.CASCADE)
-    symbol = models.CharField(max_length=10)  # Example: BTC/USD
+class Coin(models.Model):
+    symbol = models.CharField(max_length=10)  # Example: BTC, ETH
     def __str__(self):
         return self.symbol
+
+class Market(models.Model):
+    exchange = models.ForeignKey(Exchange, on_delete=models.CASCADE)
+    market_type = models.CharField(max_length=20, default='spot')  # Add a field for market type
+    coins = models.ManyToManyField(Coin, related_name='markets')
+    def __str__(self):
+        return f"{self.exchange.name} - {self.market_type}"
 
 class HistoricalData(models.Model):
     market = models.ForeignKey(Market, on_delete=models.CASCADE)
@@ -22,8 +28,11 @@ class HistoricalData(models.Model):
     low_price = models.DecimalField(max_digits=15, decimal_places=5)
     volume = models.DecimalField(max_digits=15, decimal_places=5)
     timestamp = models.DateTimeField()
+
     def __str__(self):
-        return f'{self.market.symbol} {self.timestamp}'
+        # Assuming you want to list all related coins' symbols:
+        coins_symbols = ", ".join([coin.symbol for coin in self.market.coins.all()])
+        return f'Market: {self.market.exchange.name} - {self.market.market_type}, Coins: {coins_symbols}, Timestamp: {self.timestamp}'
 
     class Meta:
         verbose_name = "Historical Data"

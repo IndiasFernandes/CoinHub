@@ -1,47 +1,62 @@
+
 <aside class="menu">
-    <!-- Main Menu -->
-    <p class="menu-label">
-        General
-    </p>
-    <ul class="menu-list">
-        <li><a class="navbar-item" href="{% url 'dashboard' %}">Dashboard</a></li>
 
-    </ul>
-
+    {% if current_section == 'bots' %}
     <!-- Bots Menu -->
     <p class="menu-label">
         Bots
     </p>
     <ul class="menu-list">
-        <li><a class="{% if section == 'bots' %}is-active{% endif %}" href="{% url 'bot:bot_list' %}">Bots List</a></li>
-        <li><a href="{% url 'bot:bot_new' %}">Add New Bot</a></li>
-        <li><a href="{% url 'bot:strategy_list' %}">Strategies</a></li>
+        <li><a class="{% if section == 'bots' %}is-active{% endif %}" href="{% url 'bot:bot_list' %}">See All</a></li>
+        <li><a href="{% url 'bot:bot_new' %}">Add New</a></li>
     </ul>
 
+    <p class="menu-label">
+        Strategies
+    </p>
+    <ul class="menu-list">
+        <li><a href="{% url 'bot:strategy_list' %}">See All</a></li>
+        <li><a href="{% url 'bot:strategy_create' %}">Add New</a></li>
+    </ul>
+    {% endif %}
+
+    {% if current_section == 'market' %}
+
+    <!-- Market Menu -->
+<p class="menu-label">
+        Market
+    </p>
+    <ul class="menu-list">
+        <li><a class="{% if section == 'market' %}is-active{% endif %}" href="{% url 'market:market_list' %}">Market Analysis</a></li>
+        <li><a href="{% url 'market:market_new' %}">Exchanges Coins</a></li>
+    </ul>
+    <p class="menu-label">
+        Exchanges
+    </p>
+    <ul class="menu-list">
+        <li><a class="{% if section == 'exchanges' %}is-active{% endif %}" href="{% url 'exchange:exchange_list' %}">See All</a></li>
+        <li><a href="{% url 'exchange:exchange_new' %}">Add New</a></li>
+    </ul>
+    {% endif %}
+    {% if current_section == 'exchanges' %}
     <!-- Exchanges Menu -->
     <p class="menu-label">
         Exchanges
     </p>
     <ul class="menu-list">
-        <li><a class="{% if section == 'exchanges' %}is-active{% endif %}" href="{% url 'exchange:exchange_list' %}">Exchange List</a></li>
-        <li><a href="{% url 'exchange:chart_view' %}">Chart</a></li>
-        <li><a href="{% url 'exchange:exchange_new' %}">Add New Exchange</a></li>
+        <li><a class="{% if section == 'exchanges' %}is-active{% endif %}" href="{% url 'exchange:exchange_list' %}">See All</a></li>
+        <li><a href="{% url 'exchange:exchange_new' %}">Add New</a></li>
     </ul>
-
-    <!-- Market Menu -->
+    {% endif %}
+    {% if current_section == 'users' %}
+    <!-- Users Menu -->
     <p class="menu-label">
-        Market
+        Users
     </p>
     <ul class="menu-list">
-        <li><a href="#">Data</a></li>
+        <li><a class="{% if section == 'users' %}is-active{% endif %}" href="{% url 'user:user_list' %}">See All</a></li>
     </ul>
+    {% endif %}
 
-    <!-- Accounts Menu -->
-    <p class="menu-label">
-        Account
-    </p>
-    <ul class="menu-list">
-        <li><a href="{% url 'accounts:login' %}">Login</a></li>
-        <li><a href="{% url 'accounts:register' %}">Register</a></li>
-    </ul>
+    <!-- Other sections as needed -->
 </aside>

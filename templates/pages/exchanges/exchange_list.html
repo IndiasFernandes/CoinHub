@@ -1,27 +1,45 @@
 {% extends 'base/base.html' %}
 
 {% block content %}
+<style>
+    .exchange-list-title {
+        font-size: 1.5rem; /* Adjusted title font size for emphasis */
+        text-align: center; /* Center-align the title */
+        margin-bottom: 1rem; /* Space below the title */
+    }
+    .add-exchange-button {
+        display: block;
+        width: fit-content;
+        margin: 0 auto 1.5rem; /* Center the button and add space below it */
+    }
+    .exchange-item {
+        margin-bottom: 1rem; /* Space between exchange items */
+    }
+    .details-button {
+        margin-top: 0.5rem; /* Space above the details button */
+    }
+</style>
 
-    <div class="container">
-        <h2 class="title">Exchange List</h2>
-        <a href="{% url 'exchange:exchange_new' %}" class="button is-primary">Add New Exchange</a>
-        <div class="box">
-            {% for exchange in exchanges %}
-            <article class="media">
-                <div class="media-content">
-                    <div class="content">
-                        <p>
-                            <strong>{{ exchange.name }}</strong>
-                            <br>
-                            <a href="{% url 'exchange:exchange_detail' exchange.id %}" class="button is-info is-small">Details</a>
-                        </p>
-                    </div>
+<div class="container">
+    <h2 class="title exchange-list-title">Exchange List</h2>
+    <a href="{% url 'exchange:exchange_new' %}" class="button is-primary add-exchange-button">Add New Exchange</a>
+    <div class="box">
+        {% for exchange in exchanges %}
+        <article class="media exchange-item">
+            <div class="media-content">
+                <div class="content">
+                    <p>
+                        <strong>{{ exchange.name }}</strong>
+                        <br>
+                        <a href="{% url 'exchange:exchange_detail' exchange.id %}" class="button is-info is-small details-button">Details</a>
+                    </p>
                 </div>
-            </article>
-            {% empty %}
-            <p>No exchanges found.</p>
-            {% endfor %}
-        </div>
+            </div>
+        </article>
+        {% empty %}
+        <p>No exchanges found.</p>
+        {% endfor %}
     </div>
+</div>
 
 {% endblock %}

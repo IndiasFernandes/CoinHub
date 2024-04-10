@@ -1,0 +1,90 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Welcome to CoinHub</title>
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@0.9.3/css/bulma.min.css">
+</head>
+<body>
+
+<section class="hero is-primary is-bold">
+  <div class="hero-body">
+    <div class="container">
+      <h1 class="title">
+        Welcome to CoinHub
+      </h1>
+      <h2 class="subtitle">
+        Your one-stop solution for automated cryptocurrency trading.
+      </h2>
+    </div>
+  </div>
+</section>
+
+<section class="section">
+    <div class="container">
+        <div class="columns">
+            <div class="column is-one-third">
+                <div class="card">
+                    <div class="card-content">
+                        <p class="title">
+                            Create Your Strategy
+                        </p>
+                        <p class="subtitle">
+                            Customize your trading strategies with our intuitive tools.
+                        </p>
+                    </div>
+                    <footer class="card-footer">
+                        <a href="{% url 'bots:strategy_create' %}" class="card-footer-item">Get Started</a>
+                    </footer>
+                </div>
+            </div>
+
+            <div class="column is-one-third">
+                <div class="card">
+                    <div class="card-content">
+                        <p class="title">
+                            Manage Your Bots
+                        </p>
+                        <p class="subtitle">
+                            Control and optimize your automated trading bots.
+                        </p>
+                    </div>
+                    <footer class="card-footer">
+                        <a href="{% url 'bots:bot_new' %}" class="card-footer-item">Manage Bots</a>
+                    </footer>
+                </div>
+            </div>
+
+            <div class="column is-one-third">
+                <div class="card">
+                    <div class="card-content">
+                        <p class="title">
+                            View Market Data
+                        </p>
+                        <p class="subtitle">
+                            Analyze real-time market data to make informed decisions.
+                        </p>
+                    </div>
+                    <footer class="card-footer">
+                        <a href="#" class="card-footer-item">Explore Data</a>
+                    </footer>
+                </div>
+            </div>
+        </div>
+    </div>
+</section>
+
+<footer class="footer">
+  <div class="content has-text-centered">
+    <p>
+      <strong>CoinHub</strong> by <a href="https://innerflect.com">InnerFlect</a>. The source code is licensed
+      <a href="http://opensource.org/licenses/mit-license.php">MIT</a>. The website content
+      is licensed <a href="http://creativecommons.org/licenses/by-nc-sa/4.0/">CC BY NC SA 4.0</a>.
+    </p>
+  </div>
+</footer>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
+</body>
+</html>

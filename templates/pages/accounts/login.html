@@ -1,49 +1,44 @@
 {% extends 'base/base.html' %}
 
 {% block content %}
-
-    <div class="box">
-        <h1 class="title">Login</h1>
-
-        <form method="post">
-            {% csrf_token %}
-            <div class="field">
-                <label class="label">Username</label>
-                    <div class="control">
-      <input class="input" type="text" placeholder="e.g. helloHuman" name="username" required/>
+<style>
+    .small-label {
+        font-size: 0.9rem; /* Adjust label font size */
+    }
+    .centered-button {
+        display: flex;
+        justify-content: center;
+        margin-top: 1rem; /* Additional spacing before the button */
+    }
+</style>
+<div class="container">
+    <div class="columns is-centered">
+        <div class="column is-half">
+            <div class="box">
+                <h1 class="title" style="font-size: 1.5rem;">Login</h1> <!-- Adjusted title font size -->
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="field">
+                        <label class="label small-label">Username</label> <!-- Applied small-label class -->
+                        <div class="control">
+                            <input class="input" type="text" placeholder="e.g. helloHuman" name="username" required/>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label small-label">Password</label> <!-- Applied small-label class -->
+                        <div class="control">
+                            <input class="input" type="password" placeholder="********" name="password" required/>
+                        </div>
+                    </div>
+                    <div class="control centered-button"> <!-- Applied centered-button class -->
+                        <button class="button is-primary">Sign in</button>
+                    </div>
+                    {% if error %}
+                    <p class="help is-danger">{{ error }}</p>
+                    {% endif %}
+                </form>
+            </div>
+        </div>
     </div>
-
-                <div class="field">
-    <label class="label">Password</label>
-    <div class="control">
-      <input class="input" type="password" placeholder="********" name="password" required/>
-    </div>
-  </div>
-
-            <button class="button is-primary">Sign in</button>
-            {% if error %}
-            <p class="help is-danger">{{ error }}</p>
-            {% endif %}
-        </form>
-
-
+</div>
 {% endblock %}
-
-
-<form class="box">
-  <div class="field">
-    <label class="label">Email</label>
-    <div class="control">
-      <input class="input" type="email" placeholder="e.g. alex@example.com" />
-    </div>
-  </div>
-
-  <div class="field">
-    <label class="label">Password</label>
-    <div class="control">
-      <input class="input" type="password" placeholder="********" />
-    </div>
-  </div>
-
-  <button class="button is-primary">Sign in</button>
-</form>

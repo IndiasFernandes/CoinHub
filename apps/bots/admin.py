@@ -14,3 +14,4 @@ class BotAdmin(admin.ModelAdmin):
 class TradeAdmin(admin.ModelAdmin):
     list_display = ('bot', 'market', 'volume', 'price', 'fee', 'leverage', 'trade_type', 'timestamp')
     list_filter = ('bot', 'timestamp', 'trade_type')
+

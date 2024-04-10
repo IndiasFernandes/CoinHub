@@ -13,20 +13,23 @@ from .models import Strategy
 from django.urls import reverse_lazy
 from django.views.generic.edit import CreateView
 from .forms import StrategyForm  # Import your custom form class
+from django.urls import reverse_lazy
+from django.views.generic import ListView, CreateView, UpdateView, DeleteView
 
 
 @login_required
 def bot_list(request):
-    # Fetch bots that belong to the current user
     bots = Bot.objects.filter(user=request.user)
-    return render(request, 'pages/bots/bot_list.html', {'bots': bots})
-
+    return render(request, 'pages/bots/bot_list.html', {
+        'bots': bots,
+        'current_section': 'bots'  # Pass the current section
+    })
 @login_required
 def bot_detail(request, bot_id):
     bot = get_object_or_404(Bot, pk=bot_id, user=request.user)  # Ensure the bot belongs to the logged-in user
     trades = Trade.objects.filter(bot=bot).order_by('-timestamp')  # Fetch trades related to the bot, newest first
 
-    return render(request, 'pages/bots/bot_detail.html', {'bot': bot, 'trades': trades})
+    return render(request, 'pages/bots/bot_detail.html', {'bot': bot, 'trades': trades, 'current_section': 'bots'})
 
 @login_required
 def bot_new(request):
@@ -40,7 +43,7 @@ def bot_new(request):
             return redirect('bot:bot_detail', bot_id=bot.pk)
     else:
         form = BotForm()
-    return render(request, 'pages/bots/bot_new.html', {'form': form})
+    return render(request, 'pages/bots/bot_new.html', {'form': form, 'current_section': 'bots'})
 
 
 @login_required
@@ -54,7 +57,7 @@ def delete_bot(request, bot_id):
         return render(request, 'pages/bots/bot_list.html', {'bots': bots})
     else:
         # If not a POST request, redirect to bot detail page or show a confirmation page
-        return redirect(reverse('bot:bot_detail', kwargs={'bot_id': bot_id}))
+        return redirect(reverse('bot:bot_detail', kwargs={'bot_id': bot_id, 'current_section': 'bots'}))
 
 @require_POST
 def toggle_bot_status(request, bot_id):
@@ -68,26 +71,35 @@ def toggle_bot_status(request, bot_id):
 
     return HttpResponseRedirect(reverse('bots:bot_list'))  # Adjust 'bots:bot_list' to your actual bot listing URL name
 
-class StrategyListView(ListView):
+class CurrentSectionMixin:
+    current_section = None
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        if self.current_section:
+            context['current_section'] = self.current_section
+        return context
+
+class StrategyListView(CurrentSectionMixin, ListView):
     model = Strategy
     template_name = 'pages/bots/strategy_list.html'
+    current_section = 'bots'
 
-
-class StrategyCreateView(CreateView):
+class StrategyCreateView(CurrentSectionMixin, CreateView):
     form_class = StrategyForm
     template_name = 'pages/bots/strategy_form.html'
     success_url = reverse_lazy('bots:strategy_list')
-    # Don't include 'fields' here
+    current_section = 'bots'
 
-class StrategyEditView(UpdateView):
+class StrategyEditView(CurrentSectionMixin, UpdateView):
     model = Strategy
-    fields = ['name', 'strategy_type', 'position', 'code']
+    form_class = StrategyForm
     template_name = 'pages/bots/strategy_form.html'
-    form_class = BotForm
-    success_url = reverse_lazy('bots:strategy_list')  # Redirect to the strategy list after editing
+    success_url = reverse_lazy('bots:strategy_list')
+    current_section = 'bots'
 
-class StrategyDeleteView(DeleteView):
+class StrategyDeleteView(CurrentSectionMixin, DeleteView):
     model = Strategy
     template_name = 'pages/bots/strategy_confirm_delete.html'
-    success_url = reverse_lazy('bots:strategy_list')  # Redirect to the strategy list after deletion
-    # template_name = 'bots/strategy_confirm_delete.html'  # If you have a confirmation template
+    success_url = reverse_lazy('bots:strategy_list')
+    current_section = 'bots'

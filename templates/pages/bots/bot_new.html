@@ -1,45 +1,54 @@
 {% extends 'base/base.html' %}
 {% load widget_tweaks %}
 {% block content %}
+<style>
+    .small-label {
+        font-size: 0.9rem; /* Adjust label font size for consistency */
+    }
+    .centered-button {
+        display: flex;
+        justify-content: center; /* Center the button within the form */
+    }
+    /* Ensure checkboxes are styled appropriately */
+    .checkbox-wrapper {
+        margin-top: 0.5rem;
+    }
+</style>
+
 <div class="container">
-    <h1 class="title">Create New Bot</h1>
-    <form method="post" class="box">
-        {% csrf_token %}
-        <div class="field">
-            <label class="label">Name</label>
-            <div class="control">
-                {{ form.name|add_class:"input" }}
+    <div class="columns is-centered">
+        <div class="column is-half">
+            <div class="box">
+                <h2 class="title" style="font-size: 1.5rem;">Create New Bot</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="field {% if field.name == 'is_active' %}checkbox-wrapper{% endif %}">
+                        <label class="label small-label">{{ field.label }}</label>
+                        <div class="control">
+                            {% if field.name == 'is_active' %}
+                                <!-- Special handling for boolean checkbox -->
+                                {{ field|add_class:"checkbox" }}
+                            {% else %}
+                                {{ field|add_class:"input" }}
+                            {% endif %}
+                        </div>
+                        {% if field.help_text %}
+                            <p class="help">{{ field.help_text }}</p>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <p class="help is-danger">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                    <div class="field">
+                        <div class="control centered-button">
+                            <button type="submit" class="button is-link">Create Bot</button>
+                        </div>
+                    </div>
+                </form>
             </div>
         </div>
-        <div class="field">
-            <label class="label">Exchange</label>
-            <div class="control">
-                {{ form.exchange|add_class:"input" }}
-            </div>
-        </div>
-        <div class="field">
-            <label class="label">Market</label>
-            <div class="control">
-                {{ form.market|add_class:"input" }}
-            </div>
-        </div>
-        <div class="field">
-            <label class="label">Strategy</label>
-            <div class="control">
-                {{ form.strategy|add_class:"input" }}
-            </div>
-        </div>
-        <div class="field">
-            <label class="label">Active</label>
-            <div class="control">
-                {{ form.is_active|add_class:"checkbox" }}
-            </div>
-        </div>
-        <div class="field is-grouped">
-            <div class="control">
-                <button type="submit" class="button is-link">Create Bot</button>
-            </div>
-        </div>
-    </form>
+    </div>
 </div>
 {% endblock %}
