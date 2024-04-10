@@ -5,3 +5,5 @@ djangorestframework
 django-widget-tweaks
 hyperliquid-python-sdk
 eth_account
+celery
+redis
