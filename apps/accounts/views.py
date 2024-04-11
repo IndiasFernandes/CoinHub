@@ -18,7 +18,7 @@ def login_view(request):
 
 def logout_view(request):
     logout(request)
-    return redirect('login')
+    return render(request, 'pages/accounts/login.html')
 
 def register_view(request):
     if request.method == 'POST':
@@ -26,7 +26,7 @@ def register_view(request):
         if form.is_valid():
             form.save()
             # log the user in
-            return redirect('login')
+            return render(request, 'pages/accounts/login.html')
     else:
         form = UserCreationForm()
     return render(request, 'pages/accounts/register.html', {'form': form})

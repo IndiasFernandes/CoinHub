@@ -1,6 +1,7 @@
 # exchanges/models.py
 from django.db import models
 
+
 class Exchange(models.Model):
     name = models.CharField(max_length=100)
     description = models.TextField()

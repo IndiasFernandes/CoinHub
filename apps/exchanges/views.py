@@ -1,6 +1,5 @@
 from django.contrib import messages
 from django.shortcuts import render
-from .models import Exchange
 from django.shortcuts import redirect
 from .forms import ExchangeForm
 from django.contrib.auth.decorators import login_required
@@ -8,7 +7,7 @@ from django.shortcuts import get_object_or_404
 from .models import ExchangeInfo
 import requests
 from .models import Exchange, Market, Coin
-from .utils.hyperliquid.utils import BotAccount, print_main
+from .utils.hyperliquid.bot import BotAccount
 
 
 @login_required

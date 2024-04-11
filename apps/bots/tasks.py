@@ -1,6 +1,6 @@
 # tasks.py in your bots app
 from django.utils import timezone
-from ..exchanges.utils.hyperliquid.utils import BotAccount
+from ..exchanges.utils.hyperliquid.bot import BotAccount
 from celery import shared_task
 from .models import Bot
 import time
@@ -17,9 +17,6 @@ def update_bot_status_and_values(bot_id):
         print(f"Bot updated at {bot.updated_at}")
         time.sleep(5)
 
-
-
-
 @shared_task(bind=True)
 def run_bot_loop(self, bot_id, sleep_time):
     try:
@@ -31,6 +28,7 @@ def run_bot_loop(self, bot_id, sleep_time):
     bot.task_id = self.request.id
     bot.save(update_fields=['task_id'])
     bot_account = BotAccount()
+    bot_account.test_functions()
     while bot.is_active:
 
         # Your bot's operational logic here

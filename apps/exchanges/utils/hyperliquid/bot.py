@@ -1,52 +1,34 @@
 from datetime import datetime
-
 import eth_account
 from eth_account.signers.local import LocalAccount
 import json
 import os
-
 from hyperliquid.exchange import Exchange
 from hyperliquid.info import Info
-
 from apps.exchanges.models import ExchangeInfo
+from apps.exchanges.utils.utils import print_dict
 
-
-def print_dict(d, indent=0):
-    """
-    Recursively prints nested dictionaries.
-    Parameters:
-    - d (dict): The dictionary to print.
-    - indent (int): The current indentation level for pretty printing.
-    """
-    for key, value in d.items():
-        print('    ' * indent + str(key) + ':', end=' ')
-        if isinstance(value, dict):
-            print()  # Move to next line before printing nested dictionary
-            print_dict(value, indent + 1)  # Recursive call with increased indent
-        elif isinstance(value, list):
-            print()  # List will be processed item by item
-            for i, item in enumerate(value):
-                if isinstance(item, dict):
-                    print('    ' * (indent + 1) + f"Item {i + 1}:")
-                    print_dict(item, indent + 2)
-                else:
-                    print('    ' * (indent + 1) + str(item))
-        else:
-            print(value)
 
 class BotAccount:
     def __init__(self, base_url=None, skip_ws=False):
+
+        # Initialize the BotAccount class
         self.base_url = base_url
         self.skip_ws = skip_ws
         self.config_path = os.path.join(os.path.dirname(__file__), "config.json")
         self.account, self.config = self.load_account_config()
         self.address = self.get_account_address()
+
+        # Initialize the Info class
         self.info = Info(self.base_url, self.skip_ws)
+
+        # Initialize state information
         self.user_state = self.info.user_state(self.address)
         self.spot_meta = self.info.spot_meta()
         self.margin_summary = self.user_state["marginSummary"]
         self.check_account_value()
         self.exchange = Exchange(self.account, self.base_url, account_address=self.address)
+
         print(f"Exchange created for account {self.address}")
 
     def load_account_config(self):
@@ -135,74 +117,51 @@ class BotAccount:
         # print(f"All Mids: {self.all_mids}")
         return self.all_mids
 
-
     def test_functions(self):
 
+        # Test and print results for various information functions
         self.info = Info(self.base_url, self.skip_ws)
-        self.user_state = self.info.user_state(self.address)
-        self.spot_user_state = self.info.spot_user_state(self.address)
-        self.open_orders = self.info.open_orders(self.address)
-        self.frontend_open_orders = self.info.frontend_open_orders(self.address)
-        self.all_mids = self.info.all_mids()
-        self.user_fills = self.info.user_fills(self.address)
-        self.meta = self.info.meta()
-        self.spot_meta = self.info.spot_meta()
-        self.funding_history = self.info.funding_history('coin', 0)
-        self.user_funding_history = self.info.user_funding_history(self.address, 0)
-        self.l2_snapshot = self.info.l2_snapshot('coin')
-        self.candles_snapshot = self.info.candles_snapshot('coin', 'interval', 0, 0)
-        self.query_order_by_oid = self.info.query_order_by_oid(self.address, 0)
-        self.query_order_by_cloid = self.info.query_order_by_cloid(self.address, 0)
-        self.query_referral_state = self.info.query_referral_state(self.address)
-        self.query_sub_accounts = self.info.query_sub_accounts(self.address)
+        print("Testing Info functions...\n")
+
+        # User State
+        user_state = self.info.user_state(self.address)
+        print(
+            f"User State: Account value: {user_state['marginSummary']['accountValue']}, Withdrawable: {user_state['withdrawable']}")
+
+        # Spot User State
+        spot_user_state = self.info.spot_user_state(self.address)
+        print(f"Spot User State: Balances: {spot_user_state['balances']}")
+
+        # Open Orders
+        open_orders = self.info.open_orders(self.address)
+        print(f"Open Orders: {open_orders}")
+
+        # Frontend Open Orders
+        frontend_open_orders = self.info.frontend_open_orders(self.address)
+        print(f"Frontend Open Orders: {frontend_open_orders}")
+
+        # All Mids
+        all_mids = self.info.all_mids()
+        print(f"All Mids: {len(all_mids)} market identifiers available.")
+
+        # User Fills
+        user_fills = self.info.user_fills(self.address)
+        print(f"User Fills: {len(user_fills)} fills recorded.")
+
+        # Meta
+        meta = self.info.meta()
+        print(f"Meta: {len(meta['universe'])} tokens in the trading universe.")
+
+        # Spot Meta
+        spot_meta = self.info.spot_meta()
+        print(f"Spot Meta: {len(spot_meta['tokens'])} tokens available for spot trading.")
 
 
-
-        # Test each one of the functions below, by printing it result after calling.
-        print(f"User State: {self.user_state(self.address)}")
-        print(f"Spot User State: {self.spot_user_state(self.address)}")
-        print(f"Open Orders: {self.open_orders(self.address)}")
-        print(f"Frontend Open Orders: {self.frontend_open_orders(self.address)}")
-        print(f"All Mids: {self.all_mids()}")
-        print(f"User Fills: {self.user_fills(self.address)}")
-        print(f"Meta: {self.meta}")
-        print(f"Spot Meta: {self.spot_meta}")
-        print(f"Funding History: {self.funding_history('coin', 0)}")
-        print(f"User Funding History: {self.user_funding_history(self.address, 0)}")
-        print(f"L2 Snapshot: {self.l2_snapshot('coin')}")
-        print(f"Candles Snapshot: {self.candles_snapshot('coin', 'interval', 0, 0)}")
-        print(f"Query Order by OID: {self.query_order_by_oid(self.address, 0)}")
-        print(f"Query Order by CLOID: {self.query_order_by_cloid(self.address, 0)}")
-        print(f"Query Referral State: {self.query_referral_state(self.address)}")
-        print(f"Query Sub Accounts: {self.query_sub_accounts(self.address)}")
-
-
-
-def print_main(bot_account):
-    print("\n=== Bot Account Overview ===\n")
-    print(f"Account Address: {bot_account.address}")
-    if hasattr(bot_account.account, 'address') and bot_account.account.address != bot_account.address:
-        print(f"Agent Address: {bot_account.account.address}")
-
-    print(f"\nConfig File Path: {bot_account.config_path}")
-    print("\nConfig Details:")
-    print_dict(bot_account.config)
-
-    print("\nExchange Base URL:", bot_account.exchange.base_url)
-    print("Exchange Account Address:", bot_account.exchange.account_address)
-
-    print("\n=== Financial Overview ===")
-    print("Margin Summary:")
-    print_dict(bot_account.margin_summary)
-
-    print("\nAsset Positions:")
-    if bot_account.user_state['assetPositions']:
-        print_dict({'assetPositions': bot_account.user_state['assetPositions']})
-    else:
-        print("No active positions.")
-
-    print("\nWithdrawable Amount:", bot_account.user_state.get('withdrawable', 'N/A'))
-
-
-# Assuming bot_account is an instance of BotAccount with all necessary information loaded
-
+        # self.funding_history = self.info.funding_history('BTCUSDT', 0)
+        # self.user_funding_history = self.info.user_funding_history(self.address, 0)
+        # self.l2_snapshot = self.info.l2_snapshot('BTCUSDT')
+        # self.candles_snapshot = self.info.candles_snapshot('BTCUSDT', '5m', 0, 0)
+        # self.query_order_by_oid = self.info.query_order_by_oid(self.address, 0)
+        # self.query_order_by_cloid = self.info.query_order_by_cloid(self.address, 0)
+        # self.query_referral_state = self.info.query_referral_state(self.address)
+        # self.query_sub_accounts = self.info.query_sub_accounts(self.address)

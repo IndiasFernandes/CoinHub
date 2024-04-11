@@ -1,6 +1,6 @@
 from django.core.management.base import BaseCommand
 import time
-from apps.exchanges.utils.hyperliquid.utils import BotAccount  # Import your BotAccount or equivalent
+from apps.exchanges.utils.utils import BotAccount  # Import your BotAccount or equivalent
 
 class Command(BaseCommand):
     help = 'Records exchange information to the database every 5 minutes.'

@@ -7,3 +7,5 @@ hyperliquid-python-sdk
 eth_account
 celery
 redis
+ccxt
+pandas
