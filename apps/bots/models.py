@@ -41,6 +41,7 @@ class Bot(models.Model):
     max_drawdown = models.DecimalField(max_digits=15, decimal_places=5, null=True, blank=True)
     max_drawdown_percentage = models.DecimalField(max_digits=15, decimal_places=5, null=True, blank=True)
     is_active = models.BooleanField(default=False)
+    task_id = models.CharField(max_length=50, blank=True, null=True)
     def __str__(self):
         return f'{self.user.username} {self.exchange.name} {self.market.symbol}'
 

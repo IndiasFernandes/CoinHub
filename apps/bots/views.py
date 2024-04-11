@@ -1,20 +1,16 @@
-from celery import shared_task
-from django.db import transaction
-
 from .forms import BotForm
 from django.shortcuts import render
 from .models import Trade
-from django.contrib.auth.decorators import login_required  # If you're using user authentication
 from .models import Strategy
 from .forms import StrategyForm  # Import your custom form class
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.contrib import messages
-from django.shortcuts import redirect, get_object_or_404
 from django.urls import reverse
+from django.shortcuts import redirect, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from CoinHub.celery import app  # Import the Celery app instance
 from .models import Bot
-from django.http import HttpResponseRedirect
-from .tasks import update_bot_status_and_values
 
 @login_required
 def bot_list(request):
@@ -59,25 +55,25 @@ def delete_bot(request, bot_id):
         return redirect(reverse('bot:bot_detail', kwargs={'bot_id': bot_id, 'current_section': 'bots'}))
 
 
-@shared_task
+@login_required
 def toggle_bot_status(request, bot_id):
-    with transaction.atomic():
-        bot = get_object_or_404(Bot, pk=bot_id, user=request.user)
-        print(f"Bot is active:  ({bot.is_active})")
-        bot.is_active = not bot.is_active
-        bot.save()
-        print(f"Bot is  active: ({bot.is_active})")
+    bot = get_object_or_404(Bot, pk=bot_id, user=request.user)
+    bot.is_active = not bot.is_active
+    bot.save()
 
-        if bot.is_active:
-            messages.success(request, f'Bot {bot.name} has been activated!')
-            # Schedule the task for immediate execution and then every 5 minutes
-            update_bot_status_and_values.apply_async((bot.id,), countdown=1 * 10)  # Adjust as necessary
-        else:
-            messages.success(request, f'Bot {bot.name} has been deactivated!')
-            # Assuming you have a mechanism to stop the task or check within the task if the bot is still active
-            # revoke(task_id, terminate=True)  # You would need to store and retrieve task_id when starting the task
+    if bot.is_active:
+        messages.success(request, f'Bot {bot.name} has been activated!')
+        # Start the bot loop task
+        task = app.send_task('apps.bots.tasks.run_bot_loop', args=[bot.id, 30])
+    else:
+        messages.success(request, f'Bot {bot.name} has been deactivated!')
+        # Stop the bot loop task if it's running
+        if bot.task_id:
+            app.control.revoke(bot.task_id, terminate=True)
+            bot.task_id = ''
+            bot.save(update_fields=['task_id'])
 
-        return HttpResponseRedirect(reverse('bots:bot_list'))
+    return redirect('bots:bot_list')
 class CurrentSectionMixin:
     current_section = None
 

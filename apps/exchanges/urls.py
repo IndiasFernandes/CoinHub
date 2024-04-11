@@ -9,6 +9,5 @@ urlpatterns = [
     path('new/', exchange_new, name='exchange_new'),
     path('chart/', chart_view, name='chart_view'),
     path('market/<int:market_id>/update_coins/', update_market_coins, name='update_market_coins'),
-
     # Add other exchange-related URL patterns here
 ]

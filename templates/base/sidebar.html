@@ -36,6 +36,7 @@
     <ul class="menu-list">
         <li><a class="{% if section == 'exchanges' %}is-active{% endif %}" href="{% url 'exchange:exchange_list' %}">See All</a></li>
         <li><a href="{% url 'exchange:exchange_new' %}">Add New</a></li>
+
     </ul>
     {% endif %}
     {% if current_section == 'exchanges' %}
@@ -46,6 +47,7 @@
     <ul class="menu-list">
         <li><a class="{% if section == 'exchanges' %}is-active{% endif %}" href="{% url 'exchange:exchange_list' %}">See All</a></li>
         <li><a href="{% url 'exchange:exchange_new' %}">Add New</a></li>
+        <li><a href="{% url 'exchange:chart_view' %}">Chart</a></li>
     </ul>
     {% endif %}
     {% if current_section == 'users' %}
