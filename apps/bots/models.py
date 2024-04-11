@@ -31,8 +31,8 @@ class Strategy(models.Model):
 class Bot(models.Model):
     name = models.CharField(max_length=100)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
-    exchange = models.ForeignKey(Exchange, on_delete=models.CASCADE)
-    market = models.ForeignKey(Market, on_delete=models.SET_NULL, null=True)
+    exchange = models.ForeignKey(Exchange, on_delete=models.SET_NULL, blank=True, null=True)
+    market = models.ForeignKey(Market, on_delete=models.SET_NULL, null=True, blank=True)
     strategy = models.ForeignKey(Strategy, on_delete=models.SET_NULL, null=True)
     created_at = models.DateTimeField(auto_now_add=True)
     updated_at = models.DateTimeField(auto_now=True)
