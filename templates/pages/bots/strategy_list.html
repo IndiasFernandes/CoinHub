@@ -1,0 +1,35 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<section class="section">
+    <div class="container">
+        <h1 class="title">Strategies</h1>
+        <div class="block">
+            <a href="{% url 'bots:strategy_create' %}" class="button is-primary">Create New Strategy</a>
+        </div>
+        <div class="columns is-multiline">
+            {% for strategy in object_list %}
+            <div class="column is-one-third">
+                <div class="card">
+                    <header class="card-header">
+                        <p class="card-header-title">{{ strategy.name }}</p>
+                    </header>
+                    <div class="card-content">
+                        <div class="content">
+                            Type: {{ strategy.get_strategy_type_display }}<br>
+                            Position: {{ strategy.get_position_display }}<br>
+                        </div>
+                    </div>
+                    <footer class="card-footer">
+                        <a href="{% url 'bots:strategy_edit' strategy.pk %}" class="card-footer-item">Edit</a>
+                        <a href="{% url 'bots:strategy_delete' strategy.pk %}" class="card-footer-item has-text-danger">Delete</a>
+                    </footer>
+                </div>
+            </div>
+            {% empty %}
+            <div class="notification is-warning">No strategies found.</div>
+            {% endfor %}
+        </div>
+    </div>
+</section>
+{% endblock %}

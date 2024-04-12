@@ -1,0 +1,54 @@
+{% load static %}
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>CoinHub</title>
+
+    <!-- Include jQuery first -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+
+    <!-- Then include DataTables JS -->
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+
+    <!-- CSS for Bulma, FontAwesome, DataTables -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bulma.min.css">
+    <link rel="stylesheet" href="{% static 'css/main.css' %}">
+</head>
+<body>
+{% include 'base/header.html' %}
+
+<section class="section">
+    <div class="container">
+        <div class="columns">
+            <div class="column is-one-fifth">
+                {% include 'base/sidebar.html' %}
+            </div>
+            <div class="column">
+                {% if messages %}
+                    <div class="notification is-primary">
+                        {% for message in messages %}
+                            <button class="delete"></button>
+                            {{ message }}
+                        {% endfor %}
+                    </div>
+                {% endif %}
+                {% block content %}{% endblock %}
+            </div>
+        </div>
+    </div>
+</section>
+
+<script>
+    $(document).ready(function () {
+        $('.notification .delete').click(function () {
+            $(this).parent().fadeOut(() => $(this).remove());
+        });
+    });
+</script>
+{% block extra_js %}{% endblock %}
+</body>
+</html>

@@ -1,0 +1,49 @@
+<nav class="navbar is-black" role="navigation" aria-label="dropdown navigation">
+    <div class="container">
+        <div id="navMenu" class="navbar-menu">
+            <!-- Brand and About Us -->
+            <div class="navbar-start">
+                <div class="navbar-item has-dropdown is-hoverable">
+                    <a class="navbar-link">CoinHub</a>
+                    <div class="navbar-dropdown">
+                        <a class="navbar-item" href="#">About Us</a>
+                        <a class="navbar-item" href="#">Feedback</a>
+                        <hr class="navbar-divider">
+                        <div class="navbar-item">Version 0.0.1</div>
+                    </div>
+                </div>
+                <a class="navbar-item" href="{% url 'dashboard' %}">Dashboard</a>
+                <a class="navbar-item" href="{% url 'bot:bot_list' %}">Bots</a>
+                <a class="navbar-item" href="{% url 'market:run_backtest' %}">Market</a>
+                <a class="navbar-item" href="{% url 'exchange:exchange_list' %}">Account</a>
+            </div>
+
+            <!-- Account actions -->
+            <div class="navbar-end">
+                {% if user.is_authenticated %}
+                    <!-- User is logged in -->
+                    <div class="navbar-item has-dropdown is-hoverable">
+                        <a class="navbar-link">My Account</a>
+                        <div class="navbar-dropdown">
+                            <a class="navbar-item" href="#">Profile</a>
+                            <a class="navbar-item" href="#">Settings</a>
+                            <hr class="navbar-divider">
+                            <a class="navbar-item" href="{% url 'accounts:logout' %}">Logout</a>
+                        </div>
+                    </div>
+                    <div class="navbar-item">
+                        <a class="button is-link" href="#">Go Pro!</a>
+                    </div>
+                {% else %}
+                    <!-- User is not logged in -->
+                    <div class="navbar-item">
+                        <a class="button is-dark" href="{% url 'accounts:login' %}">Login</a>
+                    </div>
+                    <div class="navbar-item">
+                        <a class="button is-link" href="{% url 'accounts:register' %}">Register</a>
+                    </div>
+                {% endif %}
+        </div>
+    </div>
+    </div>
+</nav>

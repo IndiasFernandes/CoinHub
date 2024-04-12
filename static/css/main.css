@@ -1,0 +1,11 @@
+.margin-top-20 {
+    margin-top: 20px;
+}
+
+/* Remove top margin on smaller screens */
+@media (max-width: 768px) {
+    .margin-top-20 {
+        margin-top: 0;
+    }
+}
+

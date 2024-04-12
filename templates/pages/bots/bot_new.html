@@ -1,0 +1,54 @@
+{% extends 'base/base.html' %}
+{% load widget_tweaks %}
+{% block content %}
+<style>
+    .small-label {
+        font-size: 0.9rem; /* Adjust label font size for consistency */
+    }
+    .centered-button {
+        display: flex;
+        justify-content: center; /* Center the button within the form */
+    }
+    /* Ensure checkboxes are styled appropriately */
+    .checkbox-wrapper {
+        margin-top: 0.5rem;
+    }
+</style>
+
+<div class="container">
+    <div class="columns is-centered">
+        <div class="column is-half">
+            <div class="box">
+                <h2 class="title" style="font-size: 1.5rem;">Create New Bot</h2>
+                <form method="post">
+                    {% csrf_token %}
+                    {% for field in form %}
+                    <div class="field {% if field.name == 'is_active' %}checkbox-wrapper{% endif %}">
+                        <label class="label small-label">{{ field.label }}</label>
+                        <div class="control">
+                            {% if field.name == 'is_active' %}
+                                <!-- Special handling for boolean checkbox -->
+                                {{ field|add_class:"checkbox" }}
+                            {% else %}
+                                {{ field|add_class:"input" }}
+                            {% endif %}
+                        </div>
+                        {% if field.help_text %}
+                            <p class="help">{{ field.help_text }}</p>
+                        {% endif %}
+                        {% for error in field.errors %}
+                            <p class="help is-danger">{{ error }}</p>
+                        {% endfor %}
+                    </div>
+                    {% endfor %}
+                    <div class="field">
+                        <div class="control centered-button">
+                            <button type="submit" class="button is-link">Create Bot</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

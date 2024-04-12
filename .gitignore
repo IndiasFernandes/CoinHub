@@ -1,1 +1,4 @@
 /venv/
+/apps/exchanges/migrations/
+/apps/bots/migrations/
+/apps/accounts/migrations/
