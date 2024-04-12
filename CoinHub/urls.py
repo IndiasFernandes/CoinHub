@@ -25,6 +25,7 @@ urlpatterns = [
     path('accounts/', include(('apps.accounts.urls', 'apps.accounts'), namespace='accounts')),
     path('bots/', include(('apps.bots.urls', 'apps.bots'), namespace='bots')),
     path('exchanges/', include(('apps.exchanges.urls', 'apps.exchanges'), namespace='exchanges')),
-    path('about/', about, name='about')
+    path('about/', about, name='about'),
+    path('market/', include(('apps.market.urls', 'apps.market'), namespace='market')),
 
 ]

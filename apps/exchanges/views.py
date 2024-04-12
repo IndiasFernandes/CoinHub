@@ -1,13 +1,13 @@
 from django.contrib import messages
-from django.shortcuts import render
-from django.shortcuts import redirect
+from django.shortcuts import render, redirect
 from .forms import ExchangeForm
 from django.contrib.auth.decorators import login_required
 from django.shortcuts import get_object_or_404
-from .models import ExchangeInfo
+from .models import ExchangeInfo, DownloadDataForm
 import requests
 from .models import Exchange, Market, Coin
 from .utils.hyperliquid.bot import BotAccount
+from .utils.hyperliquid.download_data import download_data, initialize_exchange
 
 
 @login_required
@@ -46,7 +46,7 @@ def chart_view(request):
         'timestamps': timestamps,
         'account_values': account_values,
         'withdrawable_values': withdrawable_values,  # New line
-        'current_section': 'exchanges'
+        'current_section': 'market'
     }
     return render(request, 'pages/general/graphs/chart.html', context)
 
@@ -73,3 +73,30 @@ def update_market_coins(request, market_id):
         messages.error(request, f"Failed to update market coins: {e}")
 
     return redirect('exchange:exchange_detail', exchange_id=market.exchange.pk)
+
+
+
+
+def download_data_view(request):
+    if request.method == 'POST':
+        form = DownloadDataForm(request.POST)
+        if form.is_valid():
+            exchange_id = form.cleaned_data['exchange_id']
+            api_key = '0xa9dA24397F0B02eaa39cDBCae312559CaEe17985'
+            secret = '0x00ddedb69741e811a8265d90e94f74e55f34f07f7f810f603b02508e778b91b4'
+            exchange = initialize_exchange(exchange_id, api_key, secret)
+            # Execute the download function
+            symbols = form.cleaned_data['symbol']
+            timeframes = form.cleaned_data['timeframe']
+            start_date = form.cleaned_data['start_date'].strftime('%Y-%m-%d')
+            end_date = form.cleaned_data['end_date'].strftime('%Y-%m-%d')
+
+            # Assume function handles downloads
+
+            download_data(symbols, timeframes, start_date, end_date, exchange)
+            messages.success(request, "Market coins downloaded successfully.")
+            return redirect('exchange:download_data')
+    else:
+        form = DownloadDataForm()
+    return render(request, 'pages/exchanges/download_data.html', {'form': form, 'current_section': 'exchanges'})
+

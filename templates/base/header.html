@@ -14,8 +14,8 @@
                 </div>
                 <a class="navbar-item" href="{% url 'dashboard' %}">Dashboard</a>
                 <a class="navbar-item" href="{% url 'bot:bot_list' %}">Bots</a>
-                <a class="navbar-item" href="{% url 'exchange:exchange_list' %}">Market</a>
-                <a class="navbar-item" href="{% url 'exchange:exchange_list' %}">Exchange</a>
+                <a class="navbar-item" href="{% url 'market:run_backtest' %}">Market</a>
+                <a class="navbar-item" href="{% url 'exchange:exchange_list' %}">Account</a>
             </div>
 
             <!-- Account actions -->
@@ -44,5 +44,6 @@
                     </div>
                 {% endif %}
         </div>
+    </div>
     </div>
 </nav>

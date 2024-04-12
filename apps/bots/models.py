@@ -43,7 +43,7 @@ class Bot(models.Model):
     is_active = models.BooleanField(default=False)
     task_id = models.CharField(max_length=50, blank=True, null=True)
     def __str__(self):
-        return f'{self.user.username} {self.exchange.name} {self.market.symbol}'
+        return f'{self.user.username} {self.exchange.name}'
 
 class Trade(models.Model):
     TRADE_TYPES = (
@@ -59,4 +59,4 @@ class Trade(models.Model):
     trade_type = models.CharField(max_length=1, choices=TRADE_TYPES, default='L')
     timestamp = models.DateTimeField(auto_now_add=True)
     def __str__(self):
-        return f'{self.bot.user.username} {self.market.symbol} {self.timestamp}'
+        return f'{self.bot.user.username} {self.timestamp}'

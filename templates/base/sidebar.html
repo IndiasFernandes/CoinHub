@@ -23,21 +23,20 @@
     {% if current_section == 'market' %}
 
     <!-- Market Menu -->
-<p class="menu-label">
-        Market
+    <p class="menu-label">
+        Account
     </p>
     <ul class="menu-list">
-        <li><a class="{% if section == 'market' %}is-active{% endif %}" href="{% url 'market:market_list' %}">Market Analysis</a></li>
-        <li><a href="{% url 'market:market_new' %}">Exchanges Coins</a></li>
+        <li><a href="{% url 'exchange:chart_view' %}">Balance Chart</a></li>
     </ul>
     <p class="menu-label">
-        Exchanges
+        Backtesting
     </p>
     <ul class="menu-list">
-        <li><a class="{% if section == 'exchanges' %}is-active{% endif %}" href="{% url 'exchange:exchange_list' %}">See All</a></li>
-        <li><a href="{% url 'exchange:exchange_new' %}">Add New</a></li>
-
+        <li><a href="{% url 'market:run_backtest' %}">Do Backtest</a></li>
+        <li><a href="{% url 'market:backtests_list' %}">Backtest List</a></li>
     </ul>
+
     {% endif %}
     {% if current_section == 'exchanges' %}
     <!-- Exchanges Menu -->
@@ -47,8 +46,14 @@
     <ul class="menu-list">
         <li><a class="{% if section == 'exchanges' %}is-active{% endif %}" href="{% url 'exchange:exchange_list' %}">See All</a></li>
         <li><a href="{% url 'exchange:exchange_new' %}">Add New</a></li>
-        <li><a href="{% url 'exchange:chart_view' %}">Chart</a></li>
     </ul>
+        <p class="menu-label">
+        Past Data
+    </p>
+    <ul class="menu-list">
+        <li><a href="{% url 'exchange:download_data' %}">Download Data</a></li>
+    </ul>
+
     {% endif %}
     {% if current_section == 'users' %}
     <!-- Users Menu -->

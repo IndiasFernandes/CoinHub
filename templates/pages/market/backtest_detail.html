@@ -1,0 +1,74 @@
+<!-- backtests/detail.html -->
+
+{% extends 'base/base.html' %}
+
+{% load static %} <!-- Load to use static files if needed for icons etc. -->
+
+{% block content %}
+<div class="container mt-5">
+    <h1 class="title has-text-centered">Backtest Details</h1>
+    <div class="columns is-centered">
+        <div class="column is-half">
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title is-centered">
+                        Results for: <span class="has-text-info"> {{ backtest.symbol }}</span>
+                    </p>
+                </header>
+                <div class="card-content">
+                    <div class="content">
+                        <table class="table is-striped is-hoverable is-fullwidth">
+                            <tbody>
+                                <tr>
+                                    <td><strong>Equity Final [$]</strong></td>
+                                    <td>${{ backtest.equity_final|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Started on</strong></td>
+                                    <td>{{ backtest.created_at|date:"Y-m-d H:i" }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Exposure Time [%]</strong></td>
+                                    <td>{{ backtest.exposure_time_percent|floatformat:2 }}%</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Equity Peak [$]</strong></td>
+                                    <td>${{ backtest.equity_peak|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Return [%]</strong></td>
+                                    <td><span class="{% if backtest.return_percent >= 0 %}tag is-success{% else %}tag is-danger{% endif %}">{{ backtest.return_percent|floatformat:2 }}%</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Sharpe Ratio</strong></td>
+                                    <td>{{ backtest.sharpe_ratio|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Max. Drawdown [%]</strong></td>
+                                    <td><span class="tag is-danger">{{ backtest.max_drawdown_percent|floatformat:2 }}%</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong># Trades</strong></td>
+                                    <td>{{ backtest.number_of_trades }}</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Win Rate [%]</strong></td>
+                                    <td><span class="{% if backtest.win_rate_percent >= 50 %}tag is-success{% else %}tag is-warning{% endif %}">{{ backtest.win_rate_percent|floatformat:2 }}%</span></td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Avg. Trade [%]</strong></td>
+                                    <td>{{ backtest.avg_trade_percent|floatformat:2 }}%</td>
+                                </tr>
+                                <tr>
+                                    <td><strong>Profit Factor</strong></td>
+                                    <td>{{ backtest.profit_factor|floatformat:2 }}</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

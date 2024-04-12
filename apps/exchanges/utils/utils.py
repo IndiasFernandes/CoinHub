@@ -1,4 +1,4 @@
-
+import csv
 import os
 import pandas as pd
 
@@ -10,14 +10,29 @@ def file_exists(path):
     """Check if a file exists."""
     return os.path.exists(path)
 
+
+import pandas as pd
+
+
 def merge_and_save_data(new_data, file_path):
     """Merge new data with existing data and save to a file."""
-    if file_exists(file_path):
-        existing_data = pd.read_csv(file_path, index_col=0)
+    if os.path.exists(file_path):
+        existing_data = pd.read_csv(file_path, index_col=0, parse_dates=True)
+        existing_data.index = pd.to_datetime(existing_data.index)  # Ensure the index is datetime
+
+        # Ensure new_data index is also datetime if it's not already
+        if not pd.api.types.is_datetime64_any_dtype(new_data.index):
+            new_data.index = pd.to_datetime(new_data.index)
+
+        # Concatenate, remove duplicates, and sort
         merged_data = pd.concat([existing_data, new_data]).drop_duplicates().sort_index()
     else:
         merged_data = new_data
+
+    # Save merged data
     merged_data.to_csv(file_path)
+
+
 def print_dict(d, indent=0):
     """
     Recursively prints nested dictionaries.
@@ -42,3 +57,11 @@ def print_dict(d, indent=0):
             print(value)
 
 
+
+def import_csv(filepath):
+    """ Safely import CSV file to a list. """
+    if os.path.exists(filepath):
+        with open(filepath, 'r') as file:
+            return [line.strip().split(',') for line in file.readlines()]
+    else:
+        return []  # Return an empty list if file does not exist
