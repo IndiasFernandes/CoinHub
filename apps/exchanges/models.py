@@ -97,7 +97,7 @@ class DownloadDataForm(forms.Form):
         ('DYM/USDC:USDC', 'DYM-USDC'),
         ('ENA/USDC:USDC', 'ENA-USDC'),
         ('ENS/USDC:USDC', 'ENS-USDC'),
-        ('ETC/USDC:', 'ETC-USDC'),
+        ('ETC/USDC:USDC', 'ETC-USDC'),
         ('ETH/USDC:USDC', 'ETH-USDC'),
         ('ETHFI/USDC:USDC', 'ETHFI-USDC'),
         ('FET/USDC:USDC', 'FET-USDC'),

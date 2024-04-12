@@ -53,7 +53,7 @@ class SuperTrendBacktest(Strategy):
         # Save CSV
         last_st = float(self.st[-1])
         row = [last_st]
-        output_path = './export/last_st.csv'
+        output_path = os.path.join(settings.BASE_DIR, 'static', 'backtest', 'last_st.csv')
         if os.path.isfile(output_path):
             with open(output_path, "w", newline = '') as file:
                 writer = csv.writer(file)
@@ -66,7 +66,7 @@ class SuperTrendBacktest(Strategy):
         # Save CSV
         last_price = float(price)
         row = [last_price]
-        output_path = './export/last_price.csv'
+        output_path = os.path.join(settings.BASE_DIR, 'static', 'backtest', 'last_price.csv')
         if os.path.isfile(output_path):
             with open(output_path, "w", newline='') as file:
                 writer = csv.writer(file)

@@ -10,3 +10,5 @@ redis
 ccxt
 pandas
 Backtesting
+numpy
+scikit-optimize

@@ -44,6 +44,10 @@
                                     <td>{{ backtest.sharpe_ratio|floatformat:2 }}</td>
                                 </tr>
                                 <tr>
+                                    <td><strong>Sortino Ratio</strong></td>
+                                    <td>{{ backtest.sortino_ratio|floatformat:2 }}</td>
+                                </tr>
+                                <tr>
                                     <td><strong>Max. Drawdown [%]</strong></td>
                                     <td><span class="tag is-danger">{{ backtest.max_drawdown_percent|floatformat:2 }}%</span></td>
                                 </tr>
@@ -62,6 +66,16 @@
                                 <tr>
                                     <td><strong>Profit Factor</strong></td>
                                     <td>{{ backtest.profit_factor|floatformat:2 }}</td>
+                                </tr>
+                            <tr>
+                                    <td><strong>Graph Link</strong></td>
+                                    <td>
+                                        {% if backtest.graph_link %}
+                                            <a href="http://localhost:8000/{{ backtest.graph_link }}" class="button is-info" target="_blank">View Graph</a>
+                                        {% else %}
+                                            <span class="tag is-light">No Graph Available</span>
+                                        {% endif %}
+                                    </td>
                                 </tr>
                             </tbody>
                         </table>

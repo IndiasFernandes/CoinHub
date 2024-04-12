@@ -2,7 +2,7 @@ from django.contrib.auth.decorators import login_required
 from django.shortcuts import render
 from apps.bots.models import Bot, Trade
 @login_required
-def dashboard(request):
+def dashboard_view(request):
     bots = Bot.objects.all()
     active_bots_count = bots.filter(is_active=True).count()
     # Pass it to your context
@@ -11,5 +11,5 @@ def dashboard(request):
 
     return render(request, 'pages/general/dashboard.html', context)
 
-def about(request):
+def about_view(request):
     return render(request, 'about.html')
