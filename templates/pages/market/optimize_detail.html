@@ -5,120 +5,141 @@
 {% block content %}
 <div class="container mt-5">
     <h1 class="title has-text-centered">Optimization Details</h1>
-    <div class="columns is-centered">
-        <div class="column is-half">
+    <div class="columns">
+        <div class="column is-10 is-offset-1">
             <div class="card">
                 <header class="card-header">
-                    <p class="card-header-title is-centered">
-                        Optimization Results for: <span class="has-text-info">{{ optimization.symbol }}</span>
-                    </p>
+                    <div class="card-header-icon">
+                        <div class="buttons has-addons">
+                            {% if optimization.graph_link %}
+                                <a href="{{ optimization.graph_link }}" class="button is-link is-outlined" target="_blank">View Graph</a>
+                            {% else %}
+                                <button class="button is-light" disabled>No Graph Available</button>
+                            {% endif %}
+                            {% if optimization.heat_map_link %}
+                                <a href="{{ optimization.heat_map_link }}" class="button is-link is-outlined" target="_blank">View Heat Map</a>
+                            {% else %}
+                                <button class="button is-light" disabled>No Heat Map Available</button>
+                            {% endif %}
+                        </div>
+                    </div>
                 </header>
                 <div class="card-content">
-                    <div class="content">
-                        <table class="table is-striped is-hoverable is-fullwidth">
-                            <tbody>
-                                <tr>
-                                    <td><strong>Symbol</strong></td>
-                                    <td>{{ optimization.symbol }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Time Period</strong></td>
-                                    <td>{{ optimization.timeperiod }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Cash</strong></td>
-                                    <td>${{ optimization.cash|floatformat:2 }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Commission</strong></td>
-                                    <td>{{ optimization.commission|floatformat:2 }}%</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>ATR Timeperiod</strong></td>
-                                    <td>{{ optimization.atr_timeperiod }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>ATR Multiplier</strong></td>
-                                    <td>{{ optimization.atr_multiplier }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Return [%]</strong></td>
-                                    <td><span class="{% if optimization.return_percent > 100 %}tag is-success{% else %}tag is-danger{% endif %}">{{ optimization.return_percent|floatformat:2 }}%</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Max. Drawdown [%]</strong></td>
-                                    <td><span class="tag is-danger">{{ optimization.max_drawdown_percent|floatformat:2 }}%</span></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Sharpe Ratio</strong></td>
-                                    <td>
-                                        <span class="{% if optimization.sharpe_ratio < 1 %}tag is-danger{% elif optimization.sharpe_ratio >= 2 %}tag is-success{% else %}tag is-warning{% endif %}">
+                    <div class="columns">
+                        <div class="column is-half">
+                            <h2 class="subtitle">Optimization Info</h2>
+                            <table class="table is-striped is-narrow is-hoverable is-fullwidth">
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Symbol</strong></td>
+                                        <td>{{ optimization.symbol }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Time Period</strong></td>
+                                        <td>{{ optimization.timeperiod }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Cash</strong></td>
+                                        <td>${{ optimization.cash|floatformat:2 }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Commission</strong></td>
+                                        <td>{{ optimization.commission|floatformat:2 }}%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Start Date</strong></td>
+                                        <td>{{ optimization.start_date|date:"Y-m-d H:i" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>End Date</strong></td>
+                                        <td>{{ optimization.end_date|date:"Y-m-d H:i" }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Duration</strong></td>
+                                        <td>{{ optimization.duration }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Created At</strong></td>
+                                        <td>{{ optimization.created_at|date:"Y-m-d H:i" }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                        <div class="column is-half">
+                            <h2 class="subtitle">Results</h2>
+                            <table class="table is-striped is-narrow is-hoverable is-fullwidth">
+                                <tbody>
+                                    <tr>
+                                        <td><strong>Return [%]</strong></td>
+                                        <td><span class="{% if optimization.return_percent > 100 %}tag is-success{% else %}tag is-danger{% endif %}">{{ optimization.return_percent|floatformat:2 }}%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Max. Drawdown [%]</strong></td>
+                                        <td><span class="tag is-danger">{{ optimization.max_drawdown_percent|floatformat:2 }}%</span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Sharpe Ratio</strong></td>
+                                        <td><span class="{% if optimization.sharpe_ratio < 1 %}tag is-danger{% elif optimization.sharpe_ratio >= 2 %}tag is-success{% else %}tag is-warning{% endif %}">
                                             {{ optimization.sharpe_ratio|floatformat:2 }}
-                                        </span>
-                                    </td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Sortino Ratio</strong></td>
-                                    <td>{{ optimization.sortino_ratio|floatformat:2 }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Calmar Ratio</strong></td>
-                                    <td>{{ optimization.calmar_ratio|floatformat:2 }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Number of Trades</strong></td>
-                                    <td>{{ optimization.number_of_trades }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Win Rate [%]</strong></td>
-                                    <td>{{ optimization.win_rate_percent|floatformat:2 }}%</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Average Trade [%]</strong></td>
-                                    <td>{{ optimization.avg_trade_percent|floatformat:2 }}%</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Profit Factor</strong></td>
-                                    <td>{{ optimization.profit_factor|floatformat:2 }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>SQN</strong></td>
-                                    <td>{{ optimization.sqn|floatformat:2 }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Start Date</strong></td>
-                                    <td>{{ optimization.start_date|date:"Y-m-d H:i" }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>End Date</strong></td>
-                                    <td>{{ optimization.end_date|date:"Y-m-d H:i" }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Duration</strong></td>
-                                    <td>{{ optimization.duration }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Created At</strong></td>
-                                    <td>{{ optimization.created_at|date:"Y-m-d H:i" }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Equity Final [$]</strong></td>
-                                    <td>${{ optimization.equity_final|floatformat:2 }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Equity Peak [$]</strong></td>
-                                    <td>${{ optimization.equity_peak|floatformat:2 }}</td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Graph Link</strong></td>
-                                    <td><a href="http://localhost:8000/{{ optimization.graph_link }}">View Graph</a></td>
-                                </tr>
-                                <tr>
-                                    <td><strong>Heat Mat Link</strong></td>
-                                    <td><a href="http://localhost:8000/{{ optimization.heat_map_link }}">View Graph</a></td>
-                                </tr>
-                            </tbody>
-                        </table>
+                                        </span></td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Sortino Ratio</strong></td>
+                                        <td>{{ optimization.sortino_ratio|floatformat:2 }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Number of Trades</strong></td>
+                                        <td>{{ optimization.number_of_trades }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Win Rate [%]</strong></td>
+                                        <td>{{ optimization.win_rate_percent|floatformat:2 }}%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Average Trade [%]</strong></td>
+                                        <td>{{ optimization.avg_trade_percent|floatformat:2 }}%</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>Profit Factor</strong></td>
+                                        <td>{{ optimization.profit_factor|floatformat:2 }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                <div class="columns">
+                        <div class="column is-full">
+
+                            <h2 class="subtitle">Best Variables</h2>
+                            <table class="table is-striped is-hoverable is-fullwidth">
+                                <tbody>
+                                    <tr>
+                                        <td><strong>ATR Timeperiod</strong></td>
+                                        <td>{{ optimization.atr_timeperiod }}</td>
+                                    </tr>
+                                    <tr>
+                                        <td><strong>ATR Multiplier</strong></td>
+                                        <td>{{ optimization.atr_multiplier }}</td>
+                                    </tr>
+                                </tbody>
+                            </table>
+
+                            <h2 class="subtitle">More</h2>
+                            <div>
+                                {% if optimization.graph_link %}
+                                    <a href="{{ optimization.graph_link }}" class="button is-link is-small" target="_blank">View Graph</a>
+                                {% else %}
+                                    <span class="tag is-light">No Graph Available</span>
+                                {% endif %}
+                                {% if optimization.heat_map_link %}
+                                    <a href="{{ optimization.heat_map_link }}" class="button is-link is-small" target="_blank">View Heat Map</a>
+                                {% else %}
+                                    <span class="tag is-light">No Heat Map Available</span>
+                                {% endif %}
+                            </div><!-- List Best Variables -->
+                                    </tbody>
+                                </table>
+                            </div>
                     </div>
                 </div>
             </div>
@@ -126,3 +147,28 @@
     </div>
 </div>
 {% endblock %}
+
+
+<div class="columns">
+    <div class="column is-half">
+        <h2 class="subtitle">Best Variables</h2>
+            <table class="table is-striped is-hoverable is-fullwidth">
+                <tbody>
+                    <tr>
+                        <td><strong>ATR Timeperiod</strong></td>
+                        <td>{{ optimization.atr_timeperiod }}</td>
+                    </tr>
+                    <tr>
+                        <td><strong>ATR Multiplier</strong></td>
+                        <td>{{ optimization.atr_multiplier }}</td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+        <div class="column is-half">
+            <h2 class="subtitle">More</h2>
+            <div class="buttons is-centered">
+                <!-- Buttons for graph and heat map -->
+            </div>
+        </div>
+</div>

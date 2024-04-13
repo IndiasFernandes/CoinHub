@@ -13,13 +13,14 @@
                         <option value="">Select Filter</option>
                         <option value="0">Coin</option>
                         <option value="1">Timeperiod</option>
-                        <option value="2">Start Date</option>
-                        <option value="3">End Date</option>
-                        <option value="4">Duration</option>
-                        <option value="5">Return [%]</option>
-                        <option value="6">Max. Drawdown [%]</option>
-                        <option value="7">Sharp Ratio</option>
-                        <option value="8">Sortino Ratio</option>
+                        <option value="2">Repetitions</option>
+                        <option value="3">Start Date</option>
+                        <option value="4">End Date</option>
+                        <option value="5">Duration</option>
+                        <option value="6">Return [%]</option>
+                        <option value="7">Max. Drawdown [%]</option>
+                        <option value="8">Sharp Ratio</option>
+                        <option value="9">Sortino Ratio</option>
                     </select>
                 </span>
             </p>
@@ -34,6 +35,7 @@
                 <tr>
                     <th>Coin</th>
                     <th>Timeperiod</th>
+                    <th>Repetitions</th>
                     <th>Start Date</th>
                     <th>End Date</th>
                     <th>Duration</th>
@@ -49,6 +51,7 @@
                 <tr>
                     <td>{{ optimization.symbol }}</td>
                     <td>{{ optimization.timeperiod }}</td>
+                    <td>{{ optimization.repetitions }}</td>
                     <td>{{ optimization.start_date|date:"Y-m-d" }}</td>
                     <td>{{ optimization.end_date|date:"Y-m-d" }}</td>
                     <td>{{ optimization.duration }}</td>

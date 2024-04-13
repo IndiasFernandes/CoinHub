@@ -26,7 +26,7 @@ commission = .008
 openbrowser = False
 
 # Optimization Settings
-max_tries = 100
+max_tries = 25
 atr_timeperiod_range = np.arange(0, 3, 0.2)
 atr_multiplier_range = np.arange(0, 3, 0.2)
 
@@ -81,7 +81,6 @@ def backtest(symbol, cash, commission, openbrowser, df, timeperiod):
         number_of_trades=stats['# Trades'],
         win_rate_percent=stats['Win Rate [%]'],
         avg_trade_percent=stats['Avg. Trade [%]'],
-        profit_factor=stats['Profit Factor'],
         sqn=stats['SQN'],
         created_at=datetime.now(),
         graph_link=main_path+'.html',
