@@ -9,6 +9,7 @@
     <ul class="menu-list">
         <li><a class="{% if section == 'bots' %}is-active{% endif %}" href="{% url 'bot:bot_list' %}">See All</a></li>
         <li><a href="{% url 'bot:bot_new' %}">Add New</a></li>
+        <li><a href="{% url 'bot:bot_evaluation_chart' %}">View Bot Evaluation Chart</a></li>
     </ul>
 
     <p class="menu-label">

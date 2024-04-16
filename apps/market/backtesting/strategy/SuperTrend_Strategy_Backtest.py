@@ -28,14 +28,11 @@ class SuperTrendBacktest(Strategy):
         symbol = import_csv(path)[0][0]
         path = os.path.join(settings.BASE_DIR, 'static', 'backtest', 'current_backtest_timeperiod.csv')
         timeperiod = import_csv(path)[0][0]
+        path = os.path.join(settings.BASE_DIR, 'static', 'backtest', 'current_backtest_multiplier.csv')
+        atr_multiplier = float(import_csv(path)[0][0])
+        path = os.path.join(settings.BASE_DIR, 'static', 'backtest', 'current_backtest_atr_timeperiod.csv')
+        atr_timeperiod = float(import_csv(path)[0][0])
 
-        last_optimizes = Optimize.objects.filter(
-            Q(timeperiod=timeperiod) & Q(symbol=symbol)
-        ).order_by('-created_at')[:2]
-
-        for optimize in last_optimizes:
-            atr_timeperiod = optimize.atr_timeperiod
-            atr_multiplier = optimize.atr_multiplier
 
         print('Starting Backtest with the following parameters:')
         print('atr_timeperiod: ', atr_timeperiod)

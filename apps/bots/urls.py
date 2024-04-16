@@ -1,6 +1,6 @@
 from django.urls import path
 from . import views
-from .views import StrategyListView, StrategyCreateView
+from .views import StrategyListView, StrategyCreateView, bot_evaluation_chart_view
 
 app_name = 'bot'
 
@@ -14,4 +14,5 @@ urlpatterns = [
     path('strategies/new/', StrategyCreateView.as_view(), name='strategy_create'),
     path('strategies/edit/<int:pk>/', views.StrategyEditView.as_view(), name='strategy_edit'),
     path('strategies/delete/<int:pk>/', views.StrategyDeleteView.as_view(), name='strategy_delete'),
+    path('bot-evaluation-chart/', bot_evaluation_chart_view, name='bot_evaluation_chart'),
 ]

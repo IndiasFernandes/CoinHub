@@ -21,7 +21,8 @@ from apps.exchanges.utils.utils import import_csv
 from apps.market.backtesting.strategy.SuperTrend_Strategy_Backtest import SuperTrendBacktest
 
 # BACKTESTING Settings
-cash = 100000
+
+cash = 10000
 commission = .008
 openbrowser = False
 
@@ -30,7 +31,7 @@ max_tries = 25
 atr_timeperiod_range = np.arange(0, 3, 0.2)
 atr_multiplier_range = np.arange(0, 3, 0.2)
 
-def backtest(symbol, cash, commission, openbrowser, df, timeperiod):
+def backtest(symbol,  df, timeperiod, cash=100000, commission=.008, openbrowser=False):
 
 
     print('Backtesting - Bot Func ...')
@@ -87,10 +88,9 @@ def backtest(symbol, cash, commission, openbrowser, df, timeperiod):
         timeperiod=timeperiod
     )
     backtest_instance.save()
-    if st_value and price_value:
-        return st_value, price_value
-    else:
-        return
+
+    return st_value, price_value
+
 
 
 def optimize(symbol, interval, cash, commission, openbrowser, df, max_tries, atr_timeperiod_range,
@@ -223,14 +223,13 @@ def perform_backtest(df, symbol, timeperiod):
 
     df_ha = heikin_ashi(df.reset_index())
     df_ha.set_index('Timestamp', inplace=True)
-    # st, price = backtest(symbol, cash, commission, openbrowser, df)
-    backtest(symbol, cash, commission, openbrowser, df, timeperiod)
+    st, price = backtest(symbol, df, timeperiod)
     # if price > st:
     #     dict[timeperiod] = 'Long'
     # elif price < st:
     #     dict[timeperiod] = 'Short'
 
-    return {"symbol": symbol, "timeframe": timeperiod, "file": output_path}
+    return {"symbol": symbol, "timeframe": timeperiod, "file": output_path, "st": st, "price": price}
 
 def run_backtest(request):
     if request.method == 'POST':
