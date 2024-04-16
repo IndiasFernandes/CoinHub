@@ -11,3 +11,17 @@
         margin-top: 0;
     }
 }
+
+#sidebar {
+    transform: translateX(0);
+}
+
+#sidebar.is-hidden-mobile,
+#sidebar.is-hidden-tablet {
+    transform: translateX(-100%);
+}
+
+#mainContent.is-fullwidth {
+    transition: margin-left 0.3s;
+    margin-left: 0;
+}

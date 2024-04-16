@@ -30,6 +30,9 @@
 </head>
 <body>
 {% include 'base/header.html' %}
+<button class="button" id="sidebarToggle" style="z-index: 100; top: 10px; left: 10px;">
+    <span class="icon"><i class="fas fa-bars"></i></span>
+</button>
 
 <section class="section">
     <div class="container">
@@ -52,9 +55,27 @@
     </div>
 </section>
 <script>
-    $(document).ready(function () {
-        $('.notification .delete').click(function () {
-            $(this).parent().fadeOut(() => $(this).remove());
+    // Sidebar Toggle Script
+    document.addEventListener('DOMContentLoaded', function () {
+        const sidebar = document.getElementById('sidebar');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+
+        sidebarToggle.onclick = function () {
+            sidebar.classList.toggle('is-hidden-mobile');
+            sidebar.classList.toggle('is-hidden-tablet');
+            document.getElementById('mainContent').classList.toggle('is-fullwidth');
+        };
+    });
+
+    // Dynamic Active Links Script
+    document.addEventListener('DOMContentLoaded', function () {
+        const currentLocation = window.location.pathname;
+        const menuItems = document.querySelectorAll('.menu-list a');
+
+        menuItems.forEach(item => {
+            if (item.getAttribute('href') === currentLocation) {
+                item.classList.add('is-active');
+            }
         });
     });
 </script>

@@ -4,8 +4,16 @@
 <head>
     <!-- Include Chart.js from CDN -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- Include Chart.js Zoom Plugin -->
+    <script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
 </head>
 <body>
+    <div class="buttons are-medium" style="margin-bottom: 20px;">
+        {% for symbol in data.keys %}
+            <!-- Initialize all buttons as not active -->
+            <button id="btn-{{ symbol }}" class="button is-info is-outlined" onclick="toggleSymbol('{{ symbol }}')">{{ symbol }}</button>
+        {% endfor %}
+    </div>
     <div>
         <canvas id="botChart"></canvas>
     </div>
@@ -20,6 +28,7 @@
             data: data[symbol].prices,
             fill: false,
             yAxisID: 'y',
+            hidden: true, // Start hidden
         })).concat(
             Object.keys(data).map(symbol => ({
                 label: `${symbol} ST Value`,
@@ -28,6 +37,7 @@
                 data: data[symbol].st_values,
                 fill: false,
                 yAxisID: 'y1',
+                hidden: true, // Start hidden
             }))
         );
 
@@ -52,9 +62,70 @@
                             drawOnChartArea: false, // only draw grid where the y1 axis is
                         },
                     },
+                },
+                plugins: {
+                    zoom: {
+                        pan: {
+                            enabled: true,
+                            mode: 'xy', // Enables panning in both vertical and horizontal directions
+                            rangeMin: {
+                                // Define min values for panning
+                                x: null,
+                                y: null
+                            },
+                            rangeMax: {
+                                // Define max values for panning
+                                x: null,
+                                y: null
+                            }
+                        },
+                        zoom: {
+                            wheel: {
+                                enabled: true,
+                                mode: 'x' // Only horizontal zooming with mouse wheel
+                            },
+                            pinch: {
+                                enabled: true,
+                                mode: 'x' // Only horizontal zooming with pinch
+                            },
+                            drag: {
+                                enabled: true,
+                                mode: 'y' // Enables vertical zooming via drag
+                            },
+                            mode: 'xy' // Allows zooming in all directions
+                        }
+                    }
                 }
             }
         });
+
+        function toggleSymbol(symbol) {
+            chart.data.datasets.forEach(dataset => {
+                if (dataset.label.includes(symbol)) {
+                    dataset.hidden = !dataset.hidden; // Toggle visibility
+                } else {
+                    dataset.hidden = true; // Hide other datasets
+                }
+            });
+
+            // Update button classes
+            document.querySelectorAll('.button').forEach(btn => {
+                btn.classList.remove('is-selected'); // Remove class from all
+            });
+            const button = document.getElementById(`btn-${symbol}`);
+            if (!chart.data.datasets.find(d => d.label.includes(symbol)).hidden) {
+                button.classList.add('is-selected'); // Only add to the current if visible
+            }
+
+            chart.update();
+        }
     </script>
+    <style>
+        .button.is-selected {
+            background-color: #3273dc;
+            color: white;
+            border-color: transparent; // Optional: removes border
+        }
+    </style>
 </body>
 {% endblock %}

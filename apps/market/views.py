@@ -27,7 +27,7 @@ commission = .008
 openbrowser = False
 
 # Optimization Settings
-max_tries = 25
+max_tries = 60
 atr_timeperiod_range = np.arange(0, 3, 0.2)
 atr_multiplier_range = np.arange(0, 3, 0.2)
 
@@ -62,34 +62,37 @@ def backtest(symbol,  df, timeperiod, cash=100000, commission=.008, openbrowser=
     for items in data:
         for item in items:
             st_value = float(item)
+    if stats['# Trades'] > 1:
+        backtest_instance = Backtest(
+            symbol=symbol,
+            cash=cash,
+            commission=commission,
+            start_date=stats['_trades'].iloc[0]['EntryTime'] if not stats['_trades'].empty else None,
+            end_date=stats['_trades'].iloc[-1]['ExitTime'] if not stats['_trades'].empty else None,
+            duration=stats['Duration'],
+            exposure_time_percent=stats['Exposure Time [%]'],
+            equity_final=stats['Equity Final [$]'],
+            equity_peak=stats['Equity Peak [$]'],
+            return_percent=stats['Return [%]'],
+            annual_return_percent=stats['Return (Ann.) [%]'],
+            max_drawdown_percent=stats['Max. Drawdown [%]'],
+            sharpe_ratio=stats['Sharpe Ratio'],
+            sortino_ratio=stats['Sortino Ratio'],
+            calmar_ratio=stats['Calmar Ratio'],
+            number_of_trades=stats['# Trades'],
+            win_rate_percent=stats['Win Rate [%]'],
+            avg_trade_percent=stats['Avg. Trade [%]'],
+            sqn=stats['SQN'],
+            created_at=datetime.now(),
+            graph_link=main_path+'.html',
+            timeperiod=timeperiod
+        )
+        backtest_instance.save()
+    if st_value and price_value:
+        return st_value, price_value
+    else:
+        return 0, 0
 
-    backtest_instance = Backtest(
-        symbol=symbol,
-        cash=cash,
-        commission=commission,
-        start_date=stats['_trades'].iloc[0]['EntryTime'] if not stats['_trades'].empty else None,
-        end_date=stats['_trades'].iloc[-1]['ExitTime'] if not stats['_trades'].empty else None,
-        duration=stats['Duration'],
-        exposure_time_percent=stats['Exposure Time [%]'],
-        equity_final=stats['Equity Final [$]'],
-        equity_peak=stats['Equity Peak [$]'],
-        return_percent=stats['Return [%]'],
-        annual_return_percent=stats['Return (Ann.) [%]'],
-        max_drawdown_percent=stats['Max. Drawdown [%]'],
-        sharpe_ratio=stats['Sharpe Ratio'],
-        sortino_ratio=stats['Sortino Ratio'],
-        calmar_ratio=stats['Calmar Ratio'],
-        number_of_trades=stats['# Trades'],
-        win_rate_percent=stats['Win Rate [%]'],
-        avg_trade_percent=stats['Avg. Trade [%]'],
-        sqn=stats['SQN'],
-        created_at=datetime.now(),
-        graph_link=main_path+'.html',
-        timeperiod=timeperiod
-    )
-    backtest_instance.save()
-
-    return st_value, price_value
 
 
 
@@ -172,36 +175,36 @@ def optimize(symbol, interval, cash, commission, openbrowser, df, max_tries, atr
     for items in data:
         for item in items:
             st_value = float(item)
-
-    optimization_instance = Optimize(
-        symbol=symbol,
-        timeperiod=interval,
-        atr_timeperiod=bestParams['atr_timeperiod'],
-        atr_multiplier=bestParams['atr_multiplier'],
-        return_percent=stats['Return [%]'],
-        max_drawdown_percent=stats['Max. Drawdown [%]'],
-        start_date=stats['_trades'].iloc[0]['EntryTime'] if not stats['_trades'].empty else None,
-        end_date=stats['_trades'].iloc[-1]['ExitTime'] if not stats['_trades'].empty else None,
-        duration=stats['Duration'],
-        exposure_time_percent=stats['Exposure Time [%]'],
-        equity_final=stats['Equity Final [$]'],
-        annual_return_percent=stats['Return (Ann.) [%]'],
-        sharpe_ratio=stats['Sharpe Ratio'],
-        sortino_ratio=stats['Sortino Ratio'],
-        calmar_ratio=stats['Calmar Ratio'],
-        number_of_trades=stats['# Trades'],
-        win_rate_percent=stats['Win Rate [%]'],
-        avg_trade_percent=stats['Avg. Trade [%]'],
-        sqn=stats['SQN'],
-        created_at=datetime.now(),
-        graph_link=bt_main_path,
-        heat_map_link=hm_main_path,
-        repetitions=max_tries,
-        cash=cash,
-        commission=commission,
-        equity_peak=stats['Equity Peak [$]'],
-    )
-    optimization_instance.save()
+    if stats['# Trades'] > 1:
+        optimization_instance = Optimize(
+            symbol=symbol,
+            timeperiod=interval,
+            atr_timeperiod=bestParams['atr_timeperiod'],
+            atr_multiplier=bestParams['atr_multiplier'],
+            return_percent=stats['Return [%]'],
+            max_drawdown_percent=stats['Max. Drawdown [%]'],
+            start_date=stats['_trades'].iloc[0]['EntryTime'] if not stats['_trades'].empty else None,
+            end_date=stats['_trades'].iloc[-1]['ExitTime'] if not stats['_trades'].empty else None,
+            duration=stats['Duration'],
+            exposure_time_percent=stats['Exposure Time [%]'],
+            equity_final=stats['Equity Final [$]'],
+            annual_return_percent=stats['Return (Ann.) [%]'],
+            sharpe_ratio=stats['Sharpe Ratio'],
+            sortino_ratio=stats['Sortino Ratio'],
+            calmar_ratio=stats['Calmar Ratio'],
+            number_of_trades=stats['# Trades'],
+            win_rate_percent=stats['Win Rate [%]'],
+            avg_trade_percent=stats['Avg. Trade [%]'],
+            sqn=stats['SQN'],
+            created_at=datetime.now(),
+            graph_link=bt_main_path,
+            heat_map_link=hm_main_path,
+            repetitions=max_tries,
+            cash=cash,
+            commission=commission,
+            equity_peak=stats['Equity Peak [$]'],
+        )
+        optimization_instance.save()
 
     # If not a POST request, show the optimization form
     return

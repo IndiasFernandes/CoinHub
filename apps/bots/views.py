@@ -63,7 +63,7 @@ def toggle_bot_status(request, bot_id):
         messages.success(request, f'Bot {bot.name} has been activated!')
         # Start or restart the bot loop task
 
-        task = app.send_task('apps.bots.tasks.analyze_cryptos', args=[bot_id, 15])
+        task = app.send_task('apps.bots.tasks.analyze_cryptos', args=[bot_id, 60])
         # analyze_cryptos.delay()  # Schedule the task when the bot is activated
         bot.task_id = task.id
         bot.save(update_fields=['task_id'])

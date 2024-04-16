@@ -33,56 +33,74 @@ def analyze_cryptos(self, bot_id, sleep_time):
     bot.task_id = self.request.id
     bot.save(update_fields=['task_id'])
     exchange = run_hyperliquid()
+    bot_account = BotAccount()
+    bot_account.test_functions()
+
 
     while bot.is_active:
 
+        # Your bot's operational logic here
         print(f"Running bot loop for {bot.name}")
-        time.sleep(sleep_time)
 
-        optimized_cryptos = Optimize.objects.filter(sharpe_ratio__gt=1, return_percent__gt=200)
+        # Refresh the bot instance from the database to get the latest status
+        bot_account.update_exchange_info()
+        bot_account.updated_at = timezone.now()
+
+        print(f"Running bot loop for {bot.name}")
+
+
+        optimized_cryptos = Optimize.objects.filter(return_percent__gt=400)
         print(f'Analyzing {optimized_cryptos.count()} optimized cryptos...')
         print(f"Optimized cryptos: {optimized_cryptos}")
         coin_list = exchange.fetch_markets()
         for crypto in optimized_cryptos:
-            # get st and price
-            print(crypto.start_date)
-            start_timestamp = str(crypto.start_date)[:-15]
-            end_timestamp = str(crypto.end_date)[:-15]
-            atr_timeperiod = crypto.atr_timeperiod
-            atr_multiplier = crypto.atr_multiplier
+            try:
+                # get st and price
+                print(crypto.start_date)
+                start_timestamp = str(crypto.start_date)[:-15]
+                end_timestamp = str(crypto.end_date)[:-15]
+                atr_timeperiod = crypto.atr_timeperiod
+                atr_multiplier = crypto.atr_multiplier
 
-            with open(os.path.join(settings.BASE_DIR, 'static', 'backtest', 'current_backtest_atr_timeperiod.csv'), 'w') as f:
-                f.write(str(atr_multiplier))
-            with open(os.path.join(settings.BASE_DIR, 'static', 'backtest', 'current_backtest_multiplier.csv'), 'w') as f:
-                f.write(str(atr_timeperiod))
+                with open(os.path.join(settings.BASE_DIR, 'static', 'backtest', 'current_backtest_atr_timeperiod.csv'), 'w') as f:
+                    f.write(str(atr_multiplier))
+                with open(os.path.join(settings.BASE_DIR, 'static', 'backtest', 'current_backtest_multiplier.csv'), 'w') as f:
+                    f.write(str(atr_timeperiod))
 
-            print(f"ATR Timeperiod: {atr_timeperiod}, ATR Multiplier: {atr_multiplier}")
-
-
+                print(f"ATR Timeperiod: {atr_timeperiod}, ATR Multiplier: {atr_multiplier}")
 
 
-            print(start_timestamp)
-            print(end_timestamp)
 
-            df = download_data([str(crypto.symbol)], [str(crypto.timeperiod)], start_timestamp, end_timestamp, exchange)
-            backtest_result =perform_backtest(df, crypto.symbol, crypto.timeperiod)
-            current_price = backtest_result['price']
-            st_value = backtest_result['st']
-            print(f"Current price: {current_price}, ST value: {st_value}")
-            st_higher = st_value > current_price
-            st_lower = st_value < current_price
 
-            percentage_difference = abs((st_value - current_price) / current_price * 100)
+                print(start_timestamp)
+                print(end_timestamp)
 
-            BotEvaluation.objects.create(
-                symbol=str(crypto.symbol),
-                st=st_value,
-                optimize=crypto,
-                current_price=float(current_price),
-                st_higher=st_higher,
-                st_lower=st_lower,
-                percentage_difference=percentage_difference
-            )
+                df = download_data([str(crypto.symbol)], [str(crypto.timeperiod)], start_timestamp, end_timestamp, exchange)
+                backtest_result =perform_backtest(df, crypto.symbol, crypto.timeperiod)
+                current_price = backtest_result['price']
+                # use the last value of price from the database df as the last price
+
+
+                #TODO: use the last value from the database df
+                st_value = backtest_result['st']
+                print(f"Current price: {current_price}, ST value: {st_value}")
+                st_higher = st_value > current_price
+                st_lower = st_value < current_price
+
+                percentage_difference = abs((st_value - current_price) / current_price * 100)
+
+                # BotEvaluation.objects.create(
+                #     symbol=str(crypto.symbol)+'_'+str(crypto.timeperiod),
+                #     st=st_value,
+                #     optimize=crypto,
+                #     current_price=float(current_price),
+                #     st_higher=st_higher,
+                #     st_lower=st_lower,
+                #     percentage_difference=percentage_difference
+                # )
+            except Exception as e:
+                print(f"Error analyzing crypto {crypto.symbol}: {e}")
+        time.sleep(sleep_time)
 
     bot.is_active = False  # This should be controlled by your actual bot's status check logic.
     bot.task_id = ''
