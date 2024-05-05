@@ -1,0 +1,30 @@
+Start                                                   2024-03-12 00:00:00
+End                                                     2024-04-12 05:45:00
+Duration                                                   31 days 05:45:00
+Exposure Time [%]                                                 98.366667
+Equity Final [$]                                              127854.103783
+Equity Peak [$]                                               129521.607117
+Return [%]                                                        27.854104
+Buy & Hold Return [%]                                            -23.822654
+Return (Ann.) [%]                                               1686.744321
+Volatility (Ann.) [%]                                           1076.331017
+Sharpe Ratio                                                       1.567124
+Sortino Ratio                                                      53.24481
+Calmar Ratio                                                     136.868431
+Max. Drawdown [%]                                                -12.323838
+Avg. Drawdown [%]                                                 -3.080773
+Max. Drawdown Duration                                     13 days 15:00:00
+Avg. Drawdown Duration                                      1 days 01:12:00
+# Trades                                                                102
+Win Rate [%]                                                      44.117647
+Best Trade [%]                                                     8.360822
+Worst Trade [%]                                                   -2.245539
+Avg. Trade [%]                                                     0.243464
+Max. Trade Duration                                         0 days 21:15:00
+Avg. Trade Duration                                         0 days 07:14:00
+Profit Factor                                                      1.500655
+Expectancy [%]                                                     0.260288
+SQN                                                                1.307581
+_strategy                 SuperTrendOptimize(atr_timeperiod=2.7456997011...
+_equity_curve                                         Equity  DrawdownPc...
+_trades                          Size  EntryBar  ...            ExitTime...
