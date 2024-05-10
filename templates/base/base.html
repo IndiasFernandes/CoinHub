@@ -13,6 +13,7 @@
     <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
 
     <!-- CSS for Bulma, FontAwesome, DataTables -->
+    {% load static %}
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
 
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
@@ -55,6 +56,12 @@
     </div>
 </section>
 <script>
+
+    $(document).ready(function () {
+        $('.notification .delete').click(function () {
+            $(this).parent().fadeOut(() => $(this).remove());
+        });
+    });
     // Sidebar Toggle Script
     document.addEventListener('DOMContentLoaded', function () {
         const sidebar = document.getElementById('sidebar');
