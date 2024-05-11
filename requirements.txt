@@ -12,3 +12,4 @@ pandas
 Backtesting
 numpy
 scikit-optimize
+whitenoise
