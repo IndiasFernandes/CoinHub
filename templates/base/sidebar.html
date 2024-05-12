@@ -1,51 +1,74 @@
-<aside class="menu" id="sidebar">
-    {% if current_section == 'bots' %}
-        <p class="menu-label">Bots</p>
-        <ul class="menu-list">
-            <li><a class="{% if section == 'bots' %}is-active{% endif %}" href="{% url 'bot:bot_list' %}">See All</a></li>
-            <li><a href="{% url 'bot:bot_new' %}">Add New</a></li>
-            <li><a href="{% url 'bot:bot_evaluation_chart' %}">View Bot Evaluation Chart</a></li>
-        </ul>
-        <p class="menu-label">Strategies</p>
-        <ul class="menu-list">
-            <li><a href="{% url 'bot:strategy_list' %}">See All</a></li>
-            <li><a href="{% url 'bot:strategy_create' %}">Add New</a></li>
-        </ul>
-    {% endif %}
+<style>
+    .sidebar-bottom-buttons {
+        margin-top: 20px; /* Space above the buttons */
+    }
+
+    .button-icon-text {
+        margin-left: 10px; /* Space between the icon and text */
+    }
+
+    .spaced-button {
+        margin-bottom: 20px; /* Space between buttons */
+    }
+</style>
+
+<aside class="menu column is-narrow-mobile is-fullheight">
 
     {% if current_section == 'market' %}
-        <p class="menu-label">Account</p>
+        <p class="menu-label"><i class="fa fa-rocket"></i> Optimizing</p>
         <ul class="menu-list">
-            <li><a href="{% url 'exchange:chart_view' %}">Balance Chart</a></li>
+            <li><a class="sidebar-item {% if section == 'optimizing' %}is-active{% endif %}" href="{% url 'market:run_optimization' %}"><i class="fa fa-play-circle"></i><span class="button-icon-text"> Do Optimization</span></a></li>
+            <li><a class="sidebar-item" href="{% url 'market:optimize_list' %}"><i class="fa fa-list"></i><span class="button-icon-text"> Optimization List</span></a></li>
         </ul>
-        <p class="menu-label">Backtesting</p>
+        <p class="menu-label"><i class="fa fa-history"></i> Backtesting</p>
         <ul class="menu-list">
-            <li><a href="{% url 'market:run_backtest' %}">Do Backtest</a></li>
-            <li><a href="{% url 'market:backtests_list' %}">Backtest List</a></li>
+            <li><a class="sidebar-item {% if section == 'backtesting' %}is-active{% endif %}" href="{% url 'market:run_backtest' %}"><i class="fa fa-play-circle"></i><span class="button-icon-text"> Do Backtest</span></a></li>
+            <li><a class="sidebar-item" href="{% url 'market:backtests_list' %}"><i class="fa fa-list"></i><span class="button-icon-text"> Backtest List</span></a></li>
         </ul>
-        <p class="menu-label">Optimizing</p>
+        <div class="spaced-button sidebar-bottom-buttons">
+            <a class="button is-success is-fullwidth" href="#"><i class="fa fa-paper-plane"></i><span class="button-icon-text"> Paper Trading</span></a>
+        </div>
+    {% endif %}
+
+    {% if current_section == 'bots' %}
+        <p class="menu-label"><i class="fa fa-lightbulb"></i> Strategies</p>
         <ul class="menu-list">
-            <li><a href="{% url 'market:run_optimization' %}">Do Optimization</a></li>
-            <li><a href="{% url 'market:optimize_list' %}">Optimization List</a></li>
+            <li><a class="sidebar-item" href="{% url 'bot:strategy_create' %}"><i class="fa fa-plus"></i><span class="button-icon-text"> Add New Strategy</span></a></li>
+            <li><a class="sidebar-item {% if section == 'strategies' %}is-active{% endif %}" href="{% url 'bot:strategy_list' %}"><i class="fa fa-list"></i><span class="button-icon-text"> See All Strategies</span></a></li>
         </ul>
+        <p class="menu-label"><i class="fa fa-cogs"></i> Advanced Settings</p>
+        <ul class="menu-list">
+            <li><a class="sidebar-item {% if section == 'settings' %}is-active{% endif %}" href="#"><i class="fa fa-shield-alt"></i><span class="button-icon-text"> Risk Management</span></a></li>
+            <li><a class="sidebar-item" href="#"><i class="fa fa-robot"></i><span class="button-icon-text"> Trade Automation</span></a></li>
+        </ul>
+
+        <p class="menu-label"><i class="fa fa-robot"></i> Manage Bots</p>
+        <ul class="menu-list">
+            <li><a class="sidebar-item" href="{% url 'bot:bot_new' %}"><i class="fa fa-plus"></i><span class="button-icon-text"> Create Bot</span></a></li>
+            <li><a class="sidebar-item {% if section == 'manage' %}is-active{% endif %}" href="{% url 'bot:bot_list' %}"><i class="fa fa-list"></i><span class="button-icon-text"> See All Bots</span></a></li>
+        </ul>
+        <div class="sidebar-bottom-buttons spaced-button">
+            <a class="button is-success is-fullwidth" href="{% url 'bot:bot_evaluation_chart' %}"><i class="fa fa-robot"></i><span class="button-icon-text"> Run Bots</span></a>
+        </div>
     {% endif %}
 
     {% if current_section == 'exchanges' %}
-        <p class="menu-label">Exchanges</p>
+        <p class="menu-label"><i class="fa fa-exchange-alt"></i> Manage</p>
         <ul class="menu-list">
-            <li><a class="{% if section == 'exchanges' %}is-active{% endif %}" href="{% url 'exchange:exchange_list' %}">See All</a></li>
-            <li><a href="{% url 'exchange:exchange_new' %}">Add New</a></li>
+            <li><a class="sidebar-item" href="{% url 'exchange:exchange_new' %}"><i class="fa fa-plus"></i><span class="button-icon-text"> Add New Exchange</span></a></li>
+            <li><a class="sidebar-item {% if section == 'manage' %}is-active{% endif %}" href="{% url 'exchange:exchange_list' %}"><i class="fa fa-list"></i><span class="button-icon-text"> See All Exchanges</span></a></li>
         </ul>
-        <p class="menu-label">Past Data</p>
+        <p class="menu-label"><i class="fa fa-database"></i> Data Stored</p>
         <ul class="menu-list">
-            <li><a href="{% url 'exchange:download_data' %}">Download Data</a></li>
+            <li><a class="sidebar-item {% if section == 'data' %}is-active{% endif %}" href="{% url 'exchange:download_data' %}"><i class="fa fa-download"></i><span class="button-icon-text"> Download Data</span></a></li>
+            <li><a class="sidebar-item {% if section == 'data' %}is-active{% endif %}" href=""><i class="fa fa-download"></i><span class="button-icon-text"> Data Stored</span></a></li>
         </ul>
     {% endif %}
 
     {% if current_section == 'users' %}
-        <p class="menu-label">Users</p>
+        <p class="menu-label"><i class="fa fa-users"></i> Users</p>
         <ul class="menu-list">
-            <li><a class="{% if section == 'users' %}is-active{% endif %}" href="{% url 'user:user_list' %}">See All</a></li>
+            <li><a class="sidebar-item {% if section == 'users' %}is-active{% endif %}" href="{% url 'user:user_list' %}"><i class="fa fa-list"></i><span class="button-icon-text"> See All Users</span></a></li>
         </ul>
     {% endif %}
 </aside>

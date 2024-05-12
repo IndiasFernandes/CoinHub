@@ -1,47 +1,92 @@
 {% extends 'base/base.html' %}
 
 {% block content %}
-
 <div class="container">
     <h1 class="title">Dashboard</h1>
-    <div class="columns">
+
+    <!-- Top Summary Cards -->
+    <div class="columns is-multiline">
         <!-- Bots Summary -->
-        <div class="column">
-            <div class="box">
-                <h2 class="subtitle">Your Bots</h2>
-                <p><strong>Total Bots:</strong> {{ bots.count }}</p>
-                <p><strong>Active Bots:</strong> {{ active_bots_count }}</p> <!-- Custom template tag or method to filter active bots -->
-                <a href="{% url 'bot:bot_list' %}" class="button is-link">Manage Bots</a>
+        <div class="column is-one-third">
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        Your Bots
+                    </p>
+                </header>
+                <div class="card-content">
+                    <div class="content">
+                        <p><strong>Total Bots:</strong> {{ bots.count }}</p>
+                        <p><strong>Active Bots:</strong> {{ active_bots_count }}</p>
+                    </div>
+                </div>
+                <footer class="card-footer">
+                    <a href="{% url 'bot:bot_list' %}" class="card-footer-item">Manage Bots</a>
+                </footer>
             </div>
         </div>
+
         <!-- Trades Summary -->
-        {% if trades %}
-        <div class="column">
-            <div class="box">
-                <h2 class="subtitle">Recent Trades</h2>
-                {% for trade in trades|slice:":5" %}
-                    <p>{{ trade.market.name }}: {{ trade.volume }}</p>
-                {% empty %}
-                    <p>No recent trades.</p>
-                {% endfor %}
-                <a href="#" class="button is-link">View All Trades</a>
+        <div class="column is-one-third">
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        Recent Trades
+                    </p>
+                </header>
+                <div class="card-content">
+                    <div class="content">
+                        {% if trades %}
+                            {% for trade in trades|slice:":5" %}
+                                <p>{{ trade.market.name }}: {{ trade.volume }}</p>
+                            {% empty %}
+                                <p>No recent trades.</p>
+                            {% endfor %}
+                        {% else %}
+                            <div class="notification is-warning">
+                                <button class="delete"></button>
+                                No trades found.
+                            </div>
+                        {% endif %}
+                    </div>
+                </div>
+                <footer class="card-footer">
+                    <a href="#" class="card-footer-item">View All Trades</a>
+                </footer>
             </div>
         </div>
-        {% else %}
-    <article class="message is-warning">
-        <div class="message-body">
-            No trades found.
+
+        <!-- Market Insights -->
+        <div class="column is-one-third">
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        Market Insights
+                    </p>
+                </header>
+                <div class="card-content">
+                    <div class="content">
+                        <p>Market trends, analysis, or other data-driven insights can go here.</p>
+                    </div>
+                </div>
+            </div>
         </div>
-    </article>
-    {% endif %}
     </div>
 
     <!-- Additional Information -->
     <div class="columns">
-        <div class="column is-full">
-            <div class="box">
-                <h2 class="subtitle">Market Insights</h2>
-                <p>Market trends, analysis, or other data-driven insights can go here.</p>
+        <div class="column">
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        Portfolio Overview
+                    </p>
+                </header>
+                <div class="card-content">
+                    <div class="content">
+                        <p>Overview of your portfolio performance, asset distribution, etc.</p>
+                    </div>
+                </div>
             </div>
         </div>
     </div>

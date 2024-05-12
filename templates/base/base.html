@@ -8,9 +8,8 @@
 
     <!-- CSS for Bulma, FontAwesome, DataTables -->
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
-
-<link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
     <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bulma.min.css">
 
     <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/favicon/apple-touch-icon.png' %}">
@@ -22,75 +21,42 @@
     <meta name="theme-color" content="#ffffff">
 </head>
 <body>
-    {% include 'base/header.html' %}
+    <div class="app-container">
+        {% include 'base/header.html' %}
 
-    <section class="section">
-        <div class="container">
-            <div class="columns">
-                <div class="column is-one-fifth">
-                    {% include 'base/sidebar.html' %}
-                </div>
-                <div class="column">
-                    {% if messages %}
-                        <div class="notification is-primary">
-                            {% for message in messages %}
-                                <button class="delete"></button>
-                                {{ message }}
-                            {% endfor %}
-                        </div>
-                    {% endif %}
-                    {% block content %}{% endblock %}
-                </div>
+        <div class="sidebar-container">
+            <div id="sidebar">
+                {% include 'base/sidebar.html' %}
+            </div>
+
+            <button id="sidebarToggle" class="button is-dark">
+                <span class="icon"><i class="fas fa-chevron-right"></i></span>
+            </button>
+
+            <div id="content" class="content-wrapper">
+                <section class="section">
+                    <div class="container">
+                        {% if messages %}
+                            <div class="notification is-primary">
+                                {% for message in messages %}
+                                    <button class="delete"></button>
+                                    {{ message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        {% block content %}{% endblock %}
+                    </div>
+                </section>
             </div>
         </div>
-    </section>
+    </div>
 
     <!-- Include jQuery first -->
     <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
     <!-- Then include DataTables JS -->
     <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-
-    <script>
-        $(document).ready(function () {
-            $('.notification .delete').click(function () {
-                $(this).parent().fadeOut(() => $(this).remove());
-            });
-        });
-
-        // Navbar Burger Script
-        document.addEventListener('DOMContentLoaded', function () {
-            const $navbarBurgers = Array.prototype.slice.call(document.querySelectorAll('.navbar-burger'), 0);
-            if ($navbarBurgers.length > 0) {
-                $navbarBurgers.forEach(function ($el) {
-                    $el.addEventListener('click', function () {
-                        const target = $el.dataset.target;
-                        const $target = document.getElementById(target);
-                        $el.classList.toggle('is-active');
-                        $target.classList.toggle('is-active');
-                    });
-                });
-            }
-
-            // Navbar Dropdown Script
-            const $dropdowns = Array.prototype.slice.call(document.querySelectorAll('.navbar-item.has-dropdown'), 0);
-            if ($dropdowns.length > 0) {
-                $dropdowns.forEach(function ($el) {
-                    $el.querySelector('.navbar-link').addEventListener('click', function (event) {
-                        event.preventDefault();
-                        $el.classList.toggle('is-active');
-                    });
-                });
-            }
-        });
-
-        // Sidebar Toggle Script
-        document.addEventListener('DOMContentLoaded', function () {
-            const sidebarToggle = document.getElementById('sidebarToggle');
-            sidebarToggle.onclick = function () {
-                document.getElementById('sidebar').classList.toggle('is-hidden');
-            };
-        });
-    </script>
+    <!-- Custom JS -->
+    <script src="{% static 'js/main.js' %}"></script>
     {% block extra_js %}{% endblock %}
 </body>
 </html>

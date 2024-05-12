@@ -87,27 +87,27 @@ class CurrentSectionMixin:
 class StrategyListView(LoginRequiredMixin, CurrentSectionMixin, ListView):
     model = Strategy
     template_name = 'pages/bots/strategy_list.html'
-    current_section = 'strategies'
+    current_section = 'bots'
 
 class StrategyCreateView(LoginRequiredMixin, CurrentSectionMixin, CreateView):
     model = Strategy
     form_class = StrategyForm
     template_name = 'pages/bots/strategy_form.html'
     success_url = reverse_lazy('bots:strategy_list')
-    current_section = 'strategies'
+    current_section = 'bots'
 
 class StrategyEditView(LoginRequiredMixin, CurrentSectionMixin, UpdateView):
     model = Strategy
     form_class = StrategyForm
     template_name = 'pages/bots/strategy_form.html'
     success_url = reverse_lazy('bots:strategy_list')
-    current_section = 'strategies'
+    current_section = 'bots'
 
 class StrategyDeleteView(LoginRequiredMixin, CurrentSectionMixin, DeleteView):
     model = Strategy
     template_name = 'pages/bots/strategy_confirm_delete.html'
     success_url = reverse_lazy('bots:strategy_list')
-    current_section = 'strategies'
+    current_section = 'bots'
 
 
 from django.shortcuts import render

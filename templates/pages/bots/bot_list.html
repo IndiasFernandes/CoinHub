@@ -3,9 +3,9 @@
 {% block content %}
 <div class="container">
     <h3 class="title is-3">My Bots</h3>
-    <div class="columns is-multiline">
+    <div class="columns">
         {% for bot in bots %}
-        <div class="column is-one-third">
+        <div class="column is-one-quarter is-desktop">
             <div class="card">
                 <header class="card-header">
                     <p class="card-header-title">{{ bot.name }}</p>
