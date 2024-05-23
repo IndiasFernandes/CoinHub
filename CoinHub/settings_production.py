@@ -7,11 +7,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 log_dir = os.path.join(BASE_DIR, 'staticfiles/logs')
 os.makedirs(log_dir, exist_ok=True)
 
-SECRET_KEY = 'django-insecure-exs@09)4oz810!7$sk)c#)(9hv-evxmsmafw3iswdu&f*6t_yz'
+SECRET_KEY = 'django-insecure-exs@09)4oz810!7$sk)c#(9hv-evxmsmafw3iswdu&f*6t_yz'
 
-DEBUG = True
+DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '85.242.116.211']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '85.242.116.211', '31.22.200.72']  # Add your Raspberry Pi's public IP
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -61,8 +61,12 @@ WSGI_APPLICATION = 'CoinHub.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'your_database_name',
+        'USER': 'your_database_user',
+        'PASSWORD': 'your_secure_password',
+        'HOST': 'localhost',
+        'PORT': '5432',
     }
 }
 
