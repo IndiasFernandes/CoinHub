@@ -1,5 +1,8 @@
 # CoinHub/settings.py
 import os
+from dotenv import load_dotenv
+
+load_dotenv()
 
 ENV = os.getenv('DJANGO_SETTINGS_MODULE')
 

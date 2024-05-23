@@ -13,3 +13,5 @@ Backtesting
 numpy
 scikit-optimize
 whitenoise
+python-dotenv
+psycopg2-binary
