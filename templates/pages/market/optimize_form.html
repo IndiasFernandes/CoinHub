@@ -3,22 +3,82 @@
 {% block content %}
 <style>
     .small-label {
-        font-size: 0.9rem;
+        font-size: 1rem;
     }
     .centered-button {
         display: flex;
         justify-content: center;
+        margin-top: 1.5rem;
     }
     .help-message {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         color: #6e6e6e;
+    }
+    .select-all-button {
+        margin-bottom: 1rem;
+    }
+    .box {
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+    }
+    .field:not(:last-child) {
+        margin-bottom: 1.5rem;
+    }
+    .title, .subtitle, .explanation {
+        color: white;
+    }
+    .title {
+        font-size: 2rem;
+    }
+    .subtitle {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    .explanation {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        background-color: #3273dc;
+        padding: 1rem;
+        border-radius: 8px;
+    }
+    .explanation-icon {
+        margin-right: 1rem;
+    }
+    .button.is-link {
+        background-color: #3273dc;
+        border-color: transparent;
+    }
+    .button.is-link:hover {
+        background-color: #276cda;
     }
 </style>
 <div class="container">
     <div class="columns is-centered">
-        <div class="column is-half">
+        <div class="column is-three-quarters">
             <div class="box">
-                <h1 class="title" style="font-size: 1.5rem;">Optimize</h1>
+                <h1 class="title has-text-centered">Optimize</h1>
+                <p class="subtitle has-text-centered">Optimize trading strategies on selected symbols and timeframes.</p>
+                <div class="explanation">
+                    <span class="icon explanation-icon">
+                        <i class="fas fa-info-circle"></i>
+                    </span>
+                    <p><strong>Select the symbols</strong> and <strong>timeframes</strong> you want to optimize. Configure the optimization parameters and click the <strong>"Run Optimization"</strong> button to start the optimization process.</p>
+                    <span class="delete"></span>
+                </div>
+
+                <!-- Display messages -->
+                {% if messages %}
+                <div class="notification is-info">
+                    <span class="delete"></span>
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
                 <form method="post">
                     {% csrf_token %}
                     {% for field in form %}
@@ -26,21 +86,29 @@
                         <label class="label small-label">{{ field.label }}</label>
                         <div class="control">
                             {% if field.label == "Symbol" %}
-                                <button type="button" class="button is-small" onclick="toggleSelection('symbol-checkbox')">Select All Symbols</button>
-                                {% for choice_value, choice_label in field.field.choices %}
-                                    <label class="checkbox">
-                                        <input type="checkbox" name="{{ field.name }}" value="{{ choice_value }}" class="symbol-checkbox">
-                                        {{ choice_label }}
-                                    </label>
-                                {% endfor %}
+                                <div class="buttons has-addons select-all-button">
+                                    <button type="button" class="button is-small is-info" onclick="toggleSelection('symbol-checkbox')">Select All Symbols</button>
+                                </div>
+                                <div class="control">
+                                    {% for choice_value, choice_label in field.field.choices %}
+                                        <label class="checkbox">
+                                            <input type="checkbox" name="{{ field.name }}" value="{{ choice_value }}" class="symbol-checkbox">
+                                            {{ choice_label }}
+                                        </label>
+                                    {% endfor %}
+                                </div>
                             {% elif field.label == "Timeframe" %}
-                                <button type="button" class="button is-small" onclick="toggleSelection('timeframe-checkbox')">Select All Timeframes</button>
-                                {% for choice_value, choice_label in field.field.choices %}
-                                    <label class="checkbox">
-                                        <input type="checkbox" name="{{ field.name }}" value="{{ choice_value }}" class="timeframe-checkbox">
-                                        {{ choice_label }}
-                                    </label>
-                                {% endfor %}
+                                <div class="buttons has-addons select-all-button">
+                                    <button type="button" class="button is-small is-info" onclick="toggleSelection('timeframe-checkbox')">Select All Timeframes</button>
+                                </div>
+                                <div class="control">
+                                    {% for choice_value, choice_label in field.field.choices %}
+                                        <label class="checkbox">
+                                            <input type="checkbox" name="{{ field.name }}" value="{{ choice_value }}" class="timeframe-checkbox">
+                                            {{ choice_label }}
+                                        </label>
+                                    {% endfor %}
+                                </div>
                             {% else %}
                                 {{ field|add_class:"input" }}
                             {% endif %}
@@ -55,7 +123,7 @@
                     {% endfor %}
                     <div class="field">
                         <div class="control centered-button">
-                            <button type="submit" class="button is-link">Download</button>
+                            <button type="submit" class="button is-link is-large">Run Optimization</button>
                         </div>
                     </div>
                 </form>
@@ -72,5 +140,17 @@ function toggleSelection(className) {
         checkbox.checked = !allChecked;
     });
 }
+
+// Close notification
+document.querySelectorAll('.notification .delete').forEach(button => {
+    button.addEventListener('click', function () {
+        this.parentElement.style.display = 'none';
+    });
+});
+
+// Close explanation
+document.querySelector('.explanation .delete').addEventListener('click', function () {
+    this.parentNode.style.display = 'none';
+});
 </script>
 {% endblock %}

@@ -12,12 +12,7 @@ from .backtesting.optimize_utils import run_optimization
 from ..exchanges.models import DownloadDataForm, Exchange
 from ..exchanges.utils.utils import run_exchange
 
-cash = 10000
-commission = .008
-openbrowser = False
-max_tries = 60
-atr_timeperiod_range = np.arange(0, 3, 0.2)
-atr_multiplier_range = np.arange(0, 3, 0.2)
+
 
 def run_backtest_view(request):
     if request.method == 'POST':
@@ -34,17 +29,22 @@ def run_backtest_view(request):
             timeperiods = form.cleaned_data['timeframe']
             start_date = form.cleaned_data['start_date'].strftime('%Y-%m-%d')
             end_date = form.cleaned_data['end_date'].strftime('%Y-%m-%d')
+
+            cash = form.cleaned_data['cash']
+            commission = form.cleaned_data['commission']
+            openbrowser = form.cleaned_data['openbrowser']
+
             results = []
 
             for symbol in symbols:
                 for timeperiod in timeperiods:
                     print(f"Running backtest for {symbol} ({timeperiod})")
                     df = download_data([symbol], [timeperiod], start_date, end_date, exchange_instance)
-                    st, price = run_backtest(symbol, df, timeperiod)
+                    st, price = run_backtest(symbol, df, timeperiod, cash, commission, openbrowser)
                     results.append({"symbol": symbol, "timeframe": timeperiod, "st": st, "price": price})
 
             messages.success(request, "Backtest completed successfully.")
-            return JsonResponse({'results': results})
+            return redirect('market:run_backtest')
         else:
             messages.error(request, "Form data is invalid.")
     else:
@@ -71,6 +71,21 @@ def run_optimization_view(request):
             timeperiods = form.cleaned_data['timeframe']
             start_date = form.cleaned_data['start_date'].strftime('%Y-%m-%d')
             end_date = form.cleaned_data['end_date'].strftime('%Y-%m-%d')
+
+            cash = form.cleaned_data['cash']
+            commission = form.cleaned_data['commission']
+            openbrowser = form.cleaned_data['openbrowser']
+            max_tries = form.cleaned_data['max_tries']
+            atr_timeperiod_range = form.cleaned_data['atr_timeperiod_range']
+            atr_multiplier_range = form.cleaned_data['atr_multiplier_range']
+
+            cash = 10000
+            commission = .008
+            openbrowser = False
+            max_tries = 60
+            atr_timeperiod_range = np.arange(0, 3, 0.2)
+            atr_multiplier_range = np.arange(0, 3, 0.2)
+
             results = []
 
             for symbol in symbols:
@@ -80,7 +95,7 @@ def run_optimization_view(request):
                     results.append({"symbol": symbol, "timeframe": timeperiod})
 
             messages.success(request, "Optimization completed successfully.")
-            return JsonResponse({'results': results})
+            return redirect('market:run_optimization')
         else:
             messages.error(request, "Form data is invalid.")
     else:
