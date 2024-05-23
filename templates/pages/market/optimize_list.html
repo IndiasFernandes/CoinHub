@@ -1,73 +1,106 @@
 {% extends 'base/base.html' %}
 {% load static %}
 {% block content %}
+<section class="hero is-primary is-bold">
+    <div class="hero-body">
+        <div class="container">
+            <h1 class="title has-text-centered">Optimizations</h1>
+            <h2 class="subtitle has-text-centered">View and filter optimizations based on various parameters.</h2>
+        </div>
+    </div>
+</section>
+
 <section class="section">
     <div class="container">
-        <h1 class="title">Optimizations</h1>
+        <!-- Info Box -->
+        <div class="box notification is-info is-light">
+            <span class="delete"></span>
+            <span class="icon">
+                <i class="fas fa-info-circle"></i>
+            </span>
+            <strong>Info:</strong>
+            <p><strong>This section allows you to view and filter optimizations based on various parameters.</strong></p>
+            <p><strong>Filter Options:</strong> Use the dropdown menu to select the parameter you want to filter by, and type your search query in the input box.</p>
+            <p><strong>Optimizations Table:</strong> The table displays detailed information about each optimization, including the coin, time period, repetitions, start and end dates, duration, return percentage, maximum drawdown percentage, Sharpe ratio, and Sortino ratio.</p>
+        </div>
 
         <!-- Filter Section -->
-        <div class="field has-addons">
-            <p class="control">
-                <span class="select">
-                    <select id="columnSelector">
-                        <option value="">Select Filter</option>
-                        <option value="0">Coin</option>
-                        <option value="1">Timeperiod</option>
-                        <option value="2">Repetitions</option>
-                        <option value="3">Start Date</option>
-                        <option value="4">End Date</option>
-                        <option value="5">Duration</option>
-                        <option value="6">Return [%]</option>
-                        <option value="7">Max. Drawdown [%]</option>
-                        <option value="8">Sharp Ratio</option>
-                        <option value="9">Sortino Ratio</option>
-                    </select>
-                </span>
-            </p>
-            <p class="control is-expanded">
-                <input class="input" type="text" id="columnSearch" placeholder="Type to filter...">
-            </p>
+        <div class="box">
+            <h2 class="title is-4 has-text-centered">Filter Optimizations</h2>
+            <div class="field has-addons">
+                <p class="control">
+                    <span class="select is-fullwidth">
+                        <select id="columnSelector">
+                            <option value="">Select Filter</option>
+                            <option value="0">Coin</option>
+                            <option value="1">Timeperiod</option>
+                            <option value="2">Repetitions</option>
+                            <option value="3">Start Date</option>
+                            <option value="4">End Date</option>
+                            <option value="5">Duration</option>
+                            <option value="6">Return [%]</option>
+                            <option value="7">Max. Drawdown [%]</option>
+                            <option value="8">Sharp Ratio</option>
+                            <option value="9">Sortino Ratio</option>
+                        </select>
+                    </span>
+                </p>
+                <p class="control is-expanded">
+                    <input class="input" type="text" id="columnSearch" placeholder="Type to filter...">
+                </p>
+            </div>
         </div>
 
         <!-- Optimizations Table -->
-        <table class="table is-fullwidth is-striped is-hoverable" id="optimizeTable">
-            <thead>
-                <tr>
-                    <th>Coin</th>
-                    <th>Timeperiod</th>
-                    <th>Repetitions</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Duration</th>
-                    <th>Return [%]</th>
-                    <th>Max. Drawdown [%]</th>
-                    <th>Sharp Ratio</th>
-                    <th>Sortino Ratio</th>
-                    <th>Details</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for optimization in optimizations %}
-                <tr>
-                    <td>{{ optimization.symbol }}</td>
-                    <td>{{ optimization.timeperiod }}</td>
-                    <td>{{ optimization.repetitions }}</td>
-                    <td>{{ optimization.start_date|date:"Y-m-d" }}</td>
-                    <td>{{ optimization.end_date|date:"Y-m-d" }}</td>
-                    <td>{{ optimization.duration }}</td>
-                    <td><span class="{% if optimization.return_percent > 100 %}tag is-success{% else %}tag is-danger{% endif %}">{{ optimization.return_percent|floatformat:2 }}%</span></td>
-                    <td><span class="tag is-danger">{{ optimization.max_drawdown_percent|floatformat:2 }}%</span></td>
-                    <td>
-                        <span class="{% if optimization.sharpe_ratio < 1 %}tag is-danger{% elif optimization.sharpe_ratio >= 2 %}tag is-success{% else %}tag is-warning{% endif %}">
-                            {{ optimization.sharpe_ratio|floatformat:2 }}
-                        </span>
-                    </td>
-                    <td>{{ optimization.sortino_ratio|floatformat:2 }}</td>
-                    <td><a class="button is-small is-info" href="{% url 'market:optimize_detail' optimization.id %}">View</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="box">
+            <h2 class="title is-4 has-text-centered">Optimizations List</h2>
+            <div class="table-container">
+                <table class="table is-fullwidth is-striped is-hoverable" id="optimizeTable">
+                    <thead>
+                        <tr>
+                            <th>Coin</th>
+                            <th>Timeperiod</th>
+                            <th>Repetitions</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Duration</th>
+                            <th>Return [%]</th>
+                            <th>Max. Drawdown [%]</th>
+                            <th>Sharp Ratio</th>
+                            <th>Sortino Ratio</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for optimization in optimizations %}
+                        <tr>
+                            <td>{{ optimization.symbol }}</td>
+                            <td>{{ optimization.timeperiod }}</td>
+                            <td>{{ optimization.repetitions }}</td>
+                            <td>{{ optimization.start_date|date:"Y-m-d" }}</td>
+                            <td>{{ optimization.end_date|date:"Y-m-d" }}</td>
+                            <td>{{ optimization.duration }}</td>
+                            <td>
+                                <span class="{% if optimization.return_percent > 100 %}tag is-success{% else %}tag is-danger{% endif %}">
+                                    {{ optimization.return_percent|floatformat:2 }}%
+                                </span>
+                            </td>
+                            <td>
+                                <span class="tag is-danger">{{ optimization.max_drawdown_percent|floatformat:2 }}%</span>
+                            </td>
+                            <td>
+                                <span class="{% if optimization.sharpe_ratio < 1 %}tag is-danger{% elif optimization.sharpe_ratio >= 2 %}tag is-success{% else %}tag is-warning{% endif %}">
+                                    {{ optimization.sharpe_ratio|floatformat:2 }}
+                                </span>
+                            </td>
+                            <td>{{ optimization.sortino_ratio|floatformat:2 }}</td>
+                            <td><a class="button is-small is-info" href="{% url 'market:optimize_detail' optimization.id %}">View</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </section>
 {% endblock %}

@@ -9,7 +9,8 @@
     <!-- CSS for Bulma, FontAwesome, DataTables -->
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.15.3/css/all.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+
     <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bulma.min.css">
 
     <!-- Favicon and Web App Manifest -->
@@ -245,7 +246,7 @@
                         <!-- Notification Section -->
                         {% if messages %}
                             <div class="notification is-primary">
-                                <button class="delete"></button>
+                                <span class="delete"></span>
                                 {% for message in messages %}
                                     {{ message }}
                                 {% endfor %}

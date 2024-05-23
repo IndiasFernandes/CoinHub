@@ -9,7 +9,7 @@ from .models import Backtest, Optimize, PaperTrade, MarketData
 from apps.exchanges.utils.hyperliquid.download_data import initialize_exchange, download_data
 from .backtesting.backtest_utils import run_backtest
 from .backtesting.optimize_utils import run_optimization
-from ..exchanges.models import DownloadDataForm
+from ..exchanges.models import DownloadDataForm, Exchange
 from ..exchanges.utils.utils import run_exchange
 
 cash = 10000
@@ -20,17 +20,16 @@ atr_timeperiod_range = np.arange(0, 3, 0.2)
 atr_multiplier_range = np.arange(0, 3, 0.2)
 
 
-
-
 def run_backtest_view(request):
     if request.method == 'POST':
         form = DownloadDataForm(request.POST)
         if form.is_valid():
             exchange_id = form.cleaned_data['exchange_id']
-            key = form.cleaned_data['api_key']
-            secret = form.cleaned_data['secret']
+            exchange = get_object_or_404(Exchange, id_char=exchange_id)
+            key = exchange.api_key
+            secret = exchange.secret_key
 
-            exchange = run_exchange(exchange_id, key, secret)
+            exchange_instance = run_exchange(exchange_id, key, secret)
 
             symbols = form.cleaned_data['symbol']
             timeperiods = form.cleaned_data['timeframe']
@@ -41,7 +40,7 @@ def run_backtest_view(request):
             for symbol in symbols:
                 for timeperiod in timeperiods:
                     print(f"Running backtest for {symbol} ({timeperiod})")
-                    df = download_data(symbol, timeperiod, start_date, end_date, exchange)
+                    df = download_data([symbol], [timeperiod], start_date, end_date, exchange_instance)
                     st, price = run_backtest(symbol, df, timeperiod)
                     results.append({"symbol": symbol, "timeframe": timeperiod, "st": st, "price": price})
 

@@ -1,70 +1,138 @@
 {% extends 'base/base.html' %}
 {% load static %}
 {% block content %}
+<section class="hero is-primary is-bold">
+    <div class="hero-body">
+        <div class="container">
+            <h1 class="title has-text-centered">Backtests</h1>
+            <h2 class="subtitle has-text-centered">View and filter backtests based on various parameters.</h2>
+        </div>
+    </div>
+</section>
+
 <section class="section">
     <div class="container">
-        <h1 class="title">Backtests</h1>
+        <!-- Info Box -->
+        <div class="box notification is-info is-light">
+            <div class="columns is-vcentered">
+                <div class="column is-narrow">
+                    <span class="icon is-large">
+                        <i class="fas fa-info-circle fa-2x"></i>
+                    </span>
+                </div>
+                <div class="column">
+                    <strong>Info:</strong>
+                    <p><strong>This section allows you to view and filter backtests based on various parameters.</strong></p>
+                    <p><strong>Filter Options:</strong> Use the dropdown menu to select the parameter you want to filter by, and type your search query in the input box.</p>
+                    <p><strong>Backtests Table:</strong> The table displays detailed information about each backtest, including the coin, time period, start and end dates, duration, return percentage, maximum drawdown percentage, Sharpe ratio, and Sortino ratio.</p>
+                </div>
+            </div>
+            <button class="delete"></button>
+        </div>
 
         <!-- Filter Section -->
-        <div class="field has-addons">
-            <p class="control">
-                <span class="select">
-                    <select id="columnSelector">
-                        <option value="">Select Filter</option>
-                        <option value="0">Coin</option>
-                        <option value="1">Timeperiod</option>
-                        <option value="2">Start Date</option>
-                        <option value="3">End Date</option>
-                        <option value="4">Duration</option>
-                        <option value="5">Return [%]</option>
-                        <option value="6">Max. Drawdown [%]</option>
-                        <option value="7">Sharp Ratio</option>
-                        <option value="8">Sortino Ratio</option>
-                    </select>
-                </span>
-            </p>
-            <p class="control is-expanded">
-                <input class="input" type="text" id="columnSearch" placeholder="Type to filter...">
-            </p>
+        <div class="box">
+            <h2 class="title is-4 has-text-centered">Filter Backtests</h2>
+            <div class="field has-addons">
+                <p class="control">
+                    <span class="select is-fullwidth">
+                        <select id="columnSelector">
+                            <option value="">Select Filter</option>
+                            <option value="0">Coin</option>
+                            <option value="1">Timeperiod</option>
+                            <option value="2">Start Date</option>
+                            <option value="3">End Date</option>
+                            <option value="4">Duration</option>
+                            <option value="5">Return [%]</option>
+                            <option value="6">Max. Drawdown [%]</option>
+                            <option value="7">Sharpe Ratio</option>
+                            <option value="8">Sortino Ratio</option>
+                        </select>
+                    </span>
+                </p>
+                <p class="control is-expanded">
+                    <input class="input" type="text" id="columnSearch" placeholder="Type to filter...">
+                </p>
+            </div>
         </div>
 
         <!-- Backtests Table -->
-        <table class="table is-fullwidth is-striped is-hoverable" id="backtestTable">
-            <thead>
-                <tr>
-                    <th>Coin</th>
-                    <th>Timeperiod</th>
-                    <th>Start Date</th>
-                    <th>End Date</th>
-                    <th>Duration</th>
-                    <th>Return [%]</th>
-                    <th>Max. Drawdown [%]</th>
-                    <th>Sharp Ratio</th>
-                    <th>Sortino Ratio</th>
-                    <th>Details</th>
-                </tr>
-            </thead>
-            <tbody>
-                {% for backtest in backtests %}
-                <tr>
-                    <td>{{ backtest.symbol }}</td>
-                    <td>{{ backtest.timeperiod }}</td>
-                    <td>{{ backtest.start_date|date:"Y-m-d" }}</td>
-                    <td>{{ backtest.end_date|date:"Y-m-d" }}</td>
-                    <td>{{ backtest.duration }}</td>
-                    <td><span class="{% if backtest.return_percent > 100 %}tag is-success{% else %}tag is-danger{% endif %}">{{ backtest.return_percent|floatformat:2 }}%</span></td>
-                    <td><span class="tag is-danger">{{ backtest.max_drawdown_percent|floatformat:2 }}%</span></td>
-                    <td>
-                        <span class="{% if backtest.sharpe_ratio < 1 %}tag is-danger{% elif backtest.sharpe_ratio >= 2 %}tag is-success{% else %}tag is-warning{% endif %}">
-                            {{ backtest.sharpe_ratio|floatformat:2 }}
-                        </span>
-                    </td>
-                    <td>{{ backtest.sortino_ratio|floatformat:2 }}</td>
-                    <td><a class="button is-small is-info" href="{% url 'market:backtest_detail' backtest.id %}">View</a></td>
-                </tr>
-                {% endfor %}
-            </tbody>
-        </table>
+        <div class="box">
+            <h2 class="title is-4 has-text-centered">Backtests List</h2>
+            <div class="table-container" style="overflow-y: auto;">
+                <table class="table is-fullwidth is-striped is-hoverable" id="backtestTable">
+                    <thead>
+                        <tr>
+                            <th>Coin</th>
+                            <th>Timeperiod</th>
+                            <th>Start Date</th>
+                            <th>End Date</th>
+                            <th>Duration</th>
+                            <th>Return [%]</th>
+                            <th>Max. Drawdown [%]</th>
+                            <th>Sharpe Ratio</th>
+                            <th>Sortino Ratio</th>
+                            <th>Details</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for backtest in backtests %}
+                        <tr>
+                            <td>{{ backtest.symbol }}</td>
+                            <td>{{ backtest.timeperiod }}</td>
+                            <td>{{ backtest.start_date|date:"Y-m-d" }}</td>
+                            <td>{{ backtest.end_date|date:"Y-m-d" }}</td>
+                            <td>{{ backtest.duration }}</td>
+                            <td>
+                                <span class="{% if backtest.return_percent > 100 %}tag is-success{% else %}tag is-danger{% endif %}">
+                                    {{ backtest.return_percent|floatformat:2 }}%
+                                </span>
+                            </td>
+                            <td>
+                                <span class="tag is-danger">{{ backtest.max_drawdown_percent|floatformat:2 }}%</span>
+                            </td>
+                            <td>
+                                <span class="{% if backtest.sharpe_ratio < 1 %}tag is-danger{% elif backtest.sharpe_ratio >= 2 %}tag is-success{% else %}tag is-warning{% endif %}">
+                                    {{ backtest.sharpe_ratio|floatformat:2 }}
+                                </span>
+                            </td>
+                            <td>{{ backtest.sortino_ratio|floatformat:2 }}</td>
+                            <td><a class="button is-small is-info" href="{% url 'market:backtest_detail' backtest.id %}">View</a></td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
     </div>
 </section>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+$(document).ready(function() {
+    var table = $('#backtestTable').DataTable({
+        responsive: true,
+        autoWidth: false
+    });
+
+    $('#columnSelector').on('change', function() {
+        var column = table.column($(this).val());
+        column.search('').draw(); // Clear column search on every change
+    });
+
+    $('#columnSearch').on('keyup', function() {
+        var colIndex = $('#columnSelector').val();
+        if (colIndex) {
+            table.column(colIndex).search(this.value).draw();
+        } else {
+            table.search(this.value).draw(); // Search all columns if no specific column selected
+        }
+    });
+
+    $('.notification .delete').click(function () {
+        $(this).parent().fadeOut(() => $(this).remove());
+    });
+});
+</script>
 {% endblock %}
