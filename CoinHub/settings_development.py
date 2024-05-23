@@ -61,10 +61,15 @@ WSGI_APPLICATION = 'CoinHub.wsgi.application'
 
 DATABASES = {
     'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+        'ENGINE': 'django.db.backends.postgresql',
+        'NAME': 'db_CoinHub',
+        'USER': 'indiasfernandes',
+        'PASSWORD': 'V28ad18@2720',
+        'HOST': '85.242.116.211',
+        'PORT': '5432',
     }
 }
+
 
 AUTH_PASSWORD_VALIDATORS = [
     {

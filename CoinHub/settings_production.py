@@ -62,9 +62,9 @@ WSGI_APPLICATION = 'CoinHub.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'your_database_name',
-        'USER': 'your_database_user',
-        'PASSWORD': 'your_secure_password',
+        'NAME': 'db_CoinHub',
+        'USER': 'indiasfernandes',
+        'PASSWORD': 'V28ad18@2720',
         'HOST': 'localhost',
         'PORT': '5432',
     }
