@@ -10,7 +10,6 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
-
     <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bulma.min.css">
 
     <!-- Favicon and Web App Manifest -->
@@ -54,6 +53,38 @@
             padding: 0;
         }
 
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--almost-black);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1001;
+            border-bottom: none;
+        }
+
+        /* Ensure the content starts below the navbar */
+        .app-container {
+            margin-top: 52px; /* Adjust based on navbar height */
+        }
+
+        @media screen and (max-width: 768px) {
+            .navbar-menu.is-active {
+                display: flex !important;
+                flex-direction: column;
+            }
+            .navbar-item {
+                text-align: center;
+            }
+            .navbar-end {
+                margin-top: 10px;
+            }
+            .app-container.navbar-menu-active {
+                margin-top: calc(52px + 200px); /* Adjust based on the height of the expanded navbar menu */
+            }
+        }
+
         /* Utility Classes */
         .text-center {
             text-align: center;
@@ -69,29 +100,6 @@
             padding: 0 2rem;
         }
 
-        /* Navbar Styles */
-        .navbar {
-            background-color: var(--almost-black);
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-            position: fixed;
-            width: 100%;
-            z-index: 1001;
-        }
-
-        .navbar .navbar-item {
-            color: var(--neutral-color);
-            transition: background-color 0.3s;
-        }
-
-        .navbar .navbar-item:hover {
-            background-color: var(--primary-color);
-        }
-
-        .navbar .navbar-dropdown {
-            border-radius: 8px;
-            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
-        }
-
         /* Sidebar Styles */
         #sidebar {
             width: 250px;
@@ -100,11 +108,11 @@
             transform: translateX(-250px);
             overflow-y: auto;
             position: fixed;
-            height: calc(100% - 50px); /* Adjust for header height */
+            height: calc(100% - 52px); /* Adjust for header height */
             z-index: 1000;
             box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
             transition: transform 0.3s ease;
-            top: 50px; /* Ensures sidebar starts below the header */
+            top: 52px; /* Ensures sidebar starts below the header */
         }
 
         #sidebar.is-visible {
@@ -115,7 +123,6 @@
         .sidebar-container {
             display: flex;
             height: 100%;
-            margin-top: 50px; /* Space for the header */
         }
 
         /* Content Wrapper */
@@ -124,7 +131,7 @@
             margin-left: 0;
             transition: margin-left 0.3s ease;
             width: 100%;
-            padding-top: 50px; /* Space for the header */
+            padding-top: 52px; /* Space for the header */
         }
 
         .sidebar-is-visible .content-wrapper {
@@ -261,66 +268,91 @@
     </div>
 
     <!-- Include jQuery first -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
     <!-- Include DataTables JS -->
     <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
     <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bulma.min.js"></script>
 
     <!-- Custom JS -->
     <script src="{% static 'js/main.js' %}"></script>
+
     <script>
     $(document).ready(function () {
-        const sidebar = document.getElementById('sidebar');
-        const content = document.getElementById('content');
-        const sidebarToggle = document.getElementById('sidebarToggle');
-        const toggleIcon = sidebarToggle.querySelector('.icon i');
+        // Navbar Burger Toggle
+        $(".navbar-burger").click(function () {
+            var target = $(this).data("target");
+            $(this).toggleClass("is-active");
+            $("#" + target).toggleClass("is-active");
+            $(".app-container").toggleClass("navbar-menu-active");
+        });
 
-        function updateSidebarState(isVisible) {
-            localStorage.setItem('sidebarIsVisible', isVisible ? 'true' : 'false');
-            setSidebarVisibility(isVisible);
-        }
-
-        function setSidebarVisibility(visible) {
-            if (visible) {
-                sidebar.classList.add('is-visible');
-                toggleIcon.classList.add('fa-chevron-left');
-                toggleIcon.classList.remove('fa-chevron-right');
-                content.style.marginLeft = '250px';
-            } else {
-                sidebar.classList.remove('is-visible');
-                toggleIcon.classList.add('fa-chevron-right');
-                toggleIcon.classList.remove('fa-chevron-left');
-                content.style.marginLeft = '0';
-            }
-        }
-
-        // Disable transitions initially
-        sidebar.style.transition = 'none';
-        content.style.transition = 'none';
-        sidebarToggle.style.transition = 'none';
-
-        // Set initial state based on local storage or default
-        const sidebarIsVisible = localStorage.getItem('sidebarIsVisible') === 'true';
-        setSidebarVisibility(sidebarIsVisible);
-
-        // Re-enable transitions after initial state
-        setTimeout(() => {
-            sidebar.style.transition = '';
-            content.style.transition = '';
-            sidebarToggle.style.transition = '';
-        }, 10);
-
-        sidebarToggle.addEventListener('click', () => {
-            const isVisible = !sidebar.classList.contains('is-visible');
-            updateSidebarState(isVisible);
+        // Toggle My Account dropdown on desktop and mobile
+        $(".navbar-link").click(function(e) {
+            e.preventDefault();
+            $(this).parent().toggleClass("is-active");
         });
 
         // Close notification
         $('.notification .delete').click(function () {
             $(this).parent().fadeOut(() => $(this).remove());
         });
+
+        const sidebar = document.getElementById('sidebar');
+        const content = document.getElementById('content');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        if (sidebarToggle) {
+            const toggleIcon = sidebarToggle.querySelector('.icon i');
+
+            function updateSidebarState(isVisible) {
+                localStorage.setItem('sidebarIsVisible', isVisible ? 'true' : 'false');
+                setSidebarVisibility(isVisible);
+            }
+
+            function setSidebarVisibility(visible) {
+                if (visible) {
+                    sidebar.classList.add('is-visible');
+                    toggleIcon.classList.add('fa-chevron-left');
+                    toggleIcon.classList.remove('fa-chevron-right');
+                    content.style.marginLeft = '250px';
+                } else {
+                    sidebar.classList.remove('is-visible');
+                    toggleIcon.classList.add('fa-chevron-right');
+                    toggleIcon.classList.remove('fa-chevron-left');
+                    content.style.marginLeft = '0';
+                }
+            }
+
+            // Disable transitions initially
+            sidebar.style.transition = 'none';
+            content.style.transition = 'none';
+            sidebarToggle.style.transition = 'none';
+
+            // Set initial state based on local storage or default
+            const sidebarIsVisible = localStorage.getItem('sidebarIsVisible') === 'true';
+            setSidebarVisibility(sidebarIsVisible);
+
+            // Re-enable transitions after initial state
+            setTimeout(() => {
+                sidebar.style.transition = '';
+                content.style.transition = '';
+                sidebarToggle.style.transition = '';
+            }, 10);
+
+            sidebarToggle.addEventListener('click', () => {
+                const isVisible = !sidebar.classList.contains('is-visible');
+                updateSidebarState(isVisible);
+            });
+
+            // Add touch event listener
+            sidebarToggle.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const isVisible = !sidebar.classList.contains('is-visible');
+                updateSidebarState(isVisible);
+            });
+        }
     });
     </script>
+
     {% block extra_js %}{% endblock %}
 </body>
 </html>

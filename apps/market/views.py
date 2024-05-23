@@ -61,7 +61,12 @@ def run_optimization_view(request):
         form = DownloadDataForm(request.POST)
         if form.is_valid():
             exchange_id = form.cleaned_data['exchange_id']
-            exchange = initialize_exchange(exchange_id, api_key='your_api_key', secret='your_secret')
+            exchange = get_object_or_404(Exchange, id_char=exchange_id)
+            key = exchange.api_key
+            secret = exchange.secret_key
+
+            exchange_instance = run_exchange(exchange_id, key, secret)
+
             symbols = form.cleaned_data['symbol']
             timeperiods = form.cleaned_data['timeframe']
             start_date = form.cleaned_data['start_date'].strftime('%Y-%m-%d')
@@ -70,7 +75,7 @@ def run_optimization_view(request):
 
             for symbol in symbols:
                 for timeperiod in timeperiods:
-                    df = download_data([symbol], [timeperiod], start_date, end_date, exchange)
+                    df = download_data([symbol], [timeperiod], start_date, end_date, exchange_instance)
                     run_optimization(symbol, timeperiod, cash, commission, openbrowser, df, max_tries, atr_timeperiod_range, atr_multiplier_range)
                     results.append({"symbol": symbol, "timeframe": timeperiod})
 
