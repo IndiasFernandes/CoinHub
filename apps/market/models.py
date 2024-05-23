@@ -33,7 +33,6 @@ class Backtest(models.Model):
         verbose_name = "Backtest"
         verbose_name_plural = "Backtests"
 
-
 class Optimize(models.Model):
     exchange = models.ForeignKey('exchanges.Exchange', on_delete=models.CASCADE)
     symbol = models.CharField(max_length=50)

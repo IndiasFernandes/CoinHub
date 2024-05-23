@@ -1,18 +1,15 @@
+# admin.py
+
 from django.contrib import admin
-from .models import Optimize, Backtest
+from .models import Backtest, Optimize
 
-# Admin model for Optimize
-class OptimizeAdmin(admin.ModelAdmin):
-    list_display = ('symbol', 'timeperiod', 'sharpe_ratio', 'return_percent', 'max_drawdown_percent', 'created_at')
-    list_filter = ('symbol', 'timeperiod')
-    search_fields = ('symbol', 'timeperiod')
-
-# Admin model for Backtest
 class BacktestAdmin(admin.ModelAdmin):
-    list_display = ('symbol', 'timeperiod', 'sharpe_ratio', 'return_percent', 'max_drawdown_percent', 'created_at')
-    list_filter = ('symbol', 'timeperiod')
-    search_fields = ('symbol', 'timeperiod')
+    list_display = ('symbol', 'timeframe', 'cash', 'commission', 'start_date', 'end_date')
+    list_filter = ('symbol', 'timeframe', 'start_date', 'end_date')
 
-# Register your models here
-admin.site.register(Optimize, OptimizeAdmin)
+class OptimizeAdmin(admin.ModelAdmin):
+    list_display = ('symbol', 'timeframe', 'cash', 'commission', 'sharpe_ratio', 'return_percent', 'created_at')
+    list_filter = ('symbol', 'timeframe', 'start_date', 'end_date')
+
 admin.site.register(Backtest, BacktestAdmin)
+admin.site.register(Optimize, OptimizeAdmin)
