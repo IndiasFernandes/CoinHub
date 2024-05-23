@@ -39,6 +39,9 @@ def download_data(symbols, timeframes, start_date, end_date, exchange):
             data_dir = os.path.join(settings.BASE_DIR, 'static', 'data', exchange.id, timeframe)
             ensure_dir(data_dir)
             file_path = os.path.join(data_dir, f'{symbol.replace("/", "_")}.csv')
+            #fetch_ohlcv = exchange.fetch_ohlcv(symbol="AAVE/USDC:USDC", timeframe='5m',
+            #                                   since=int(datetime(2024, 4, 11).timestamp() * 1000), limit=1000,
+            #                                   params={})
 
             logging.info(f"Downloading data for {symbol} ({timeframe}) to {file_path}")
             all_data = []
@@ -49,7 +52,7 @@ def download_data(symbols, timeframes, start_date, end_date, exchange):
                         start_timestamp = data[-1][0] + 1
                         all_data.extend(data)
                     else:
-                        break
+                        a = 1
                 except ccxt.NetworkError as e:
                     logging.error(f"Network error occurred: {e}")
                     break
