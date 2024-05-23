@@ -1,16 +1,22 @@
 # exchanges/models.py
+
 from django.db import models
 
-
 class Exchange(models.Model):
+    id_char = models.CharField(max_length=100)
     name = models.CharField(max_length=100)
     description = models.TextField()
     api_url = models.URLField()
+    api_key = models.CharField(max_length=100)
+    secret_key = models.CharField(max_length=100)
+
+
     def __str__(self):
         return self.name
 
 class Coin(models.Model):
     symbol = models.CharField(max_length=10)  # Example: BTC, ETH
+
     def __str__(self):
         return self.symbol
 
@@ -18,6 +24,7 @@ class Market(models.Model):
     exchange = models.ForeignKey(Exchange, on_delete=models.CASCADE)
     market_type = models.CharField(max_length=20, default='spot')  # Add a field for market type
     coins = models.ManyToManyField(Coin, related_name='markets')
+
     def __str__(self):
         return f"{self.exchange.name} - {self.market_type}"
 
@@ -49,6 +56,7 @@ class ExchangeInfo(models.Model):
 
     class Meta:
         verbose_name_plural = "Exchange Information"
+
 
 # forms.py
 

@@ -3,11 +3,12 @@ from .models import Exchange, Market, Coin, HistoricalData
 
 @admin.register(Exchange)
 class ExchangeAdmin(admin.ModelAdmin):
-    list_display = ('name', 'api_url')
+    list_display = ('name', 'id_char', 'api_url', 'description')
 
 @admin.register(Coin)
 class CoinAdmin(admin.ModelAdmin):
     list_display = ('symbol',)
+
 
 @admin.register(Market)
 class MarketAdmin(admin.ModelAdmin):

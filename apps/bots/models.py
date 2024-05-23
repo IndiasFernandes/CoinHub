@@ -1,7 +1,7 @@
+# bots/models.py
 
 from django.contrib.auth.models import User
 from apps.exchanges.models import Exchange, Market
-
 from django.db import models
 from apps.market.models import Optimize
 from django.utils import timezone
@@ -44,7 +44,6 @@ class Strategy(models.Model):
         verbose_name = "Strategy"
         verbose_name_plural = "Strategies"
 
-
 class Bot(models.Model):
     name = models.CharField(max_length=100)
     user = models.ForeignKey(User, on_delete=models.CASCADE)
@@ -67,7 +66,6 @@ class Bot(models.Model):
 
     def __str__(self):
         return f'{self.user.username} {self.exchange.name}'
-
 
 class Trade(models.Model):
     TRADE_TYPES = (

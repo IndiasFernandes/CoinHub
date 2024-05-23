@@ -1,6 +1,6 @@
 from django.urls import path
-from . import views
 from .views import StrategyListView, StrategyCreateView, bot_evaluation_chart_view
+from . import views
 
 app_name = 'bot'
 
