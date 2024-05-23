@@ -109,6 +109,10 @@
                                         </label>
                                     {% endfor %}
                                 </div>
+                            {% elif field.label == "Cash" or field.label == "Commission" or field.label == "Open Browser" or field.label == "Max Tries" %}
+                                {{ field|add_class:"input" }}
+                            {% elif field.label in ["Min Timeperiod", "Max Timeperiod", "Interval Timeperiod", "Min Multiplier", "Max Multiplier", "Interval Multiplier"] %}
+                                {{ field|add_class:"input" }}
                             {% else %}
                                 {{ field|add_class:"input" }}
                             {% endif %}

@@ -76,15 +76,15 @@ def run_optimization_view(request):
             commission = form.cleaned_data['commission']
             openbrowser = form.cleaned_data['openbrowser']
             max_tries = form.cleaned_data['max_tries']
-            atr_timeperiod_range = form.cleaned_data['atr_timeperiod_range']
-            atr_multiplier_range = form.cleaned_data['atr_multiplier_range']
+            min_timeperiod = form.cleaned_data['min_timeperiod']
+            max_timeperiod = form.cleaned_data['max_timeperiod']
+            interval_timeperiod = form.cleaned_data['interval_timeperiod']
+            min_multiplier = form.cleaned_data['min_multiplier']
+            max_multiplier = form.cleaned_data['max_multiplier']
+            interval_multiplier = form.cleaned_data['interval_multiplier']
 
-            cash = 10000
-            commission = .008
-            openbrowser = False
-            max_tries = 60
-            atr_timeperiod_range = np.arange(0, 3, 0.2)
-            atr_multiplier_range = np.arange(0, 3, 0.2)
+            atr_timeperiod_range = np.arange(min_timeperiod, max_timeperiod, interval_timeperiod)
+            atr_multiplier_range = np.arange(min_multiplier, max_multiplier, interval_multiplier)
 
             results = []
 
