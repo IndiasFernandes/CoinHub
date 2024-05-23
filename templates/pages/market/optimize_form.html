@@ -60,12 +60,12 @@
         <div class="column is-three-quarters">
             <div class="box">
                 <h1 class="title has-text-centered">Optimize</h1>
-                <p class="subtitle has-text-centered">Optimize trading strategies on selected symbols and timeframes.</p>
+                <p class="subtitle has-text-centered">Run optimizations on selected symbols and timeframes.</p>
                 <div class="explanation">
                     <span class="icon explanation-icon">
                         <i class="fas fa-info-circle"></i>
                     </span>
-                    <p><strong>Select the symbols</strong> and <strong>timeframes</strong> you want to optimize. Configure the optimization parameters and click the <strong>"Run Optimization"</strong> button to start the optimization process.</p>
+                    <p><strong>Select the symbols</strong> and <strong>timeframes</strong> you want to optimize. Configure the parameters and click the <strong>"Run Optimization"</strong> button to execute the optimization.</p>
                     <span class="delete"></span>
                 </div>
 
@@ -109,9 +109,7 @@
                                         </label>
                                     {% endfor %}
                                 </div>
-                            {% elif field.label == "Cash" or field.label == "Commission" or field.label == "Open Browser" or field.label == "Max Tries" %}
-                                {{ field|add_class:"input" }}
-                            {% elif field.label in ["Min Timeperiod", "Max Timeperiod", "Interval Timeperiod", "Min Multiplier", "Max Multiplier", "Interval Multiplier"] %}
+                            {% elif field.label in ["Cash", "Commission", "Open Browser", "Max Tries", "Min Timeperiod", "Max Timeperiod", "Interval Timeperiod", "Min Multiplier", "Max Multiplier", "Interval Multiplier"] %}
                                 {{ field|add_class:"input" }}
                             {% else %}
                                 {{ field|add_class:"input" }}

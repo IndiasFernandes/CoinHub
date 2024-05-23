@@ -1,22 +1,21 @@
-import ccxt
-import numpy as np
-from django.shortcuts import render, redirect, get_object_or_404
-from django.http import JsonResponse
-from django.contrib import messages
 from django.utils import timezone
 from django.views import View
-from .models import Backtest, Optimize, PaperTrade, MarketData
-from apps.exchanges.utils.hyperliquid.download_data import initialize_exchange, download_data
+from .models import  PaperTrade, MarketData
+import numpy as np
+from django.shortcuts import render, redirect, get_object_or_404
+from django.contrib import messages
+from .models import Backtest, Optimize
+from .forms import BacktestForm, OptimizeForm
+from ..exchanges.utils.utils import run_exchange
+from ..exchanges.utils.hyperliquid.download_data import download_data
 from .backtesting.backtest_utils import run_backtest
 from .backtesting.optimize_utils import run_optimization
-from ..exchanges.models import DownloadDataForm, Exchange
-from ..exchanges.utils.utils import run_exchange
-
+from ..exchanges.models import Exchange
 
 
 def run_backtest_view(request):
     if request.method == 'POST':
-        form = DownloadDataForm(request.POST)
+        form = BacktestForm(request.POST)
         if form.is_valid():
             exchange_id = form.cleaned_data['exchange_id']
             exchange = get_object_or_404(Exchange, id_char=exchange_id)
@@ -38,7 +37,6 @@ def run_backtest_view(request):
 
             for symbol in symbols:
                 for timeperiod in timeperiods:
-                    print(f"Running backtest for {symbol} ({timeperiod})")
                     df = download_data([symbol], [timeperiod], start_date, end_date, exchange_instance)
                     st, price = run_backtest(symbol, df, timeperiod, cash, commission, openbrowser)
                     results.append({"symbol": symbol, "timeframe": timeperiod, "st": st, "price": price})
@@ -48,7 +46,7 @@ def run_backtest_view(request):
         else:
             messages.error(request, "Form data is invalid.")
     else:
-        form = DownloadDataForm()
+        form = BacktestForm()
     return render(request, 'pages/market/backtest_form.html', {
         'form': form,
         'current_section': 'market',
@@ -58,7 +56,7 @@ def run_backtest_view(request):
 
 def run_optimization_view(request):
     if request.method == 'POST':
-        form = DownloadDataForm(request.POST)
+        form = OptimizeForm(request.POST)
         if form.is_valid():
             exchange_id = form.cleaned_data['exchange_id']
             exchange = get_object_or_404(Exchange, id_char=exchange_id)
@@ -99,7 +97,7 @@ def run_optimization_view(request):
         else:
             messages.error(request, "Form data is invalid.")
     else:
-        form = DownloadDataForm()
+        form = OptimizeForm()
     return render(request, 'pages/market/optimize_form.html', {
         'form': form,
         'current_section': 'market',
