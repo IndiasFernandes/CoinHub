@@ -59,26 +59,8 @@
     <div class="columns is-centered">
         <div class="column is-three-quarters">
             <div class="box">
-                <h1 class="title has-text-centered">Run Backtest</h1>
-                <p class="subtitle has-text-centered">Execute backtests on selected symbols and timeframes.</p>
-                <div class="explanation">
-                    <span class="icon explanation-icon">
-                        <i class="fas fa-info-circle"></i>
-                    </span>
-                    <p><strong>Select the symbols</strong> and <strong>timeframes</strong> you want to backtest. Configure the parameters and click the <strong>"Run Backtest"</strong> button to start the backtest.</p>
-                    <span class="delete"></span>
-                </div>
-
-                <!-- Display messages -->
-                {% if messages %}
-                <div class="notification is-info">
-                    <span class="delete"></span>
-                    {% for message in messages %}
-                        <p>{{ message }}</p>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
+                <h1 class="title has-text-centered">Backtest</h1>
+                <p class="subtitle has-text-centered">Run backtests for your chosen symbols and timeframes.</p>
                 <form method="post">
                     {% csrf_token %}
                     {% for field in form %}
@@ -140,17 +122,5 @@ function toggleSelection(className) {
         checkbox.checked = !allChecked;
     });
 }
-
-// Close notification
-document.querySelectorAll('.notification .delete').forEach(button => {
-    button.addEventListener('click', function () {
-        this.parentElement.style.display = 'none';
-    });
-});
-
-// Close explanation
-document.querySelector('.explanation .delete').addEventListener('click', function () {
-    this.parentNode.style.display = 'none';
-});
 </script>
 {% endblock %}

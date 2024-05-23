@@ -60,25 +60,7 @@
         <div class="column is-three-quarters">
             <div class="box">
                 <h1 class="title has-text-centered">Optimize</h1>
-                <p class="subtitle has-text-centered">Run optimizations on selected symbols and timeframes.</p>
-                <div class="explanation">
-                    <span class="icon explanation-icon">
-                        <i class="fas fa-info-circle"></i>
-                    </span>
-                    <p><strong>Select the symbols</strong> and <strong>timeframes</strong> you want to optimize. Configure the parameters and click the <strong>"Run Optimization"</strong> button to execute the optimization.</p>
-                    <span class="delete"></span>
-                </div>
-
-                <!-- Display messages -->
-                {% if messages %}
-                <div class="notification is-info">
-                    <span class="delete"></span>
-                    {% for message in messages %}
-                        <p>{{ message }}</p>
-                    {% endfor %}
-                </div>
-                {% endif %}
-
+                <p class="subtitle has-text-centered">Optimize trading parameters for your chosen symbols and timeframes.</p>
                 <form method="post">
                     {% csrf_token %}
                     {% for field in form %}
@@ -109,8 +91,6 @@
                                         </label>
                                     {% endfor %}
                                 </div>
-                            {% elif field.label in ["Cash", "Commission", "Open Browser", "Max Tries", "Min Timeperiod", "Max Timeperiod", "Interval Timeperiod", "Min Multiplier", "Max Multiplier", "Interval Multiplier"] %}
-                                {{ field|add_class:"input" }}
                             {% else %}
                                 {{ field|add_class:"input" }}
                             {% endif %}
@@ -142,17 +122,5 @@ function toggleSelection(className) {
         checkbox.checked = !allChecked;
     });
 }
-
-// Close notification
-document.querySelectorAll('.notification .delete').forEach(button => {
-    button.addEventListener('click', function () {
-        this.parentElement.style.display = 'none';
-    });
-});
-
-// Close explanation
-document.querySelector('.explanation .delete').addEventListener('click', function () {
-    this.parentNode.style.display = 'none';
-});
 </script>
 {% endblock %}

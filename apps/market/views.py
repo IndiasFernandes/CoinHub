@@ -23,23 +23,20 @@ def run_backtest_view(request):
             secret = exchange.secret_key
 
             exchange_instance = run_exchange(exchange_id, key, secret)
-
             symbols = form.cleaned_data['symbol']
-            timeperiods = form.cleaned_data['timeframe']
+            timeframes = form.cleaned_data['timeframe']
             start_date = form.cleaned_data['start_date'].strftime('%Y-%m-%d')
             end_date = form.cleaned_data['end_date'].strftime('%Y-%m-%d')
-
             cash = form.cleaned_data['cash']
             commission = form.cleaned_data['commission']
             openbrowser = form.cleaned_data['openbrowser']
-
             results = []
 
             for symbol in symbols:
-                for timeperiod in timeperiods:
-                    df = download_data([symbol], [timeperiod], start_date, end_date, exchange_instance)
-                    st, price = run_backtest(symbol, df, timeperiod, cash, commission, openbrowser)
-                    results.append({"symbol": symbol, "timeframe": timeperiod, "st": st, "price": price})
+                for timeframe in timeframes:
+                    df = download_data([symbol], [timeframe], start_date, end_date, exchange_instance)
+                    st, price = run_backtest(symbol, df, timeframe, cash, commission, openbrowser)
+                    results.append({"symbol": symbol, "timeframe": timeframe, "st": st, "price": price})
 
             messages.success(request, "Backtest completed successfully.")
             return redirect('market:run_backtest')
@@ -64,12 +61,10 @@ def run_optimization_view(request):
             secret = exchange.secret_key
 
             exchange_instance = run_exchange(exchange_id, key, secret)
-
             symbols = form.cleaned_data['symbol']
-            timeperiods = form.cleaned_data['timeframe']
+            timeframes = form.cleaned_data['timeframe']
             start_date = form.cleaned_data['start_date'].strftime('%Y-%m-%d')
             end_date = form.cleaned_data['end_date'].strftime('%Y-%m-%d')
-
             cash = form.cleaned_data['cash']
             commission = form.cleaned_data['commission']
             openbrowser = form.cleaned_data['openbrowser']
@@ -80,17 +75,15 @@ def run_optimization_view(request):
             min_multiplier = form.cleaned_data['min_multiplier']
             max_multiplier = form.cleaned_data['max_multiplier']
             interval_multiplier = form.cleaned_data['interval_multiplier']
-
             atr_timeperiod_range = np.arange(min_timeperiod, max_timeperiod, interval_timeperiod)
             atr_multiplier_range = np.arange(min_multiplier, max_multiplier, interval_multiplier)
-
             results = []
 
             for symbol in symbols:
-                for timeperiod in timeperiods:
-                    df = download_data([symbol], [timeperiod], start_date, end_date, exchange_instance)
-                    run_optimization(symbol, timeperiod, cash, commission, openbrowser, df, max_tries, atr_timeperiod_range, atr_multiplier_range)
-                    results.append({"symbol": symbol, "timeframe": timeperiod})
+                for timeframe in timeframes:
+                    df = download_data([symbol], [timeframe], start_date, end_date, exchange_instance)
+                    run_optimization(symbol, timeframe, cash, commission, openbrowser, df, max_tries, atr_timeperiod_range, atr_multiplier_range)
+                    results.append({"symbol": symbol, "timeframe": timeframe})
 
             messages.success(request, "Optimization completed successfully.")
             return redirect('market:run_optimization')
