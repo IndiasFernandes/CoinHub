@@ -13,7 +13,7 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'record_exchange_info_every_30_seconds': {
         'task': 'apps.exchanges.tasks.record_exchange_info',
-        'schedule': 30.0,  # Execute every 30 seconds
+        'schedule': 600.0,  # Execute every 30 seconds
     },
 }
 app.conf.timezone = 'UTC'
