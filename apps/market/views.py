@@ -17,8 +17,8 @@ def run_backtest_view(request):
     if request.method == 'POST':
         form = BacktestForm(request.POST)
         if form.is_valid():
-            exchange_id = form.cleaned_data['exchange_id']
-            exchange = get_object_or_404(Exchange, id_char=exchange_id)
+            exchange_id = form.cleaned_data['exchange']
+            exchange = get_object_or_404(Exchange, id=exchange_id)
             key = exchange.api_key
             secret = exchange.secret_key
 
@@ -58,8 +58,8 @@ def run_optimization_view(request):
     if request.method == 'POST':
         form = OptimizeForm(request.POST)
         if form.is_valid():
-            exchange_id = form.cleaned_data['exchange_id']
-            exchange = get_object_or_404(Exchange, id_char=exchange_id)
+            exchange_id = form.cleaned_data['exchange']
+            exchange = get_object_or_404(Exchange, id=exchange_id)
             key = exchange.api_key
             secret = exchange.secret_key
 
@@ -104,7 +104,6 @@ def run_optimization_view(request):
         'section': 'run_optimization',
         'show_sidebar': True
     })
-
 def backtests_list_view(request):
     backtests = Backtest.objects.all()
     return render(request, 'pages/market/backtests_list.html', {

@@ -1,18 +1,19 @@
 # forms.py
+
 from django import forms
-from django.forms import ModelForm
 from .models import Backtest, Optimize
 
-class BacktestForm(ModelForm):
+class BacktestForm(forms.ModelForm):
     cash = forms.DecimalField(label='Cash', max_digits=20, decimal_places=2)
     commission = forms.DecimalField(label='Commission', max_digits=5, decimal_places=4)
     openbrowser = forms.BooleanField(label='Open Browser', required=False)
 
     class Meta:
         model = Backtest
-        fields = ['exchange_id', 'symbol', 'timeframe', 'start_date', 'end_date', 'cash', 'commission', 'openbrowser']
+        fields = ['exchange', 'symbol', 'timeframe', 'start_date', 'end_date', 'cash', 'commission', 'openbrowser']
 
-class OptimizeForm(ModelForm):
+
+class OptimizeForm(forms.ModelForm):
     cash = forms.DecimalField(label='Cash', max_digits=20, decimal_places=2)
     commission = forms.DecimalField(label='Commission', max_digits=5, decimal_places=4)
     openbrowser = forms.BooleanField(label='Open Browser', required=False)
@@ -26,4 +27,4 @@ class OptimizeForm(ModelForm):
 
     class Meta:
         model = Optimize
-        fields = ['exchange_id', 'symbol', 'timeframe', 'start_date', 'end_date', 'cash', 'commission', 'openbrowser', 'max_tries', 'min_timeperiod', 'max_timeperiod', 'interval_timeperiod', 'min_multiplier', 'max_multiplier', 'interval_multiplier']
+        fields = ['exchange', 'symbol', 'timeframe', 'start_date', 'end_date', 'cash', 'commission', 'openbrowser', 'max_tries', 'min_timeperiod', 'max_timeperiod', 'interval_timeperiod', 'min_multiplier', 'max_multiplier', 'interval_multiplier']
