@@ -1,39 +1,25 @@
-# tasks.py in your bots app
-import os
-from _decimal import Decimal
-from datetime import datetime
-
-from django.utils import timezone
-
-from CoinHub import settings
-from ..exchanges.utils.ccxt_experience import run_hyperliquid
-from ..exchanges.utils.hyperliquid.bot import BotAccount
-from celery import shared_task
-from .models import Bot
-import time
-
-from CoinHub.celery import app
-from .models import BotEvaluation
-from apps.market.models import Optimize
-import requests  # Assuming you're using requests to fetch current market prices
-
-from ..exchanges.utils.hyperliquid.download_data import download_data
-
-@shared_task
-def record_exchange_info():
-    bot_account = BotAccount()  # Initialize your bot account
-    try:
-        bot_account.update_exchange_info()
-        bot_account.print_info()
-
-        # Capture the account value here if needed
-        account_value = bot_account.get_account_value()
-        print(f"Account Value: {account_value}")
-    except Exception as e:
-        # Log the error
-        print(f"Error occurred: {e}")
-
-
+# # tasks.py in your bots app
+# import os
+# from _decimal import Decimal
+# from datetime import datetime
+#
+# from django.utils import timezone
+#
+# from CoinHub import settings
+# from ..exchanges.utils.ccxt_experience import run_hyperliquid
+# from ..exchanges.utils.hyperliquid.bot import BotAccount
+# from celery import shared_task
+# from .models import Bot
+# import time
+#
+# from CoinHub.celery import app
+# from .models import BotEvaluation
+# from apps.market.models import Optimize
+# import requests  # Assuming you're using requests to fetch current market prices
+#
+# from ..exchanges.utils.hyperliquid.download_data import download_data
+#
+#
 # @shared_task(bind=True)
 # def analyze_cryptos(self, bot_id, sleep_time):
 #     try:
