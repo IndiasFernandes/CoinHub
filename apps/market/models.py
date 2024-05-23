@@ -64,6 +64,7 @@ class Optimize(models.Model):
     sqn = models.FloatField(blank=True, null=True)
     repetitions = models.IntegerField()
     openbrowser = models.BooleanField(default=False)  # Add this field
+    max_tries = models.IntegerField(default=1)  # Add this field
 
     class Meta:
         verbose_name = "Optimization"
