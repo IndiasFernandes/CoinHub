@@ -19,7 +19,6 @@ max_tries = 60
 atr_timeperiod_range = np.arange(0, 3, 0.2)
 atr_multiplier_range = np.arange(0, 3, 0.2)
 
-
 def run_backtest_view(request):
     if request.method == 'POST':
         form = DownloadDataForm(request.POST)

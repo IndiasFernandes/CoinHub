@@ -2,8 +2,8 @@ from django.db import models
 from django.utils import timezone
 
 class Backtest(models.Model):
-    symbol = models.CharField(max_length=10)
-    timeperiod = models.CharField(max_length=5)
+    symbol = models.CharField(max_length=50)
+    timeperiod = models.CharField(max_length=50)
     cash = models.DecimalField(max_digits=12, decimal_places=2)
     commission = models.DecimalField(max_digits=12, decimal_places=2)
     start_date = models.DateTimeField()

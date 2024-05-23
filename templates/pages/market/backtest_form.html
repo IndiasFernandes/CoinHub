@@ -19,6 +19,17 @@
         <div class="column is-half">
             <div class="box">
                 <h1 class="title" style="font-size: 1.5rem;">Backtest</h1>
+
+                <!-- Display messages -->
+                {% if messages %}
+                <div class="notification is-info">
+                    <button class="delete"></button>
+                    {% for message in messages %}
+                        <p>{{ message }}</p>
+                    {% endfor %}
+                </div>
+                {% endif %}
+
                 <form method="post">
                     {% csrf_token %}
                     {% for field in form %}
@@ -72,5 +83,12 @@ function toggleSelection(className) {
         checkbox.checked = !allChecked;
     });
 }
+
+// Close notification
+document.querySelectorAll('.notification .delete').forEach(button => {
+    button.addEventListener('click', function () {
+        this.parentElement.style.display = 'none';
+    });
+});
 </script>
 {% endblock %}
