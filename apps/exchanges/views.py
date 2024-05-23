@@ -1,5 +1,6 @@
-import logging
 import os
+import logging
+from datetime import datetime
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -9,15 +10,9 @@ import requests
 from .utils.hyperliquid.bot import BotAccount
 from .utils.hyperliquid.download_data import download_data, initialize_exchange
 from .utils.utils import run_exchange
-from datetime import datetime
 
-# Configure logging
-logging.basicConfig(
-    filename='download_data.log',
-    level=logging.INFO,
-    format='%(asctime)s - %(levelname)s - %(message)s',
-    datefmt='%Y-%m-%d %H:%M:%S'
-)
+# Get an instance of a logger
+logger = logging.getLogger('django')
 
 @login_required
 def exchange_list(request):
@@ -113,7 +108,7 @@ def download_data_view(request):
                     file_path = f"static/data/{exchange_id}/{timeframe}/{symbol.replace('/', '_')}.csv"
                     if os.path.exists(file_path):
                         os.remove(file_path)
-                        logging.info(f"Deleted existing file: {file_path}")
+                        logger.info(f"Deleted existing file: {file_path}")
 
                     print(f"Downloading data for {symbol} ({timeframe})")
                     download_data([symbol], [timeframe], start_date, end_date, exchange_instance)
@@ -124,11 +119,11 @@ def download_data_view(request):
 
             if downloaded_symbols:
                 message = f"Market coins downloaded successfully for the following symbols and timeframes: {', '.join(downloaded_symbols)}"
-                logging.info(f"Downloaded symbols and timeframes: {', '.join(downloaded_symbols)}")
-                logging.info(f"Download started at: {start_date}, ended at: {end_date}, duration: {duration}")
+                logger.info(f"Downloaded symbols and timeframes: {', '.join(downloaded_symbols)}")
+                logger.info(f"Download started at: {start_date}, ended at: {end_date}, duration: {duration}")
             else:
                 message = "No data was downloaded."
-                logging.info("No data was downloaded.")
+                logger.info("No data was downloaded.")
 
             messages.success(request, message)
             return redirect('exchange:download_data')
