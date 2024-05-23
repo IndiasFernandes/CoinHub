@@ -7,11 +7,11 @@ BASE_DIR = Path(__file__).resolve().parent.parent
 log_dir = os.path.join(BASE_DIR, 'staticfiles/logs')
 os.makedirs(log_dir, exist_ok=True)
 
-SECRET_KEY = 'django-insecure-exs@09)4oz810!7$sk)c#(9hv-evxmsmafw3iswdu&f*6t_yz'
+SECRET_KEY = 'django-insecure-exs@09)4oz810!7$sk)c#9hv-evxmsmafw3iswdu&f*6t_yz'
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '85.242.116.211', '31.22.200.72']  # Add your Raspberry Pi's public IP
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '85.242.116.211', '31.22.200.72']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
