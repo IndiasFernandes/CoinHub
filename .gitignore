@@ -105,12 +105,3 @@ venv.bak/
 /static/data/
 /static/backtest/backtest_results/
 /static/optimize/optimize_results/
-/static/backtest/last_price.csv
-/static/backtest/current_backtest_atr_timeperiod.csv
-/static/backtest/current_backtest_multiplier.csv
-/static/backtest/current_backtest_symbol.csv
-/static/backtest/current_backtest_timeperiod.csv
-/static/backtest/current_optimize_symbol.csv
-/static/backtest/current_optimize_timeperiod.csv
-/static/backtest/last_price.csv
-/static/backtest/last_st.csv
