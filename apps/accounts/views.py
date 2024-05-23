@@ -40,9 +40,9 @@ class LoginView(CurrentSectionMixin, View):
         })
 
 class LogoutView(View):
-    @login_required
     def get(self, request):
         logout(request)
+        return render(request, 'pages/accounts/login.html')
         messages.info(request, 'You have been logged out.')
         return redirect('accounts:login')
 

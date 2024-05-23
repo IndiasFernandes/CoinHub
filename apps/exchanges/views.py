@@ -1,3 +1,5 @@
+import logging
+import os
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
@@ -6,6 +8,16 @@ from .forms import ExchangeForm
 import requests
 from .utils.hyperliquid.bot import BotAccount
 from .utils.hyperliquid.download_data import download_data, initialize_exchange
+from .utils.utils import run_exchange
+from datetime import datetime
+
+# Configure logging
+logging.basicConfig(
+    filename='download_data.log',
+    level=logging.INFO,
+    format='%(asctime)s - %(levelname)s - %(message)s',
+    datefmt='%Y-%m-%d %H:%M:%S'
+)
 
 @login_required
 def exchange_list(request):
@@ -75,24 +87,50 @@ def update_market_coins(request, market_id):
         messages.error(request, f"Failed to update market coins: {e}")
     return redirect('exchange:exchange_detail', exchange_id=market.exchange.pk)
 
-
-
-
 @login_required
 def download_data_view(request):
     if request.method == 'POST':
         form = DownloadDataForm(request.POST)
         if form.is_valid():
-            
-            api_key = 'your_api_key'
-            secret = 'your_secret'
-            exchange = initialize_exchange(exchange_id, api_key, secret)
+            exchange_id = form.cleaned_data['exchange_id']
+            exchange = get_object_or_404(Exchange, id_char=exchange_id)
+
+            key = exchange.api_key
+            secret = exchange.secret_key
+
+            exchange_instance = run_exchange(exchange_id, key, secret)
+
             symbols = form.cleaned_data['symbol']
             timeframes = form.cleaned_data['timeframe']
             start_date = form.cleaned_data['start_date'].strftime('%Y-%m-%d')
             end_date = form.cleaned_data['end_date'].strftime('%Y-%m-%d')
-            download_data(symbols, timeframes, start_date, end_date, exchange)
-            messages.success(request, "Market coins downloaded successfully.")
+
+            downloaded_symbols = []
+            start_time = datetime.now()
+
+            for symbol in symbols:
+                for timeframe in timeframes:
+                    file_path = f"static/data/{exchange_id}/{timeframe}/{symbol.replace('/', '_')}.csv"
+                    if os.path.exists(file_path):
+                        os.remove(file_path)
+                        logging.info(f"Deleted existing file: {file_path}")
+
+                    print(f"Downloading data for {symbol} ({timeframe})")
+                    download_data([symbol], [timeframe], start_date, end_date, exchange_instance)
+                    downloaded_symbols.append(f"{symbol} ({timeframe})")
+
+            end_time = datetime.now()
+            duration = end_time - start_time
+
+            if downloaded_symbols:
+                message = f"Market coins downloaded successfully for the following symbols and timeframes: {', '.join(downloaded_symbols)}"
+                logging.info(f"Downloaded symbols and timeframes: {', '.join(downloaded_symbols)}")
+                logging.info(f"Download started at: {start_date}, ended at: {end_date}, duration: {duration}")
+            else:
+                message = "No data was downloaded."
+                logging.info("No data was downloaded.")
+
+            messages.success(request, message)
             return redirect('exchange:download_data')
     else:
         form = DownloadDataForm()

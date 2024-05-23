@@ -2,3 +2,5 @@
 /apps/exchanges/migrations/
 /apps/bots/migrations/
 /apps/accounts/migrations/
+/staticfiles/
+/static/data/

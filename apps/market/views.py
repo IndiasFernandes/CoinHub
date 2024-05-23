@@ -1,3 +1,4 @@
+import ccxt
 import numpy as np
 from django.shortcuts import render, redirect, get_object_or_404
 from django.http import JsonResponse
@@ -9,6 +10,7 @@ from apps.exchanges.utils.hyperliquid.download_data import initialize_exchange, 
 from .backtesting.backtest_utils import run_backtest
 from .backtesting.optimize_utils import run_optimization
 from ..exchanges.models import DownloadDataForm
+from ..exchanges.utils.utils import run_exchange
 
 cash = 10000
 commission = .008
@@ -17,13 +19,7 @@ max_tries = 60
 atr_timeperiod_range = np.arange(0, 3, 0.2)
 atr_multiplier_range = np.arange(0, 3, 0.2)
 
-def run_hyperliquid():
-    exchange_id = 'hyperliquid'
-    exchange_class = getattr(ccxt, exchange_id)
-    exchange = exchange_class({
-        'apiKey': '0xa9dA24397F0B02eaa39cDBCae312559CaEe17985',
-        'secret': '0x00ddedb69741e811a8265d90e94f74e55f34f07f7f810f603b02508e778b91b4',
-    })
+
 
 
 def run_backtest_view(request):
@@ -31,7 +27,11 @@ def run_backtest_view(request):
         form = DownloadDataForm(request.POST)
         if form.is_valid():
             exchange_id = form.cleaned_data['exchange_id']
-            exchange = initialize_exchange(exchange_id, api_key='your_api_key', secret='your_secret')
+            key = form.cleaned_data['api_key']
+            secret = form.cleaned_data['secret']
+
+            exchange = run_exchange(exchange_id, key, secret)
+
             symbols = form.cleaned_data['symbol']
             timeperiods = form.cleaned_data['timeframe']
             start_date = form.cleaned_data['start_date'].strftime('%Y-%m-%d')

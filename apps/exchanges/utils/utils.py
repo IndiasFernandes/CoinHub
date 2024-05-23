@@ -1,7 +1,17 @@
-import csv
 import os
+
+import ccxt
 import pandas as pd
 
+
+def run_exchange(exchange_id, api_key, secret):
+    if exchange_id == 'hyperliquid':
+        exchange_class = getattr(ccxt, exchange_id)
+        exchange = exchange_class({
+            'apiKey': api_key,
+            'secret': secret,
+        })
+    return exchange
 def ensure_dir(path):
     """Ensure the directory exists, create it if it doesn't."""
     os.makedirs(path, exist_ok=True)
@@ -9,10 +19,6 @@ def ensure_dir(path):
 def file_exists(path):
     """Check if a file exists."""
     return os.path.exists(path)
-
-
-import pandas as pd
-
 
 def merge_and_save_data(new_data, file_path):
     """Merge new data with existing data and save to a file."""
