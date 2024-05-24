@@ -19,7 +19,7 @@ def run_backtest_view(request):
         form = BacktestForm(request.POST)
         if form.is_valid():
             exchange_id = form.cleaned_data['exchange']
-            exchange = get_object_or_404(Exchange, id=exchange_id)
+            exchange = get_object_or_404(Exchange, char_id=exchange_id)
             key = exchange.api_key
             secret = exchange.secret_key
 
@@ -45,7 +45,7 @@ def run_backtest_view(request):
             messages.error(request, "Form data is invalid.")
     else:
         form = BacktestForm()
-        exchanges = Exchange.objects.all()
+
     return render(request, 'pages/market/backtest_form.html', {
         'form': form,
         'exchanges': exchanges,
@@ -60,7 +60,7 @@ def run_optimization_view(request):
         form = OptimizeForm(request.POST)
         if form.is_valid():
             exchange_id = form.cleaned_data['exchange']
-            exchange = get_object_or_404(Exchange, id=exchange_id)
+            exchange = get_object_or_404(Exchange, char_id=exchange_id)
             key = exchange.api_key
             secret = exchange.secret_key
 
