@@ -146,10 +146,10 @@ def download_data_view(request):
     })
 
 
-def get_exchange_data(request, exchange_id):
+def get_exchange_data(request, exchange_id_char):
     try:
         # Fetch the exchange based on the id_char
-        exchange = Exchange.objects.get(id_char=exchange_id)
+        exchange = Exchange.objects.get(id_char=exchange_id_char)
 
         # Fetch markets related to the exchange
         markets = Market.objects.filter(exchange=exchange)
