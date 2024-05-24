@@ -78,38 +78,22 @@
                         <div class="buttons has-addons select-all-button">
                             <button type="button" class="button is-small is-info" onclick="toggleSelection('symbol-checkbox')">Select All Symbols</button>
                         </div>
-                        <div class="control" id="symbol-options">
-                            {% for choice_value, choice_label in form.symbol.field.choices %}
-                                <label class="checkbox">
-                                    <input type="checkbox" name="{{ form.symbol.name }}" value="{{ choice_value }}" class="symbol-checkbox">
-                                    {{ choice_label }}
-                                </label>
-                            {% endfor %}
-                        </div>
+                        <div class="control" id="symbol-options"></div>
                     </div>
                     <div class="field">
                         <label class="label small-label">Timeframe</label>
                         <div class="buttons has-addons select-all-button">
                             <button type="button" class="button is-small is-info" onclick="toggleSelection('timeframe-checkbox')">Select All Timeframes</button>
                         </div>
-                        <div class="control" id="timeframe-options">
-                            {% for choice_value, choice_label in form.timeframe.field.choices %}
-                                <label class="checkbox">
-                                    <input type="checkbox" name="{{ form.timeframe.name }}" value="{{ choice_value }}" class="timeframe-checkbox">
-                                    {{ choice_label }}
-                                </label>
-                            {% endfor %}
-                        </div>
+                        <div class="control" id="timeframe-options"></div>
                     </div>
-                    <div class="field">
-                        <label class="label small-label">Start Date</label>
+                    <div class="field is-grouped">
                         <div class="control">
+                            <label class="label small-label">Start Date</label>
                             <input type="date" name="{{ form.start_date.name }}" value="{{ form.start_date.value|default:form.start_date.initial }}">
                         </div>
-                    </div>
-                    <div class="field">
-                        <label class="label small-label">End Date</label>
                         <div class="control">
+                            <label class="label small-label">End Date</label>
                             <input type="date" name="{{ form.end_date.name }}" value="{{ form.end_date.value|default:form.end_date.initial }}">
                         </div>
                     </div>
@@ -128,7 +112,10 @@
                     <div class="field">
                         <label class="label small-label">Open Browser</label>
                         <div class="control">
-                            {{ form.openbrowser|add_class:"input" }}
+                            <label class="checkbox">
+                                <input type="checkbox" name="{{ form.openbrowser.name }}" value="True" {% if form.openbrowser.value %}checked{% endif %}>
+                                Open Browser
+                            </label>
                         </div>
                     </div>
                     <div class="field">
@@ -137,39 +124,31 @@
                             {{ form.max_tries|add_class:"input" }}
                         </div>
                     </div>
-                    <div class="field">
-                        <label class="label small-label">Min Time Period</label>
+                    <div class="field is-grouped">
                         <div class="control">
+                            <label class="label small-label">Min Time Period</label>
                             {{ form.min_timeperiod|add_class:"input" }}
                         </div>
-                    </div>
-                    <div class="field">
-                        <label class="label small-label">Max Time Period</label>
                         <div class="control">
+                            <label class="label small-label">Max Time Period</label>
                             {{ form.max_timeperiod|add_class:"input" }}
                         </div>
-                    </div>
-                    <div class="field">
-                        <label class="label small-label">Interval Time Period</label>
                         <div class="control">
+                            <label class="label small-label">Interval Time Period</label>
                             {{ form.interval_timeperiod|add_class:"input" }}
                         </div>
                     </div>
-                    <div class="field">
-                        <label class="label small-label">Min Multiplier</label>
+                    <div class="field is-grouped">
                         <div class="control">
+                            <label class="label small-label">Min Multiplier</label>
                             {{ form.min_multiplier|add_class:"input" }}
                         </div>
-                    </div>
-                    <div class="field">
-                        <label class="label small-label">Max Multiplier</label>
                         <div class="control">
+                            <label class="label small-label">Max Multiplier</label>
                             {{ form.max_multiplier|add_class:"input" }}
                         </div>
-                    </div>
-                    <div class="field">
-                        <label class="label small-label">Interval Multiplier</label>
                         <div class="control">
+                            <label class="label small-label">Interval Multiplier</label>
                             {{ form.interval_multiplier|add_class:"input" }}
                         </div>
                     </div>
