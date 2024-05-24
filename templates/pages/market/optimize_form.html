@@ -63,8 +63,8 @@
     <div class="columns is-centered">
         <div class="column is-three-quarters">
             <div class="box">
-                <h1 class="title has-text-centered">Backtest</h1>
-                <p class="subtitle has-text-centered">Run backtests for your chosen symbols and timeframes.</p>
+                <h1 class="title has-text-centered">Optimize</h1>
+                <p class="subtitle has-text-centered">Optimize trading parameters for your chosen symbols and timeframes.</p>
                 <form method="post">
                     {% csrf_token %}
                     <div class="field">
@@ -78,18 +78,22 @@
                         </div>
                     </div>
                     <div class="field">
-                        <label class="label small-label">Symbols</label>
+                        <label class="label small-label">Symbol</label>
                         <div class="buttons has-addons select-all-button">
                             <button type="button" class="button is-small is-info" onclick="toggleSelection('symbol-checkbox')">Select All Symbols</button>
                         </div>
-                        <div class="control" id="symbol-options"></div>
+                        <div class="control" id="symbol-options">
+                            <!-- Symbols will be populated by JavaScript -->
+                        </div>
                     </div>
                     <div class="field">
-                        <label class="label small-label">Timeframes</label>
+                        <label class="label small-label">Timeframe</label>
                         <div class="buttons has-addons select-all-button">
                             <button type="button" class="button is-small is-info" onclick="toggleSelection('timeframe-checkbox')">Select All Timeframes</button>
                         </div>
-                        <div class="control" id="timeframe-options"></div>
+                        <div class="control" id="timeframe-options">
+                            <!-- Timeframes will be populated by JavaScript -->
+                        </div>
                     </div>
                     <div class="field-group">
                         <div class="field">
@@ -128,9 +132,55 @@
                             </label>
                         </div>
                     </div>
+                    <div class="field-group">
+                        <div class="field">
+                            <label class="label small-label">Min Time Period</label>
+                            <div class="control">
+                                <input type="number" name="{{ form.min_timeperiod.name }}" class="input" value="{{ form.min_timeperiod.value|default:0 }}">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label small-label">Max Time Period</label>
+                            <div class="control">
+                                <input type="number" name="{{ form.max_timeperiod.name }}" class="input" value="{{ form.max_timeperiod.value|default:3 }}">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label small-label">Interval Time Period</label>
+                            <div class="control">
+                                <input type="number" step="0.1" name="{{ form.interval_timeperiod.name }}" class="input" value="{{ form.interval_timeperiod.value|default:0.2 }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field-group">
+                        <div class="field">
+                            <label class="label small-label">Min Multiplier</label>
+                            <div class="control">
+                                <input type="number" name="{{ form.min_multiplier.name }}" class="input" value="{{ form.min_multiplier.value|default:0 }}">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label small-label">Max Multiplier</label>
+                            <div class="control">
+                                <input type="number" name="{{ form.max_multiplier.name }}" class="input" value="{{ form.max_multiplier.value|default:3 }}">
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label small-label">Interval Multiplier</label>
+                            <div class="control">
+                                <input type="number" step="0.1" name="{{ form.interval_multiplier.name }}" class="input" value="{{ form.interval_multiplier.value|default:0.2 }}">
+                            </div>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label small-label">Max Tries</label>
+                        <div class="control">
+                            <input type="number" name="{{ form.max_tries.name }}" class="input" value="{{ form.max_tries.value|default:10 }}">
+                        </div>
+                    </div>
                     <div class="field">
                         <div class="control centered-button">
-                            <button type="submit" class="button is-link is-large">Run Backtest</button>
+                            <button type="submit" class="button is-link is-large">Run Optimization</button>
                         </div>
                     </div>
                 </form>
