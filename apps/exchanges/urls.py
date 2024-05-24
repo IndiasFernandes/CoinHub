@@ -1,5 +1,6 @@
 from django.urls import path
-from .views import exchange_list, exchange_detail, exchange_new, chart_view, update_market_coins, download_data_view
+from .views import exchange_list, exchange_detail, exchange_new, chart_view, update_market_coins, download_data_view, \
+    get_exchange_data
 
 app_name = 'exchange'
 
@@ -10,4 +11,5 @@ urlpatterns = [
     path('chart/', chart_view, name='chart_view'),
     path('market/<int:market_id>/update_coins/', update_market_coins, name='update_market_coins'),
     path('download/', download_data_view, name='download_data'),
+    path('exchanges/<str:exchange_id>/data/', get_exchange_data, name='get_exchange_data'),
 ]

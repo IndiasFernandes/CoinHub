@@ -135,3 +135,11 @@ def download_data_view(request):
         'section': 'download_data',
         'show_sidebar': True
     })
+
+
+from django.http import JsonResponse
+from .exchange_data import EXCHANGES
+
+def get_exchange_data(request, exchange_id):
+    exchange_data = EXCHANGES.get(exchange_id, {})
+    return JsonResponse(exchange_data)

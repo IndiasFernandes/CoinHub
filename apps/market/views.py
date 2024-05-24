@@ -1,16 +1,17 @@
 from django.utils import timezone
 from django.views import View
-from .models import  PaperTrade, MarketData
-import numpy as np
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from .models import Backtest, Optimize
+import numpy as np
+from .models import PaperTrade, MarketData, Backtest, Optimize
 from .forms import BacktestForm, OptimizeForm
 from ..exchanges.utils.utils import run_exchange
 from ..exchanges.utils.hyperliquid.download_data import download_data
 from .backtesting.backtest_utils import run_backtest
 from .backtesting.optimize_utils import run_optimization
 from ..exchanges.models import Exchange
+from django.http import JsonResponse
+from ..exchanges.exchange_data import EXCHANGES
 
 
 def run_backtest_view(request):
@@ -50,6 +51,7 @@ def run_backtest_view(request):
         'section': 'run_backtest',
         'show_sidebar': True
     })
+
 
 def run_optimization_view(request):
     if request.method == 'POST':
@@ -97,6 +99,8 @@ def run_optimization_view(request):
         'section': 'run_optimization',
         'show_sidebar': True
     })
+
+
 def backtests_list_view(request):
     backtests = Backtest.objects.all()
     return render(request, 'pages/market/backtests_list.html', {
@@ -105,6 +109,7 @@ def backtests_list_view(request):
         'section': 'backtests_list',
         'show_sidebar': True
     })
+
 
 def backtest_detail_view(request, backtest_id):
     backtest = get_object_or_404(Backtest, id=backtest_id)
@@ -115,6 +120,7 @@ def backtest_detail_view(request, backtest_id):
         'show_sidebar': True
     })
 
+
 def optimize_list_view(request):
     optimizations = Optimize.objects.all()
     return render(request, 'pages/market/optimize_list.html', {
@@ -124,6 +130,7 @@ def optimize_list_view(request):
         'show_sidebar': True
     })
 
+
 def optimize_detail_view(request, optimize_id):
     optimization = get_object_or_404(Optimize, id=optimize_id)
     return render(request, 'pages/market/optimize_detail.html', {
@@ -132,6 +139,7 @@ def optimize_detail_view(request, optimize_id):
         'section': 'optimize_detail',
         'show_sidebar': True
     })
+
 
 class PaperTradingDashboardView(View):
     def get(self, request):
@@ -147,6 +155,7 @@ class PaperTradingDashboardView(View):
         }
         return render(request, 'pages/market/paper_trading_dashboard.html', context)
 
+
 class CreatePaperTradeView(View):
     def post(self, request):
         trade_name = request.POST.get('trade_name')
@@ -159,3 +168,8 @@ class CreatePaperTradeView(View):
                 created_at=timezone.now()
             )
         return redirect('market:paper_trading_dashboard')
+
+
+def get_exchange_data(request, exchange_id):
+    exchange_data = EXCHANGES.get(exchange_id, {})
+    return JsonResponse(exchange_data)
