@@ -74,24 +74,28 @@
                                     <button type="button" class="button is-small is-info" onclick="toggleSelection('symbol-checkbox')">Select All Symbols</button>
                                 </div>
                                 <div class="control">
-                                    {% for choice_value, choice_label in field.field.choices %}
-                                        <label class="checkbox">
-                                            <input type="checkbox" name="{{ field.name }}" value="{{ choice_value }}" class="symbol-checkbox">
-                                            {{ choice_label }}
-                                        </label>
-                                    {% endfor %}
+                                    <div id="symbol-options">
+                                        {% for choice_value, choice_label in field.field.choices %}
+                                            <label class="checkbox">
+                                                <input type="checkbox" name="{{ field.name }}" value="{{ choice_value }}" class="symbol-checkbox">
+                                                {{ choice_label }}
+                                            </label>
+                                        {% endfor %}
+                                    </div>
                                 </div>
                             {% elif field.name == "timeframe" %}
                                 <div class="buttons has-addons select-all-button">
                                     <button type="button" class="button is-small is-info" onclick="toggleSelection('timeframe-checkbox')">Select All Timeframes</button>
                                 </div>
                                 <div class="control">
-                                    {% for choice_value, choice_label in field.field.choices %}
-                                        <label class="checkbox">
-                                            <input type="checkbox" name="{{ field.name }}" value="{{ choice_value }}" class="timeframe-checkbox">
-                                            {{ choice_label }}
-                                        </label>
-                                    {% endfor %}
+                                    <div id="timeframe-options">
+                                        {% for choice_value, choice_label in field.field.choices %}
+                                            <label class="checkbox">
+                                                <input type="checkbox" name="{{ field.name }}" value="{{ choice_value }}" class="timeframe-checkbox">
+                                                {{ choice_label }}
+                                            </label>
+                                        {% endfor %}
+                                    </div>
                                 </div>
                             {% else %}
                                 {{ field|add_class:"input" }}
@@ -130,21 +134,35 @@ document.querySelector('[name="exchange"]').addEventListener('change', function(
     fetch(`/exchanges/${exchangeId}/data/`)
         .then(response => response.json())
         .then(data => {
-            const symbolField = document.querySelector('[name="symbol"]');
-            const timeframeField = document.querySelector('[name="timeframe"]');
+            const symbolField = document.querySelector('#symbol-options');
+            const timeframeField = document.querySelector('#timeframe-options');
             symbolField.innerHTML = '';
             timeframeField.innerHTML = '';
+
             data.symbols.forEach(symbol => {
-                const option = document.createElement('option');
-                option.value = symbol;
-                option.text = symbol;
-                symbolField.appendChild(option);
+                const label = document.createElement('label');
+                label.className = 'checkbox';
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.name = 'symbol';
+                input.value = symbol;
+                input.className = 'symbol-checkbox';
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(symbol));
+                symbolField.appendChild(label);
             });
+
             data.timeframes.forEach(timeframe => {
-                const option = document.createElement('option');
-                option.value = timeframe;
-                option.text = timeframe;
-                timeframeField.appendChild(option);
+                const label = document.createElement('label');
+                label.className = 'checkbox';
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.name = 'timeframe';
+                input.value = timeframe;
+                input.className = 'timeframe-checkbox';
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(timeframe));
+                timeframeField.appendChild(label);
             });
         });
 });
