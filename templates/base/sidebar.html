@@ -18,16 +18,17 @@
             <aside class="menu column is-narrow-mobile is-fullheight">
 
                 {% if current_section == 'market' %}
-                    <p class="menu-label"><i class="fa fa-rocket"></i> Optimizing</p>
-                    <ul class="menu-list">
-                        <li><a class="sidebar-item {% if section == 'run_optimization' %}is-active{% endif %}" href="{% url 'market:run_optimization' %}"><i class="fa fa-play-circle"></i><span class="button-icon-text"> Do Optimization</span></a></li>
-                        <li><a class="sidebar-item {% if section == 'optimize_list' %}is-active{% endif %}" href="{% url 'market:optimize_list' %}"><i class="fa fa-list"></i><span class="button-icon-text"> Optimization List</span></a></li>
-                    </ul>
                     <p class="menu-label"><i class="fa fa-history"></i> Backtesting</p>
                     <ul class="menu-list">
                         <li><a class="sidebar-item {% if section == 'run_backtest' %}is-active{% endif %}" href="{% url 'market:run_backtest' %}"><i class="fa fa-play-circle"></i><span class="button-icon-text"> Do Backtest</span></a></li>
                         <li><a class="sidebar-item {% if section == 'backtests_list' %}is-active{% endif %}" href="{% url 'market:backtests_list' %}"><i class="fa fa-list"></i><span class="button-icon-text"> Backtest List</span></a></li>
                     </ul>
+                    <p class="menu-label"><i class="fa fa-rocket"></i> Optimizing</p>
+                    <ul class="menu-list">
+                        <li><a class="sidebar-item {% if section == 'run_optimization' %}is-active{% endif %}" href="{% url 'market:run_optimization' %}"><i class="fa fa-play-circle"></i><span class="button-icon-text"> Do Optimization</span></a></li>
+                        <li><a class="sidebar-item {% if section == 'optimize_list' %}is-active{% endif %}" href="{% url 'market:optimize_list' %}"><i class="fa fa-list"></i><span class="button-icon-text"> Optimization List</span></a></li>
+                    </ul>
+
                     <div class="spaced-button sidebar-bottom-buttons">
                         <a class="button is-success is-fullwidth {% if section == 'paper_trading_dashboard' %}is-active{% endif %}" href="{% url 'market:paper_trading_dashboard' %}"><i class="fa fa-paper-plane"></i><span class="button-icon-text"> Paper Trading</span></a>
                     </div>

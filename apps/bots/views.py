@@ -8,6 +8,14 @@ from .models import Bot, Trade, Strategy, BotEvaluation
 from .forms import BotForm, StrategyForm
 from CoinHub.celery import app
 
+@login_required
+def bots_dashboard_view(request):
+    return render(request, 'pages/bots/dashboard.html', {
+        'current_section': 'bots',
+        'section': 'dashboard',
+        'show_sidebar': True
+    })
+
 class CurrentSectionMixin:
     current_section = 'bots'
 

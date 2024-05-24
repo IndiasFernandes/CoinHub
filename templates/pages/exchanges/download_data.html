@@ -55,18 +55,18 @@
         background-color: #276cda;
     }
 </style>
+
 <div class="container">
     <div class="columns is-centered">
         <div class="column is-three-quarters">
             <div class="box">
                 <h1 class="title has-text-centered">Download Market Data</h1>
                 <p class="subtitle has-text-centered">Get the latest market data for your chosen symbols and timeframes.</p>
-                <div class="explanation">
-                    <span class="icon explanation-icon">
+                <div class="notification is-info" style="border-left: none; padding: 1rem;">
+                    <span class="icon explanation-icon" style="vertical-align: middle; margin-right: 0.5rem;">
                         <i class="fas fa-info-circle"></i>
                     </span>
-                    <p><strong>Select the symbols</strong> and <strong>timeframes</strong> you want to download data for. Once you've made your selections, click the <strong>"Download"</strong> button to retrieve the data.</p>
-                    <span class="delete"></span>
+                    <span><strong>Select the symbols</strong> and <strong>timeframes</strong> you want to download data for. Once you've made your selections, click the <strong>"Download"</strong> button to retrieve the data.</span>
                 </div>
                 <form method="post">
                     {% csrf_token %}

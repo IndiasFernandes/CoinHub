@@ -11,50 +11,15 @@ from ..exchanges.utils.hyperliquid.download_data import download_data
 from .backtesting.backtest_utils import run_backtest
 from .backtesting.optimize_utils import run_optimization
 from ..exchanges.models import Exchange
-from django.http import JsonResponse
-from ..exchanges.exchange_data import EXCHANGES
 
-
-def run_backtest_view(request):
-    exchanges = Exchange.objects.all()
-    if request.method == 'POST':
-        form = BacktestForm(request.POST)
-        if form.is_valid():
-            exchange_id = form.cleaned_data['exchange']
-            exchange = get_object_or_404(Exchange, id_char=exchange_id)
-            key = exchange.api_key
-            secret = exchange.secret_key
-
-            exchange_instance = run_exchange(exchange_id, key, secret)
-            symbols = form.cleaned_data['symbol']
-            timeframes = form.cleaned_data['timeframe']
-            start_date = form.cleaned_data['start_date'].strftime('%Y-%m-%d')
-            end_date = form.cleaned_data['end_date'].strftime('%Y-%m-%d')
-            cash = form.cleaned_data['cash']
-            commission = form.cleaned_data['commission']
-            openbrowser = form.cleaned_data['openbrowser']
-            results = []
-
-            for symbol in symbols:
-                for timeframe in timeframes:
-                    df = download_data([symbol], [timeframe], start_date, end_date, exchange_instance)
-                    st, price = run_backtest(symbol, df, timeframe, cash, commission, openbrowser)
-                    results.append({"symbol": symbol, "timeframe": timeframe, "st": st, "price": price})
-
-            messages.success(request, "Backtest completed successfully.")
-            return redirect('market:run_backtest')
-        else:
-            messages.error(request, "Form data is invalid.")
-    else:
-        form = BacktestForm()
-
-    return render(request, 'pages/market/backtest_form.html', {
-        'form': form,
-        'exchanges': exchanges,
+def market_dashboard_view(request):
+    return render(request, 'pages/market/dashboard.html', {
         'current_section': 'market',
-        'section': 'run_backtest',
+        'section': 'dashboard',
         'show_sidebar': True
     })
+
+
 
 
 def run_optimization_view(request):
@@ -86,6 +51,26 @@ def run_optimization_view(request):
             atr_multiplier_range = np.arange(min_multiplier, max_multiplier, interval_multiplier)
             results = []
 
+            # Log or display form data
+            form_data = {
+                "exchange": exchange_id_char,
+                "symbols": symbols,
+                "timeframes": timeframes,
+                "start_date": start_date,
+                "end_date": end_date,
+                "cash": cash,
+                "commission": commission,
+                "openbrowser": openbrowser,
+                "max_tries": max_tries,
+                "min_timeperiod": min_timeperiod,
+                "max_timeperiod": max_timeperiod,
+                "interval_timeperiod": interval_timeperiod,
+                "min_multiplier": min_multiplier,
+                "max_multiplier": max_multiplier,
+                "interval_multiplier": interval_multiplier
+            }
+            print("Optimization Form Data:", form_data)  # This will log data to the console
+
             for symbol in symbols:
                 for timeframe in timeframes:
                     df = download_data([symbol], [timeframe], start_date, end_date, exchange_instance)
@@ -107,6 +92,8 @@ def run_optimization_view(request):
         'section': 'run_optimization',
         'show_sidebar': True
     })
+
+
 def backtests_list_view(request):
     backtests = Backtest.objects.all()
     return render(request, 'pages/market/backtests_list.html', {

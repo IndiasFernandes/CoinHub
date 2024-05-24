@@ -1,0 +1,61 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<style>
+    .dashboard-card {
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    .dashboard-card h2 {
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+    .dashboard-card p {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .dashboard-card .button {
+        margin-top: 1rem;
+    }
+    .icon {
+        margin-bottom: 1rem;
+    }
+</style>
+<div class="container">
+    <h1 class="title has-text-centered">Market Dashboard</h1>
+    <div class="columns">
+        <div class="column">
+            <div class="box dashboard-card">
+                <span class="icon">
+                    <i class="fas fa-chart-line fa-2x"></i>
+                </span>
+                <h2>Backtesting</h2>
+                <p>Run backtests on your chosen symbols and timeframes.</p>
+                <a href="{% url 'market:run_backtest' %}" class="button is-link">Run Backtest</a>
+            </div>
+        </div>
+        <div class="column">
+            <div class="box dashboard-card">
+                <span class="icon">
+                    <i class="fas fa-cogs fa-2x"></i>
+                </span>
+                <h2>Optimization</h2>
+                <p>Optimize your strategies with various parameters.</p>
+                <a href="{% url 'market:run_optimization' %}" class="button is-link">Run Optimization</a>
+            </div>
+        </div>
+        <div class="column">
+            <div class="box dashboard-card">
+                <span class="icon">
+                    <i class="fas fa-play-circle fa-2x"></i>
+                </span>
+                <h2>Paper Trading</h2>
+                <p>Simulate trading with a paper trading account.</p>
+                <a href="{% url 'market:paper_trading_dashboard' %}" class="button is-link">Paper Trading Dashboard</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}
