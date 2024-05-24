@@ -68,7 +68,7 @@
                         <div class="control">
                             <select name="exchange" class="input" id="exchange-select">
                                 {% for exchange in exchanges %}
-                                    <option value="{{ exchange.id_char }}">{{ exchange.name }}</option>
+                                    <option value="{{ exchange.id_char }}" {% if exchange.id_char == "hyperliquid" %}selected{% endif %}>{{ exchange.name }}</option>
                                 {% endfor %}
                             </select>
                         </div>
@@ -100,13 +100,13 @@
                     <div class="field">
                         <label class="label small-label">Cash</label>
                         <div class="control">
-                            {{ form.cash|add_class:"input" }}
+                            <input type="number" name="{{ form.cash.name }}" class="input" value="{{ form.cash.value|default:10000 }}">
                         </div>
                     </div>
                     <div class="field">
                         <label class="label small-label">Commission</label>
                         <div class="control">
-                            {{ form.commission|add_class:"input" }}
+                            <input type="number" step="0.001" name="{{ form.commission.name }}" class="input" value="{{ form.commission.value|default:0.008 }}">
                         </div>
                     </div>
                     <div class="field">
@@ -121,35 +121,35 @@
                     <div class="field">
                         <label class="label small-label">Max Tries</label>
                         <div class="control">
-                            {{ form.max_tries|add_class:"input" }}
+                            <input type="number" name="{{ form.max_tries.name }}" class="input" value="{{ form.max_tries.value|default:100 }}">
                         </div>
                     </div>
                     <div class="field is-grouped">
                         <div class="control">
                             <label class="label small-label">Min Time Period</label>
-                            {{ form.min_timeperiod|add_class:"input" }}
+                            <input type="number" name="{{ form.min_timeperiod.name }}" class="input" value="{{ form.min_timeperiod.value|default:0 }}">
                         </div>
                         <div class="control">
                             <label class="label small-label">Max Time Period</label>
-                            {{ form.max_timeperiod|add_class:"input" }}
+                            <input type="number" name="{{ form.max_timeperiod.name }}" class="input" value="{{ form.max_timeperiod.value|default:3 }}">
                         </div>
                         <div class="control">
                             <label class="label small-label">Interval Time Period</label>
-                            {{ form.interval_timeperiod|add_class:"input" }}
+                            <input type="number" step="0.1" name="{{ form.interval_timeperiod.name }}" class="input" value="{{ form.interval_timeperiod.value|default:0.2 }}">
                         </div>
                     </div>
                     <div class="field is-grouped">
                         <div class="control">
                             <label class="label small-label">Min Multiplier</label>
-                            {{ form.min_multiplier|add_class:"input" }}
+                            <input type="number" name="{{ form.min_multiplier.name }}" class="input" value="{{ form.min_multiplier.value|default:0 }}">
                         </div>
                         <div class="control">
                             <label class="label small-label">Max Multiplier</label>
-                            {{ form.max_multiplier|add_class:"input" }}
+                            <input type="number" name="{{ form.max_multiplier.name }}" class="input" value="{{ form.max_multiplier.value|default:3 }}">
                         </div>
                         <div class="control">
                             <label class="label small-label">Interval Multiplier</label>
-                            {{ form.interval_multiplier|add_class:"input" }}
+                            <input type="number" step="0.1" name="{{ form.interval_multiplier.name }}" class="input" value="{{ form.interval_multiplier.value|default:0.2 }}">
                         </div>
                     </div>
                     <div class="field">
@@ -172,8 +172,9 @@ function toggleSelection(className) {
     });
 }
 
-document.querySelector('#exchange-select').addEventListener('change', function() {
-    const exchangeIdChar = this.value;
+document.addEventListener('DOMContentLoaded', function() {
+    const exchangeSelect = document.querySelector('#exchange-select');
+    const exchangeIdChar = exchangeSelect.value;
     fetch(`/exchanges/${exchangeIdChar}/data/`)
         .then(response => {
             if (!response.ok) {
@@ -216,6 +217,52 @@ document.querySelector('#exchange-select').addEventListener('change', function()
         .catch(error => {
             console.error('There has been a problem with your fetch operation:', error);
         });
+
+    exchangeSelect.addEventListener('change', function() {
+        const exchangeIdChar = this.value;
+        fetch(`/exchanges/${exchangeIdChar}/data/`)
+            .then(response => {
+                if (!response.ok) {
+                    throw new Error('Network response was not ok');
+                }
+                return response.json();
+            })
+            .then(data => {
+                const symbolField = document.querySelector('#symbol-options');
+                const timeframeField = document.querySelector('#timeframe-options');
+                symbolField.innerHTML = '';
+                timeframeField.innerHTML = '';
+
+                data.symbols.forEach(symbol => {
+                    const label = document.createElement('label');
+                    label.className = 'checkbox';
+                    const input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.name = 'symbol';
+                    input.value = symbol;
+                    input.className = 'symbol-checkbox';
+                    label.appendChild(input);
+                    label.appendChild(document.createTextNode(symbol));
+                    symbolField.appendChild(label);
+                });
+
+                data.timeframes.forEach(timeframe => {
+                    const label = document.createElement('label');
+                    label.className = 'checkbox';
+                    const input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.name = 'timeframe';
+                    input.value = timeframe;
+                    input.className = 'timeframe-checkbox';
+                    label.appendChild(input);
+                    label.appendChild(document.createTextNode(timeframe));
+                    timeframeField.appendChild(label);
+                });
+            })
+            .catch(error => {
+                console.error('There has been a problem with your fetch operation:', error);
+            });
+    });
 });
 </script>
 {% endblock %}
