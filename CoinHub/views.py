@@ -28,3 +28,19 @@ class DashboardView(LoginRequiredMixin, TemplateView):
 
 class AboutView(TemplateView):
     template_name = 'about.html'
+
+
+import subprocess
+from django.http import HttpResponse
+
+def activate_ssh(request):
+    try:
+        # Execute the command to activate SSH
+        subprocess.run(["sudo", "systemctl", "enable", "ssh"], check=True)
+        subprocess.run(["sudo", "systemctl", "start", "ssh"], check=True)
+        # Return a success response
+        return HttpResponse("SSH activated successfully.")
+    except subprocess.CalledProcessError as e:
+        # Return an error response if the command fails
+        error_message = f"Error activating SSH: {e}"
+        return HttpResponse(error_message, status=500)

@@ -1,6 +1,6 @@
 from django.contrib import admin
 from django.urls import path, include
-from .views import DashboardView, AboutView
+from .views import DashboardView, AboutView, activate_ssh
 
 urlpatterns = [
     path('admin/', admin.site.urls),
@@ -10,4 +10,5 @@ urlpatterns = [
     path('exchanges/', include(('apps.exchanges.urls', 'exchanges'), namespace='exchanges')),
     path('about/', AboutView.as_view(), name='about'),
     path('market/', include(('apps.market.urls', 'market'), namespace='market')),
+    path('activate-ssh/', activate_ssh, name='activate_ssh'),
 ]

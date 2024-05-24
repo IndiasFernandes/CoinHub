@@ -11,4 +11,5 @@ urlpatterns = [
     path('market/<int:market_id>/update_coins/', update_market_coins, name='update_market_coins'),
     path('download/', download_data_view, name='download_data'),
     path('<str:exchange_id_char>/data/', get_exchange_data, name='get_exchange_data'),
+
 ]
