@@ -164,7 +164,9 @@ document.querySelector('[name="exchange"]').addEventListener('change', function(
                 label.appendChild(document.createTextNode(timeframe));
                 timeframeField.appendChild(label);
             });
-        });
+        })
+        .catch(error => console.error('Error fetching data:', error));
 });
 </script>
+
 {% endblock %}

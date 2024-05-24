@@ -168,8 +168,3 @@ class CreatePaperTradeView(View):
                 created_at=timezone.now()
             )
         return redirect('market:paper_trading_dashboard')
-
-
-def get_exchange_data(request, exchange_id):
-    exchange_data = EXCHANGES.get(exchange_id, {})
-    return JsonResponse(exchange_data)

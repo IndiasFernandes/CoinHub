@@ -2,8 +2,11 @@ import os
 import logging
 from datetime import datetime
 from django.contrib import messages
+from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
+
+from .exchange_data import EXCHANGES
 from .models import Exchange, Market, Coin, ExchangeInfo
 from .forms import ExchangeForm, DownloadDataForm  # Ensure both forms are imported correctly
 import requests
