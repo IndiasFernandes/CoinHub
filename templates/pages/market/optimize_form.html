@@ -207,34 +207,32 @@ document.querySelector('#exchange-select').addEventListener('change', function()
             const timeframeField = document.querySelector('#timeframe-options');
             symbolField.innerHTML = '';
             timeframeField.innerHTML = '';
-            if (data.symbols) {
-                data.symbols.forEach(symbol => {
-                    const label = document.createElement('label');
-                    label.className = 'checkbox';
-                    const input = document.createElement('input');
-                    input.type = 'checkbox';
-                    input.name = 'symbol';
-                    input.value = symbol;
-                    input.className = 'symbol-checkbox';
-                    label.appendChild(input);
-                    label.appendChild(document.createTextNode(symbol));
-                    symbolField.appendChild(label);
-                });
-            }
-            if (data.timeframes) {
-                data.timeframes.forEach(timeframe => {
-                    const label = document.createElement('label');
-                    label.className = 'checkbox';
-                    const input = document.createElement('input');
-                    input.type = 'checkbox';
-                    input.name = 'timeframe';
-                    input.value = timeframe;
-                    input.className = 'timeframe-checkbox';
-                    label.appendChild(input);
-                    label.appendChild(document.createTextNode(timeframe));
-                    timeframeField.appendChild(label);
-                });
-            }
+
+            data.symbols.forEach(symbol => {
+                const label = document.createElement('label');
+                label.className = 'checkbox';
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.name = 'symbol';
+                input.value = symbol;
+                input.className = 'symbol-checkbox';
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(symbol));
+                symbolField.appendChild(label);
+            });
+
+            data.timeframes.forEach(timeframe => {
+                const label = document.createElement('label');
+                label.className = 'checkbox';
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.name = 'timeframe';
+                input.value = timeframe;
+                input.className = 'timeframe-checkbox';
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(timeframe));
+                timeframeField.appendChild(label);
+            });
         })
         .catch(error => {
             console.error('There has been a problem with your fetch operation:', error);

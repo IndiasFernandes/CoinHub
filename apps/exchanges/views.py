@@ -145,6 +145,29 @@ def download_data_view(request):
         'show_sidebar': True
     })
 
-def get_exchange_data(request, exchange_name):
-    exchange_data = EXCHANGES.get(exchange_name, {})
-    return JsonResponse(exchange_data)
+
+def get_exchange_data(request, exchange_id):
+    try:
+        # Fetch the exchange based on the id_char
+        exchange = Exchange.objects.get(id_char=exchange_id)
+
+        # Fetch markets related to the exchange
+        markets = Market.objects.filter(exchange=exchange)
+
+        # Gather unique symbols and timeframes
+        symbols = set()
+        timeframes = set()
+
+        for market in markets:
+            # Add all coins related to the market
+            symbols.update(coin.symbol for coin in market.coins.all())
+            # Assuming timeframes are part of the market (if they are elsewhere, modify accordingly)
+            timeframes.add(market.market_type)  # Adjust as needed if timeframes are stored differently
+
+        data = {
+            'symbols': list(symbols),
+            'timeframes': list(timeframes)
+        }
+        return JsonResponse(data)
+    except Exchange.DoesNotExist:
+        return JsonResponse({'error': 'Exchange not found'}, status=404)
