@@ -95,7 +95,7 @@ def run_optimization_view(request):
             messages.success(request, "Optimization completed successfully.")
             return redirect('market:run_optimization')
         else:
-            error_messages = format_html('<ul>{}</ul>', ''.join([format_html('<li>{}</li>', error) for field_errors in form.errors.values() for error in field_errors]))
+            error_messages = format_html('<ul>{}</ul>', ''.join([format_html('<li>{}: {}</li>', field.label, error) for field in form for error in field.errors]))
             messages.error(request, format_html("Form data is invalid: {}", error_messages))
     else:
         form = OptimizeForm()
@@ -107,7 +107,6 @@ def run_optimization_view(request):
         'section': 'run_optimization',
         'show_sidebar': True
     })
-
 def backtests_list_view(request):
     backtests = Backtest.objects.all()
     return render(request, 'pages/market/backtests_list.html', {
