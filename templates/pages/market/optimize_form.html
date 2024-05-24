@@ -66,7 +66,7 @@
                     <div class="field">
                         <label class="label small-label">Exchange</label>
                         <div class="control">
-                            <select name="exchange" class="input">
+                            <select name="exchange" class="input" id="exchange-select">
                                 {% for exchange in exchanges %}
                                     <option value="{{ exchange.id_char }}">{{ exchange.name }}</option>
                                 {% endfor %}
@@ -193,7 +193,7 @@ function toggleSelection(className) {
     });
 }
 
-document.querySelector('[name="exchange"]').addEventListener('change', function() {
+document.querySelector('#exchange-select').addEventListener('change', function() {
     const exchangeIdChar = this.value;
     fetch(`/exchanges/${exchangeIdChar}/data/`)
         .then(response => {
