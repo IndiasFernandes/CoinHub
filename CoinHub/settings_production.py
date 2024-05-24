@@ -11,7 +11,7 @@ SECRET_KEY = 'django-insecure-exs@09)4oz810!7$sk)c#9hv-evxmsmafw3iswdu&f*6t_yz'
 
 DEBUG = False
 
-ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '85.242.116.211', '31.22.200.72']
+ALLOWED_HOSTS = ['127.0.0.1', 'localhost', '85.242.116.211', '31.22.200.72', 'api.rev.pm']
 
 INSTALLED_APPS = [
     'django.contrib.admin',
@@ -131,7 +131,7 @@ LOGGING = {
     },
     'handlers': {
         'file': {
-            'level': 'DEBUG',
+            'level': 'WARNING',
             'class': 'logging.FileHandler',
             'filename': '/home/indiasfernandes/CoinHub/logs/django.log',
             'formatter': 'verbose',
