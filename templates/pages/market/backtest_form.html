@@ -66,7 +66,11 @@
                     <div class="field">
                         <label class="label small-label">Exchange</label>
                         <div class="control">
-                            {{ form.exchange|add_class:"input" }}
+                            <select name="exchange" class="input" id="exchange-select">
+                                {% for exchange in exchanges %}
+                                    <option value="{{ exchange.id_char }}">{{ exchange.name }}</option>
+                                {% endfor %}
+                            </select>
                         </div>
                     </div>
                     <div class="field">
@@ -112,13 +116,13 @@
                     <div class="field">
                         <label class="label small-label">Start Date</label>
                         <div class="control">
-                            {{ form.start_date|add_class:"input" }}
+                            <input type="date" name="{{ form.start_date.name }}" value="{{ form.start_date.value|default:form.start_date.initial }}">
                         </div>
                     </div>
                     <div class="field">
                         <label class="label small-label">End Date</label>
                         <div class="control">
-                            {{ form.end_date|add_class:"input" }}
+                            <input type="date" name="{{ form.end_date.name }}" value="{{ form.end_date.value|default:form.end_date.initial }}">
                         </div>
                     </div>
                     <div class="field">
@@ -139,41 +143,59 @@
 </div>
 
 <script>
-document.querySelector('[name="exchange"]').addEventListener('change', function() {
-    const exchangeName = this.value;
-    fetch(`/exchanges/${exchangeName}/data/`)
-        .then(response => response.json())
+function toggleSelection(className) {
+    const checkboxes = document.querySelectorAll('.' + className);
+    const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = !allChecked;
+    });
+}
+
+document.querySelector('#exchange-select').addEventListener('change', function() {
+    const exchangeIdChar = this.value;
+    fetch(`/exchanges/${exchangeIdChar}/data/`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
         .then(data => {
             const symbolField = document.querySelector('#symbol-options');
             const timeframeField = document.querySelector('#timeframe-options');
             symbolField.innerHTML = '';
             timeframeField.innerHTML = '';
-
-            data.symbols.forEach(symbol => {
-                const label = document.createElement('label');
-                label.className = 'checkbox';
-                const input = document.createElement('input');
-                input.type = 'checkbox';
-                input.name = 'symbol';
-                input.value = symbol;
-                input.className = 'symbol-checkbox';
-                label.appendChild(input);
-                label.appendChild(document.createTextNode(symbol));
-                symbolField.appendChild(label);
-            });
-
-            data.timeframes.forEach(timeframe => {
-                const label = document.createElement('label');
-                label.className = 'checkbox';
-                const input = document.createElement('input');
-                input.type = 'checkbox';
-                input.name = 'timeframe';
-                input.value = timeframe;
-                input.className = 'timeframe-checkbox';
-                label.appendChild(input);
-                label.appendChild(document.createTextNode(timeframe));
-                timeframeField.appendChild(label);
-            });
+            if (data.symbols) {
+                data.symbols.forEach(symbol => {
+                    const label = document.createElement('label');
+                    label.className = 'checkbox';
+                    const input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.name = 'symbol';
+                    input.value = symbol;
+                    input.className = 'symbol-checkbox';
+                    label.appendChild(input);
+                    label.appendChild(document.createTextNode(symbol));
+                    symbolField.appendChild(label);
+                });
+            }
+            if (data.timeframes) {
+                data.timeframes.forEach(timeframe => {
+                    const label = document.createElement('label');
+                    label.className = 'checkbox';
+                    const input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.name = 'timeframe';
+                    input.value = timeframe;
+                    input.className = 'timeframe-checkbox';
+                    label.appendChild(input);
+                    label.appendChild(document.createTextNode(timeframe));
+                    timeframeField.appendChild(label);
+                });
+            }
+        })
+        .catch(error => {
+            console.error('There has been a problem with your fetch operation:', error);
         });
 });
 </script>

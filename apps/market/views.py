@@ -45,8 +45,10 @@ def run_backtest_view(request):
             messages.error(request, "Form data is invalid.")
     else:
         form = BacktestForm()
+        exchanges = Exchange.objects.all()
     return render(request, 'pages/market/backtest_form.html', {
         'form': form,
+        'exchanges': exchanges,
         'current_section': 'market',
         'section': 'run_backtest',
         'show_sidebar': True
@@ -93,8 +95,10 @@ def run_optimization_view(request):
             messages.error(request, "Form data is invalid.")
     else:
         form = OptimizeForm()
+        exchanges = Exchange.objects.all()
     return render(request, 'pages/market/optimize_form.html', {
         'form': form,
+        'exchanges': exchanges,
         'current_section': 'market',
         'section': 'run_optimization',
         'show_sidebar': True
