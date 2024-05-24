@@ -17,10 +17,11 @@
     .select-all-button {
         margin-bottom: 1rem;
     }
-    .box {
+    .box, .card {
         border-radius: 8px;
         box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
         padding: 2rem;
+        margin-bottom: 1.5rem;
     }
     .field:not(:last-child) {
         margin-bottom: 1.5rem;
@@ -62,129 +63,141 @@
 <div class="container">
     <div class="columns is-centered">
         <div class="column is-three-quarters">
-            <div class="box">
-                <h1 class="title has-text-centered">Optimize</h1>
-                <p class="subtitle has-text-centered">Optimize trading parameters for your chosen symbols and timeframes.</p>
-                <form method="post">
-                    {% csrf_token %}
-                    <div class="field">
-                        <label class="label small-label">Exchange</label>
-                        <div class="control">
-                            <select name="exchange" class="input" id="exchange-select">
-                                {% for exchange in exchanges %}
-                                    <option value="{{ exchange.id_char }}" {% if exchange.id_char == "hyperliquid" %}selected{% endif %}>{{ exchange.name }}</option>
-                                {% endfor %}
-                            </select>
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label class="label small-label">Symbol</label>
-                        <div class="buttons has-addons select-all-button">
-                            <button type="button" class="button is-small is-info" onclick="toggleSelection('symbol-checkbox')">Select All Symbols</button>
-                        </div>
-                        <div class="control" id="symbol-options">
-                            <!-- Symbols will be populated by JavaScript -->
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label class="label small-label">Timeframe</label>
-                        <div class="buttons has-addons select-all-button">
-                            <button type="button" class="button is-small is-info" onclick="toggleSelection('timeframe-checkbox')">Select All Timeframes</button>
-                        </div>
-                        <div class="control" id="timeframe-options">
-                            <!-- Timeframes will be populated by JavaScript -->
-                        </div>
-                    </div>
-                    <div class="field-group">
+            <form method="post">
+                {% csrf_token %}
+
+                <div class="card">
+                    <div class="card-content">
                         <div class="field">
-                            <label class="label small-label">Start Date</label>
+                            <label class="label small-label">Exchange</label>
                             <div class="control">
-                                <input type="date" name="{{ form.start_date.name }}" class="input" value="{{ form.start_date.value|default:form.start_date.initial }}">
+                                <select name="exchange" class="input" id="exchange-select">
+                                    {% for exchange in exchanges %}
+                                        <option value="{{ exchange.id_char }}" {% if exchange.id_char == "hyperliquid" %}selected{% endif %}>{{ exchange.name }}</option>
+                                    {% endfor %}
+                                </select>
                             </div>
                         </div>
                         <div class="field">
-                            <label class="label small-label">End Date</label>
-                            <div class="control">
-                                <input type="date" name="{{ form.end_date.name }}" class="input" value="{{ form.end_date.value|default:form.end_date.initial }}">
+                            <label class="label small-label">Symbol</label>
+                            <div class="buttons has-addons select-all-button">
+                                <button type="button" class="button is-small is-info" onclick="toggleSelection('symbol-checkbox')">Select All Symbols</button>
+                            </div>
+                            <div class="control" id="symbol-options">
+                                <!-- Symbols will be populated by JavaScript -->
+                            </div>
+                        </div>
+                        <div class="field">
+                            <label class="label small-label">Timeframe</label>
+                            <div class="buttons has-addons select-all-button">
+                                <button type="button" class="button is-small is-info" onclick="toggleSelection('timeframe-checkbox')">Select All Timeframes</button>
+                            </div>
+                            <div class="control" id="timeframe-options">
+                                <!-- Timeframes will be populated by JavaScript -->
                             </div>
                         </div>
                     </div>
-                    <div class="field-group">
-                        <div class="field">
-                            <label class="label small-label">Cash</label>
-                            <div class="control">
-                                <input type="number" name="{{ form.cash.name }}" class="input" value="{{ form.cash.value|default:10000 }}">
+                </div>
+
+                <div class="card">
+                    <div class="card-content">
+                        <div class="field-group">
+                            <div class="field">
+                                <label class="label small-label">Start Date</label>
+                                <div class="control">
+                                    <input type="date" name="{{ form.start_date.name }}" class="input" value="{{ form.start_date.value|default:form.start_date.initial }}">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label small-label">End Date</label>
+                                <div class="control">
+                                    <input type="date" name="{{ form.end_date.name }}" class="input" value="{{ form.end_date.value|default:form.end_date.initial }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <div class="field">
+                                <label class="label small-label">Cash</label>
+                                <div class="control">
+                                    <input type="number" name="{{ form.cash.name }}" class="input" value="{{ form.cash.value|default:10000 }}">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label small-label">Commission</label>
+                                <div class="control">
+                                    <input type="number" step="0.001" name="{{ form.commission.name }}" class="input" value="{{ form.commission.value|default:0.008 }}">
+                                </div>
                             </div>
                         </div>
                         <div class="field">
-                            <label class="label small-label">Commission</label>
+                            <label class="label small-label">Open Browser</label>
                             <div class="control">
-                                <input type="number" step="0.001" name="{{ form.commission.name }}" class="input" value="{{ form.commission.value|default:0.008 }}">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label class="label small-label">Open Browser</label>
-                        <div class="control">
-                            <label class="checkbox">
-                                <input type="checkbox" name="{{ form.openbrowser.name }}" value="True" {% if form.openbrowser.value %}checked{% endif %}>
-                                Open Browser
-                            </label>
-                        </div>
-                    </div>
-                    <div class="field-group">
-                        <div class="field">
-                            <label class="label small-label">Min Time Period</label>
-                            <div class="control">
-                                <input type="number" name="{{ form.min_timeperiod.name }}" class="input" value="{{ form.min_timeperiod.value|default:0 }}">
-                            </div>
-                        </div>
-                        <div class="field">
-                            <label class="label small-label">Max Time Period</label>
-                            <div class="control">
-                                <input type="number" name="{{ form.max_timeperiod.name }}" class="input" value="{{ form.max_timeperiod.value|default:3 }}">
-                            </div>
-                        </div>
-                        <div class="field">
-                            <label class="label small-label">Interval Time Period</label>
-                            <div class="control">
-                                <input type="number" step="0.1" name="{{ form.interval_timeperiod.name }}" class="input" value="{{ form.interval_timeperiod.value|default:0.2 }}">
-                            </div>
-                        </div>
-                    </div>
-                    <div class="field-group">
-                        <div class="field">
-                            <label class="label small-label">Min Multiplier</label>
-                            <div class="control">
-                                <input type="number" name="{{ form.min_multiplier.name }}" class="input" value="{{ form.min_multiplier.value|default:0 }}">
-                            </div>
-                        </div>
-                        <div class="field">
-                            <label class="label small-label">Max Multiplier</label>
-                            <div class="control">
-                                <input type="number" name="{{ form.max_multiplier.name }}" class="input" value="{{ form.max_multiplier.value|default:3 }}">
-                            </div>
-                        </div>
-                        <div class="field">
-                            <label class="label small-label">Interval Multiplier</label>
-                            <div class="control">
-                                <input type="number" step="0.1" name="{{ form.interval_multiplier.name }}" class="input" value="{{ form.interval_multiplier.value|default:0.2 }}">
+                                <label class="checkbox">
+                                    <input type="checkbox" name="{{ form.openbrowser.name }}" value="True" {% if form.openbrowser.value %}checked{% endif %}>
+                                    Open Browser
+                                </label>
                             </div>
                         </div>
                     </div>
-                    <div class="field">
-                        <label class="label small-label">Max Tries</label>
-                        <div class="control">
-                            <input type="number" name="{{ form.max_tries.name }}" class="input" value="{{ form.max_tries.value|default:10 }}">
+                </div>
+
+                <div class="card">
+                    <div class="card-content">
+                        <div class="field">
+                            <label class="label small-label">Max Tries</label>
+                            <div class="control">
+                                <input type="number" name="{{ form.max_tries.name }}" class="input" value="{{ form.max_tries.value|default:10 }}">
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <div class="field">
+                                <label class="label small-label">Min Time Period</label>
+                                <div class="control">
+                                    <input type="number" name="{{ form.min_timeperiod.name }}" class="input" value="{{ form.min_timeperiod.value|default:0 }}">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label small-label">Max Time Period</label>
+                                <div class="control">
+                                    <input type="number" name="{{ form.max_timeperiod.name }}" class="input" value="{{ form.max_timeperiod.value|default:3 }}">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label small-label">Interval Time Period</label>
+                                <div class="control">
+                                    <input type="number" step="0.1" name="{{ form.interval_timeperiod.name }}" class="input" value="{{ form.interval_timeperiod.value|default:0.2 }}">
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field-group">
+                            <div class="field">
+                                <label class="label small-label">Min Multiplier</label>
+                                <div class="control">
+                                    <input type="number" name="{{ form.min_multiplier.name }}" class="input" value="{{ form.min_multiplier.value|default:0 }}">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label small-label">Max Multiplier</label>
+                                <div class="control">
+                                    <input type="number" name="{{ form.max_multiplier.name }}" class="input" value="{{ form.max_multiplier.value|default:3 }}">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label small-label">Interval Multiplier</label>
+                                <div class="control">
+                                    <input type="number" step="0.1" name="{{ form.interval_multiplier.name }}" class="input" value="{{ form.interval_multiplier.value|default:0.2 }}">
+                                </div>
+                            </div>
                         </div>
                     </div>
-                    <div class="field">
-                        <div class="control centered-button">
-                            <button type="submit" class="button is-link is-large">Run Optimization</button>
-                        </div>
+                </div>
+
+                <div class="field">
+                    <div class="control centered-button">
+                        <button type="submit" class="button is-link is-large">Run Optimization</button>
                     </div>
-                </form>
-            </div>
+                </div>
+            </form>
         </div>
     </div>
 </div>
