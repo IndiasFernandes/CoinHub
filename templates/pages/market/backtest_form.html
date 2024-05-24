@@ -139,17 +139,9 @@
 </div>
 
 <script>
-function toggleSelection(className) {
-    const checkboxes = document.querySelectorAll('.' + className);
-    const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = !allChecked;
-    });
-}
-
 document.querySelector('[name="exchange"]').addEventListener('change', function() {
-    const exchangeId = this.value;
-    fetch(`/exchanges/${exchangeId}/data/`)
+    const exchangeName = this.value;
+    fetch(`/exchanges/${exchangeName}/data/`)
         .then(response => response.json())
         .then(data => {
             const symbolField = document.querySelector('#symbol-options');

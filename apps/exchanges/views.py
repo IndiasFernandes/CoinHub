@@ -145,7 +145,6 @@ def download_data_view(request):
         'show_sidebar': True
     })
 
-
-def get_exchange_data(request, exchange_id):
-    exchange_data = EXCHANGES.get(exchange_id, {})
+def get_exchange_data(request, exchange_name):
+    exchange_data = EXCHANGES.get(exchange_name, {})
     return JsonResponse(exchange_data)

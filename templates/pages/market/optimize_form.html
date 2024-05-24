@@ -70,7 +70,7 @@
                         </div>
                     </div>
                     <div class="field">
-                        <label class="label small-label">Symbols</label>
+                        <label class="label small-label">Symbol</label>
                         <div class="buttons has-addons select-all-button">
                             <button type="button" class="button is-small is-info" onclick="toggleSelection('symbol-checkbox')">Select All Symbols</button>
                         </div>
@@ -84,7 +84,7 @@
                         </div>
                     </div>
                     <div class="field">
-                        <label class="label small-label">Timeframes</label>
+                        <label class="label small-label">Timeframe</label>
                         <div class="buttons has-addons select-all-button">
                             <button type="button" class="button is-small is-info" onclick="toggleSelection('timeframe-checkbox')">Select All Timeframes</button>
                         </div>
@@ -95,6 +95,18 @@
                                     {{ choice_label }}
                                 </label>
                             {% endfor %}
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label small-label">Start Date</label>
+                        <div class="control">
+                            <input type="date" name="{{ form.start_date.name }}" value="{{ form.start_date.value|default:form.start_date.initial }}">
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label small-label">End Date</label>
+                        <div class="control">
+                            <input type="date" name="{{ form.end_date.name }}" value="{{ form.end_date.value|default:form.end_date.initial }}">
                         </div>
                     </div>
                     <div class="field">
@@ -110,18 +122,6 @@
                         </div>
                     </div>
                     <div class="field">
-                        <label class="label small-label">Start Date</label>
-                        <div class="control">
-                            {{ form.start_date|add_class:"input" }}
-                        </div>
-                    </div>
-                    <div class="field">
-                        <label class="label small-label">End Date</label>
-                        <div class="control">
-                            {{ form.end_date|add_class:"input" }}
-                        </div>
-                    </div>
-                    <div class="field">
                         <label class="label small-label">Open Browser</label>
                         <div class="control">
                             {{ form.openbrowser|add_class:"input" }}
@@ -134,19 +134,19 @@
                         </div>
                     </div>
                     <div class="field">
-                        <label class="label small-label">Min Timeperiod</label>
+                        <label class="label small-label">Min Time Period</label>
                         <div class="control">
                             {{ form.min_timeperiod|add_class:"input" }}
                         </div>
                     </div>
                     <div class="field">
-                        <label class="label small-label">Max Timeperiod</label>
+                        <label class="label small-label">Max Time Period</label>
                         <div class="control">
                             {{ form.max_timeperiod|add_class:"input" }}
                         </div>
                     </div>
                     <div class="field">
-                        <label class="label small-label">Interval Timeperiod</label>
+                        <label class="label small-label">Interval Time Period</label>
                         <div class="control">
                             {{ form.interval_timeperiod|add_class:"input" }}
                         </div>
@@ -190,15 +190,14 @@ function toggleSelection(className) {
 }
 
 document.querySelector('[name="exchange"]').addEventListener('change', function() {
-    const exchangeId = this.value;
-    fetch(`/exchanges/${exchangeId}/data/`)
+    const exchangeName = this.value;
+    fetch(`/exchanges/${exchangeName}/data/`)
         .then(response => response.json())
         .then(data => {
             const symbolField = document.querySelector('#symbol-options');
             const timeframeField = document.querySelector('#timeframe-options');
             symbolField.innerHTML = '';
             timeframeField.innerHTML = '';
-
             data.symbols.forEach(symbol => {
                 const label = document.createElement('label');
                 label.className = 'checkbox';
@@ -211,7 +210,6 @@ document.querySelector('[name="exchange"]').addEventListener('change', function(
                 label.appendChild(document.createTextNode(symbol));
                 symbolField.appendChild(label);
             });
-
             data.timeframes.forEach(timeframe => {
                 const label = document.createElement('label');
                 label.className = 'checkbox';

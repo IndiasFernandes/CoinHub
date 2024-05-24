@@ -10,5 +10,5 @@ urlpatterns = [
     path('chart/', chart_view, name='chart_view'),
     path('market/<int:market_id>/update_coins/', update_market_coins, name='update_market_coins'),
     path('download/', download_data_view, name='download_data'),
-    path('exchanges/<str:exchange_id>/data/', get_exchange_data, name='get_exchange_data'),
+    path('<str:exchange_name>/data/', get_exchange_data, name='get_exchange_data'),
 ]
