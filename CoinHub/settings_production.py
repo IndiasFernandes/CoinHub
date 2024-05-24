@@ -26,7 +26,8 @@ INSTALLED_APPS = [
     'apps.accounts',
     'apps.market',
     'widget_tweaks',
-    'django_celery_beat'
+    'django_celery_beat',
+    'corsheaders',
 ]
 
 MIDDLEWARE = [
@@ -38,7 +39,12 @@ MIDDLEWARE = [
     'django.contrib.messages.middleware.MessageMiddleware',
     'django.middleware.clickjacking.XFrameOptionsMiddleware',
     'whitenoise.middleware.WhiteNoiseMiddleware',
+    'corsheaders.middleware.CorsMiddleware',
+    'django.middleware.common.CommonMiddleware',
 ]
+
+# Or allow all origins (not recommended for production)
+CORS_ALLOW_ALL_ORIGINS = True
 
 ROOT_URLCONF = 'CoinHub.urls'
 
