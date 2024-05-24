@@ -30,6 +30,8 @@ INSTALLED_APPS = [
     'corsheaders',
 ]
 
+SECURE_CROSS_ORIGIN_OPENER_POLICY = None
+
 MIDDLEWARE = [
     'django.middleware.security.SecurityMiddleware',
     'django.contrib.sessions.middleware.SessionMiddleware',
