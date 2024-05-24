@@ -41,5 +41,43 @@ EXCHANGES = {
             '1m', '5m', '15m', '30m', '1h', '4h', '1d', '1w', '1M'
         ]
     },
-    # Add more exchanges as needed
+    'binance': {
+        'name': 'Binance',
+        'symbols': [
+            'BTC/USDT', 'ETH/USDT', 'BNB/USDT', 'ADA/USDT',
+            'XRP/USDT', 'SOL/USDT', 'DOT/USDT', 'DOGE/USDT',
+            'AVAX/USDT', 'SHIB/USDT', 'MATIC/USDT', 'LTC/USDT',
+            'UNI/USDT', 'LINK/USDT', 'BCH/USDT', 'XLM/USDT',
+            'ATOM/USDT', 'FTT/USDT', 'ALGO/USDT', 'VET/USDT'
+        ],
+        'timeframes': [
+            '1m', '3m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1d', '3d', '1w', '1M'
+        ]
+    },
+    'coinbase': {
+        'name': 'Coinbase',
+        'symbols': [
+            'BTC/USD', 'ETH/USD', 'LTC/USD', 'BCH/USD',
+            'ETC/USD', 'ZRX/USD', 'BAT/USD', 'ZEC/USD',
+            'MANA/USD', 'LOOM/USD', 'DNT/USD', 'CVC/USD',
+            'REP/USD', 'KNC/USD', 'OMG/USD', 'GNT/USD',
+            'DAI/USD', 'USDC/USD', 'MKR/USD', 'PAX/USD'
+        ],
+        'timeframes': [
+            '1m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '1d', '1w', '1M'
+        ]
+    },
+    'kraken': {
+        'name': 'Kraken',
+        'symbols': [
+            'BTC/EUR', 'ETH/EUR', 'XRP/EUR', 'LTC/EUR',
+            'BCH/EUR', 'EOS/EUR', 'ADA/EUR', 'XLM/EUR',
+            'LINK/EUR', 'TRX/EUR', 'DOT/EUR', 'UNI/EUR',
+            'XMR/EUR', 'ATOM/EUR', 'XTZ/EUR', 'FIL/EUR',
+            'YFI/EUR', 'COMP/EUR', 'AAVE/EUR', 'MKR/EUR'
+        ],
+        'timeframes': [
+            '1m', '5m', '15m', '30m', '1h', '4h', '1d', '1w'
+        ]
+    }
 }

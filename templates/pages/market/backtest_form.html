@@ -67,9 +67,9 @@
                     <div class="field">
                         <label class="label small-label">{{ field.label }}</label>
                         <div class="control">
-                            {% if field.label == "Exchange" %}
+                            {% if field.name == "exchange" %}
                                 {{ field|add_class:"input" }}
-                            {% elif field.label == "Symbol" %}
+                            {% elif field.name == "symbol" %}
                                 <div class="buttons has-addons select-all-button">
                                     <button type="button" class="button is-small is-info" onclick="toggleSelection('symbol-checkbox')">Select All Symbols</button>
                                 </div>
@@ -81,7 +81,7 @@
                                         </label>
                                     {% endfor %}
                                 </div>
-                            {% elif field.label == "Timeframe" %}
+                            {% elif field.name == "timeframe" %}
                                 <div class="buttons has-addons select-all-button">
                                     <button type="button" class="button is-small is-info" onclick="toggleSelection('timeframe-checkbox')">Select All Timeframes</button>
                                 </div>
