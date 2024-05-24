@@ -117,37 +117,6 @@
 </div>
 
 <script>
-document.addEventListener('DOMContentLoaded', function() {
-    const exchangeField = document.querySelector('select[name="exchange"]');
-    const symbolField = document.querySelector('select[name="symbol"]');
-    const timeframeField = document.querySelector('select[name="timeframe"]');
-
-    exchangeField.addEventListener('change', function() {
-        const exchangeId = this.value;
-        fetch(`/exchanges/${exchangeId}/data/`)
-            .then(response => response.json())
-            .then(data => {
-                // Update symbol options
-                symbolField.innerHTML = '';
-                data.symbols.forEach(symbol => {
-                    const option = document.createElement('option');
-                    option.value = symbol;
-                    option.textContent = symbol;
-                    symbolField.appendChild(option);
-                });
-
-                // Update timeframe options
-                timeframeField.innerHTML = '';
-                data.timeframes.forEach(timeframe => {
-                    const option = document.createElement('option');
-                    option.value = timeframe;
-                    option.textContent = timeframe;
-                    timeframeField.appendChild(option);
-                });
-            });
-    });
-});
-
 function toggleSelection(className) {
     const checkboxes = document.querySelectorAll('.' + className);
     const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
@@ -155,5 +124,29 @@ function toggleSelection(className) {
         checkbox.checked = !allChecked;
     });
 }
+
+document.querySelector('[name="exchange"]').addEventListener('change', function() {
+    const exchangeId = this.value;
+    fetch(`/exchanges/${exchangeId}/data/`)
+        .then(response => response.json())
+        .then(data => {
+            const symbolField = document.querySelector('[name="symbol"]');
+            const timeframeField = document.querySelector('[name="timeframe"]');
+            symbolField.innerHTML = '';
+            timeframeField.innerHTML = '';
+            data.symbols.forEach(symbol => {
+                const option = document.createElement('option');
+                option.value = symbol;
+                option.text = symbol;
+                symbolField.appendChild(option);
+            });
+            data.timeframes.forEach(timeframe => {
+                const option = document.createElement('option');
+                option.value = timeframe;
+                option.text = timeframe;
+                timeframeField.appendChild(option);
+            });
+        });
+});
 </script>
 {% endblock %}
