@@ -3,6 +3,7 @@
 from django import forms
 from datetime import datetime, timedelta
 from .exchange_data import EXCHANGES
+from .models import Exchange
 
 
 class DownloadDataForm(forms.Form):
@@ -27,3 +28,8 @@ class DownloadDataForm(forms.Form):
             default_exchange = list(EXCHANGES.keys())[0]
             self.fields['symbol'].choices = [(symbol, symbol) for symbol in EXCHANGES[default_exchange]['symbols']]
             self.fields['timeframe'].choices = [(timeframe, timeframe) for timeframe in EXCHANGES[default_exchange]['timeframes']]
+
+class ExchangeForm(forms.ModelForm):
+    class Meta:
+        model = Exchange
+        fields = ['name', 'description', 'api_url', 'api_key', 'secret_key', 'id_char']

@@ -5,13 +5,11 @@ from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from .models import Exchange, Market, Coin, ExchangeInfo
-from .forms import ExchangeForm, DownloadDataForm
+from .forms import ExchangeForm, DownloadDataForm  # Ensure both forms are imported correctly
 import requests
 from .utils.hyperliquid.bot import BotAccount
 from .utils.hyperliquid.download_data import download_data, initialize_exchange
 from .utils.utils import run_exchange
-from django.http import JsonResponse
-from .exchange_data import EXCHANGES
 
 # Get an instance of a logger
 logger = logging.getLogger('django')
