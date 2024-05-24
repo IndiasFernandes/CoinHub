@@ -213,8 +213,10 @@ function toggleSelection(className) {
 
 document.addEventListener('DOMContentLoaded', function() {
     const exchangeSelect = document.querySelector('#exchange-select');
-    const exchangeIdChar = exchangeSelect.value;
-    fetch(`/exchanges/${exchangeIdChar}/data/`)
+    const defaultExchange = "hyperliquid";  // default value
+
+    // Trigger the change event on page load to fetch default exchange data
+    fetch(`/exchanges/${defaultExchange}/data/`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');

@@ -1,4 +1,5 @@
 from django.utils import timezone
+from django.utils.html import format_html
 from django.views import View
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -94,9 +95,11 @@ def run_optimization_view(request):
             messages.success(request, "Optimization completed successfully.")
             return redirect('market:run_optimization')
         else:
-            messages.error(request, "Form data is invalid.")
+            error_messages = format_html('<ul>{}</ul>', ''.join([format_html('<li>{}</li>', error) for field_errors in form.errors.values() for error in field_errors]))
+            messages.error(request, format_html("Form data is invalid: {}", error_messages))
     else:
         form = OptimizeForm()
+
     return render(request, 'pages/market/optimize_form.html', {
         'form': form,
         'exchanges': exchanges,
@@ -104,7 +107,6 @@ def run_optimization_view(request):
         'section': 'run_optimization',
         'show_sidebar': True
     })
-
 
 def backtests_list_view(request):
     backtests = Backtest.objects.all()
