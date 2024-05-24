@@ -4,15 +4,18 @@ from datetime import datetime
 from django.contrib import messages
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
-from .models import Exchange, Market, Coin, ExchangeInfo, DownloadDataForm
-from .forms import ExchangeForm
+from .models import Exchange, Market, Coin, ExchangeInfo
+from .forms import ExchangeForm, DownloadDataForm
 import requests
 from .utils.hyperliquid.bot import BotAccount
 from .utils.hyperliquid.download_data import download_data, initialize_exchange
 from .utils.utils import run_exchange
+from django.http import JsonResponse
+from .exchange_data import EXCHANGES
 
 # Get an instance of a logger
 logger = logging.getLogger('django')
+
 
 @login_required
 def exchange_list(request):
@@ -24,6 +27,7 @@ def exchange_list(request):
         'show_sidebar': True
     })
 
+
 @login_required
 def exchange_detail(request, exchange_id):
     exchange = get_object_or_404(Exchange, pk=exchange_id)
@@ -33,6 +37,7 @@ def exchange_detail(request, exchange_id):
         'section': 'exchange_detail',
         'show_sidebar': True
     })
+
 
 @login_required
 def exchange_new(request):
@@ -49,6 +54,7 @@ def exchange_new(request):
         'section': 'exchange_new',
         'show_sidebar': True
     })
+
 
 @login_required
 def chart_view(request):
@@ -67,6 +73,7 @@ def chart_view(request):
     }
     return render(request, 'pages/general/graphs/chart.html', context)
 
+
 @login_required
 def update_market_coins(request, market_id):
     market = get_object_or_404(Market, pk=market_id)
@@ -81,6 +88,7 @@ def update_market_coins(request, market_id):
     except requests.RequestException as e:
         messages.error(request, f"Failed to update market coins: {e}")
     return redirect('exchange:exchange_detail', exchange_id=market.exchange.pk)
+
 
 @login_required
 def download_data_view(request):
@@ -136,9 +144,6 @@ def download_data_view(request):
         'show_sidebar': True
     })
 
-
-from django.http import JsonResponse
-from .exchange_data import EXCHANGES
 
 def get_exchange_data(request, exchange_id):
     exchange_data = EXCHANGES.get(exchange_id, {})
