@@ -119,8 +119,8 @@
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const exchangeField = document.querySelector('select[name="exchange"]');
-    const symbolField = document.querySelectorAll('.symbol-checkbox');
-    const timeframeField = document.querySelectorAll('.timeframe-checkbox');
+    const symbolField = document.querySelector('select[name="symbol"]');
+    const timeframeField = document.querySelector('select[name="timeframe"]');
 
     exchangeField.addEventListener('change', function() {
         const exchangeId = this.value;

@@ -1,21 +1,12 @@
-from django import forms
-from .models import Exchange
-
-class ExchangeForm(forms.ModelForm):
-    class Meta:
-        model = Exchange
-        fields = ['name', 'description', 'api_url', 'api_key', 'secret_key', 'id_char']
-
 # forms.py
 
 from django import forms
 from datetime import datetime, timedelta
 from .exchange_data import EXCHANGES
 
-class DownloadDataForm(forms.Form):
-    EXCHANGE_CHOICES = [(key, value['name']) for key, value in EXCHANGES.items()]
 
-    exchange_id = forms.ChoiceField(choices=EXCHANGE_CHOICES, label="Exchange")
+class DownloadDataForm(forms.Form):
+    exchange_id = forms.ChoiceField(choices=[(key, value['name']) for key, value in EXCHANGES.items()], label="Exchange")
     symbol = forms.MultipleChoiceField(choices=[], label="Symbol")
     timeframe = forms.MultipleChoiceField(choices=[], label="Timeframe")
     start_date = forms.DateField(widget=forms.DateInput(attrs={'type': 'date'}),

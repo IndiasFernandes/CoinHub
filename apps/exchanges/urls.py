@@ -1,6 +1,7 @@
+# urls.py
+
 from django.urls import path
-from .views import exchange_list, exchange_detail, exchange_new, chart_view, update_market_coins, download_data_view, \
-    get_exchange_data
+from .views import exchange_list, exchange_detail, exchange_new, chart_view, update_market_coins, download_data_view, get_exchange_data
 
 app_name = 'exchange'
 
