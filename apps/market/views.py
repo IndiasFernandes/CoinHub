@@ -62,12 +62,12 @@ def run_optimization_view(request):
     if request.method == 'POST':
         form = OptimizeForm(request.POST)
         if form.is_valid():
-            exchange_id = form.cleaned_data['exchange']
-            exchange = get_object_or_404(Exchange, id_char=exchange_id)
+            exchange_id_char = form.cleaned_data['exchange']
+            exchange = get_object_or_404(Exchange, id_char=exchange_id_char)
             key = exchange.api_key
             secret = exchange.secret_key
 
-            exchange_instance = run_exchange(exchange_id, key, secret)
+            exchange_instance = run_exchange(exchange.id_char, key, secret)
             symbols = form.cleaned_data['symbol']
             timeframes = form.cleaned_data['timeframe']
             start_date = form.cleaned_data['start_date'].strftime('%Y-%m-%d')
