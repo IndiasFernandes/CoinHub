@@ -63,52 +63,70 @@
                 <p class="subtitle has-text-centered">Run backtests for your chosen symbols and timeframes.</p>
                 <form method="post">
                     {% csrf_token %}
-                    {% for field in form %}
                     <div class="field">
-                        <label class="label small-label">{{ field.label }}</label>
+                        <label class="label small-label">Exchange</label>
                         <div class="control">
-                            {% if field.name == "exchange" %}
-                                {{ field|add_class:"input" }}
-                            {% elif field.name == "symbol" %}
-                                <div class="buttons has-addons select-all-button">
-                                    <button type="button" class="button is-small is-info" onclick="toggleSelection('symbol-checkbox')">Select All Symbols</button>
-                                </div>
-                                <div class="control">
-                                    <div id="symbol-options">
-                                        {% for choice_value, choice_label in field.field.choices %}
-                                            <label class="checkbox">
-                                                <input type="checkbox" name="{{ field.name }}" value="{{ choice_value }}" class="symbol-checkbox">
-                                                {{ choice_label }}
-                                            </label>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            {% elif field.name == "timeframe" %}
-                                <div class="buttons has-addons select-all-button">
-                                    <button type="button" class="button is-small is-info" onclick="toggleSelection('timeframe-checkbox')">Select All Timeframes</button>
-                                </div>
-                                <div class="control">
-                                    <div id="timeframe-options">
-                                        {% for choice_value, choice_label in field.field.choices %}
-                                            <label class="checkbox">
-                                                <input type="checkbox" name="{{ field.name }}" value="{{ choice_value }}" class="timeframe-checkbox">
-                                                {{ choice_label }}
-                                            </label>
-                                        {% endfor %}
-                                    </div>
-                                </div>
-                            {% else %}
-                                {{ field|add_class:"input" }}
-                            {% endif %}
+                            {{ form.exchange|add_class:"input" }}
                         </div>
-                        {% if field.help_text %}
-                        <p class="help help-message">{{ field.help_text }}</p>
-                        {% endif %}
-                        {% for error in field.errors %}
-                        <p class="help is-danger">{{ error }}</p>
-                        {% endfor %}
                     </div>
-                    {% endfor %}
+                    <div class="field">
+                        <label class="label small-label">Symbols</label>
+                        <div class="buttons has-addons select-all-button">
+                            <button type="button" class="button is-small is-info" onclick="toggleSelection('symbol-checkbox')">Select All Symbols</button>
+                        </div>
+                        <div class="control" id="symbol-options">
+                            {% for choice_value, choice_label in form.symbol.field.choices %}
+                                <label class="checkbox">
+                                    <input type="checkbox" name="{{ form.symbol.name }}" value="{{ choice_value }}" class="symbol-checkbox">
+                                    {{ choice_label }}
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label small-label">Timeframes</label>
+                        <div class="buttons has-addons select-all-button">
+                            <button type="button" class="button is-small is-info" onclick="toggleSelection('timeframe-checkbox')">Select All Timeframes</button>
+                        </div>
+                        <div class="control" id="timeframe-options">
+                            {% for choice_value, choice_label in form.timeframe.field.choices %}
+                                <label class="checkbox">
+                                    <input type="checkbox" name="{{ form.timeframe.name }}" value="{{ choice_value }}" class="timeframe-checkbox">
+                                    {{ choice_label }}
+                                </label>
+                            {% endfor %}
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label small-label">Cash</label>
+                        <div class="control">
+                            {{ form.cash|add_class:"input" }}
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label small-label">Commission</label>
+                        <div class="control">
+                            {{ form.commission|add_class:"input" }}
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label small-label">Start Date</label>
+                        <div class="control">
+                            {{ form.start_date|add_class:"input" }}
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label small-label">End Date</label>
+                        <div class="control">
+                            {{ form.end_date|add_class:"input" }}
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label small-label">Open Browser</label>
+                        <div class="control">
+                            {{ form.openbrowser|add_class:"input" }}
+                        </div>
+                    </div>
                     <div class="field">
                         <div class="control centered-button">
                             <button type="submit" class="button is-link is-large">Run Backtest</button>
@@ -164,9 +182,7 @@ document.querySelector('[name="exchange"]').addEventListener('change', function(
                 label.appendChild(document.createTextNode(timeframe));
                 timeframeField.appendChild(label);
             });
-        })
-        .catch(error => console.error('Error fetching data:', error));
+        });
 });
 </script>
-
 {% endblock %}
