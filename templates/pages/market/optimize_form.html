@@ -54,6 +54,10 @@
     .button.is-link:hover {
         background-color: #276cda;
     }
+    .field-group {
+        display: flex;
+        gap: 1rem;
+    }
 </style>
 <div class="container">
     <div class="columns is-centered">
@@ -87,26 +91,32 @@
                         </div>
                         <div class="control" id="timeframe-options"></div>
                     </div>
-                    <div class="field is-grouped">
-                        <div class="control">
+                    <div class="field-group">
+                        <div class="field">
                             <label class="label small-label">Start Date</label>
-                            <input type="date" name="{{ form.start_date.name }}" value="{{ form.start_date.value|default:form.start_date.initial }}">
+                            <div class="control">
+                                <input type="date" name="{{ form.start_date.name }}" class="input" value="{{ form.start_date.value|default:form.start_date.initial }}">
+                            </div>
                         </div>
-                        <div class="control">
+                        <div class="field">
                             <label class="label small-label">End Date</label>
-                            <input type="date" name="{{ form.end_date.name }}" value="{{ form.end_date.value|default:form.end_date.initial }}">
+                            <div class="control">
+                                <input type="date" name="{{ form.end_date.name }}" class="input" value="{{ form.end_date.value|default:form.end_date.initial }}">
+                            </div>
                         </div>
                     </div>
-                    <div class="field">
-                        <label class="label small-label">Cash</label>
-                        <div class="control">
-                            <input type="number" name="{{ form.cash.name }}" class="input" value="{{ form.cash.value|default:10000 }}">
+                    <div class="field-group">
+                        <div class="field">
+                            <label class="label small-label">Cash</label>
+                            <div class="control">
+                                <input type="number" name="{{ form.cash.name }}" class="input" value="{{ form.cash.value|default:10000 }}">
+                            </div>
                         </div>
-                    </div>
-                    <div class="field">
-                        <label class="label small-label">Commission</label>
-                        <div class="control">
-                            <input type="number" step="0.001" name="{{ form.commission.name }}" class="input" value="{{ form.commission.value|default:0.008 }}">
+                        <div class="field">
+                            <label class="label small-label">Commission</label>
+                            <div class="control">
+                                <input type="number" step="0.001" name="{{ form.commission.name }}" class="input" value="{{ form.commission.value|default:0.008 }}">
+                            </div>
                         </div>
                     </div>
                     <div class="field">
