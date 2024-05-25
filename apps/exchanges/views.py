@@ -35,7 +35,7 @@ def add_market(request, exchange_id):
     else:
         form = MarketForm()
 
-    return render(request, 'pages/exchanges/add_market.html', {'form': form, 'current_section': 'exchanges', 'show_sidebar': True, 'exchange': exchange})
+    return render(request, 'pages/exchanges/add_market.html', {'form': form, 'exchange': exchange, 'current_section': 'exchanges', 'show_sidebar': True})
 
 @login_required
 def exchange_list(request):
@@ -94,14 +94,16 @@ def chart_view(request):
     return render(request, 'pages/general/graphs/chart.html', context)
 
 
+
 @login_required
 def update_market_coins(request, market_id):
     market = get_object_or_404(Market, pk=market_id)
+    exchange = market.exchange
 
     if request.method == 'POST':
         form = MarketForm(request.POST, instance=market)
         if form.is_valid():
-            exchange_id = form.cleaned_data['exchange']
+            exchange_id = form.cleaned_data['exchange'].id_char
             exchange = get_object_or_404(Exchange, id_char=exchange_id)
             key = exchange.api_key
             secret = exchange.secret_key
@@ -109,12 +111,15 @@ def update_market_coins(request, market_id):
             exchange_instance = run_exchange(exchange_id, key, secret)
 
             try:
-                bot_account = BotAccount()
-                coins_prices = bot_account.all_coins()
-                get_coins()  # Ensure this is defined and properly integrated
-
-                for coin_symbol in coins_prices:
-                    coin, created = Coin.objects.get_or_create(symbol=coin_symbol)
+                #bot_account = BotAccount()
+                #coins_prices = bot_account.all_coins()
+                coins = get_coins(exchange_instance)  # Ensure this is defined and properly integrated
+                print(coins)
+                for coin in coins:
+                    print(coin)
+                    coin = coin['symbol']
+                    print(f'printed {coin}')
+                    coin, created = Coin.objects.get_or_create(symbol=coin)
                     market.coins.add(coin)
                 market.save()
                 messages.success(request, "Market coins updated successfully.")
