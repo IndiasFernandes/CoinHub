@@ -1,0 +1,38 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="card">
+        <header class="card-header">
+            <p class="card-header-title">Add Market to {{ exchange.name }}</p>
+        </header>
+        <div class="card-content">
+            <div class="content">
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="field">
+                        <label class="label">Market Type</label>
+                        <div class="control">
+                            {{ form.market_type }}
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label">Coins</label>
+                        <div class="control">
+                            {{ form.coins }}
+                        </div>
+                    </div>
+                    <div class="field">
+                        <div class="control">
+                            <button type="submit" class="button is-primary">Add Market</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+        <footer class="card-footer">
+            <a href="{% url 'exchange:exchange_detail' exchange.id %}" class="card-footer-item">Back to Exchange</a>
+        </footer>
+    </div>
+</div>
+{% endblock %}
