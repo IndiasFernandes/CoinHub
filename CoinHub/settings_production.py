@@ -135,7 +135,7 @@ LOGGING = {
         'file': {
             'level': 'INFO',
             'class': 'logging.FileHandler',
-            'filename': '/home/indiasfernandes/Automations/CoinHub/logs/django.log',
+            'filename': '/home/indiasfernandes/Automations/OnCoins/logs/django.log',
             'formatter': 'verbose',
         },
         'console': {
