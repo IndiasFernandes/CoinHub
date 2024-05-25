@@ -1,30 +1,53 @@
-from .forms import BotForm
-from django.shortcuts import render
-from .models import Trade
-from .models import Strategy
-from .forms import StrategyForm  # Import your custom form class
+from django.shortcuts import render, redirect, get_object_or_404
 from django.urls import reverse_lazy
 from django.views.generic import ListView, CreateView, UpdateView, DeleteView
-from django.urls import reverse
-from django.shortcuts import redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 from django.contrib import messages
-from CoinHub.celery import app  # Import the Celery app instance
-from .models import Bot
+from django.contrib.auth.mixins import LoginRequiredMixin
+from .models import Bot, Trade, Strategy, BotEvaluation
+from .forms import BotForm, StrategyForm
+from CoinHub.celery import app
+
+@login_required
+def bots_dashboard_view(request):
+    return render(request, 'pages/bots/dashboard.html', {
+        'current_section': 'bots',
+        'section': 'dashboard',
+        'show_sidebar': True
+    })
+
+class CurrentSectionMixin:
+    current_section = 'bots'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['current_section'] = self.current_section
+        context['show_sidebar'] = True
+        return context
 
 @login_required
 def bot_list(request):
     bots = Bot.objects.filter(user=request.user)
-    return render(request, 'pages/bots/bot_list.html', {
+    context = {
         'bots': bots,
-        'current_section': 'bots'  # Pass the current section
-    })
+        'section': 'bot_list',
+        'current_section': 'bots',
+        'show_sidebar': True
+    }
+    return render(request, 'pages/bots/bot_list.html', context)
+
 @login_required
 def bot_detail(request, bot_id):
-    bot = get_object_or_404(Bot, pk=bot_id, user=request.user)  # Ensure the bot belongs to the logged-in user
-    trades = Trade.objects.filter(bot=bot).order_by('-timestamp')  # Fetch trades related to the bot, newest first
-
-    return render(request, 'pages/bots/bot_detail.html', {'bot': bot, 'trades': trades, 'current_section': 'bots'})
+    bot = get_object_or_404(Bot, pk=bot_id, user=request.user)
+    trades = Trade.objects.filter(bot=bot).order_by('-timestamp')
+    context = {
+        'bot': bot,
+        'trades': trades,
+        'section': 'bot_detail',
+        'current_section': 'bots',
+        'show_sidebar': True
+    }
+    return render(request, 'pages/bots/bot_detail.html', context)
 
 @login_required
 def bot_new(request):
@@ -32,77 +55,108 @@ def bot_new(request):
         form = BotForm(request.POST)
         if form.is_valid():
             bot = form.save(commit=False)
-            bot.user = request.user  # Set the bot's user to the current user
+            bot.user = request.user
             bot.save()
-            messages.success(request, f'Bot {bot.name}  created successfully!')  # Success message
+            messages.success(request, f'Bot {bot.name} created successfully!')
             return redirect('bot:bot_detail', bot_id=bot.pk)
     else:
         form = BotForm()
-    return render(request, 'pages/bots/bot_new.html', {'form': form, 'current_section': 'bots'})
-
+    context = {
+        'form': form,
+        'current_section': 'bots',
+        'section': 'bot_new',
+        'show_sidebar': True
+    }
+    return render(request, 'pages/bots/bot_new.html', context)
 
 @login_required
 def delete_bot(request, bot_id):
-    bot = get_object_or_404(Bot, pk=bot_id)
+    bot = get_object_or_404(Bot, pk=bot_id, user=request.user)
     if request.method == 'POST':
         bot_name = bot.name
         bot.delete()
-        bots = Bot.objects.filter(user=request.user)
-        messages.success(request, f'Bot {bot_name} successfully!')
-        return render(request, 'pages/bots/bot_list.html', {'bots': bots})
-    else:
-        # If not a POST request, redirect to bot detail page or show a confirmation page
-        return redirect(reverse('bot:bot_detail', kwargs={'bot_id': bot_id, 'current_section': 'bots'}))
-
+        messages.success(request, f'Bot {bot_name} deleted successfully!')
+        return redirect('bot:bot_list')
+    return redirect('bot:bot_detail', bot_id=bot_id)
 
 @login_required
 def toggle_bot_status(request, bot_id):
     bot = get_object_or_404(Bot, pk=bot_id, user=request.user)
     bot.is_active = not bot.is_active
     bot.save()
-
     if bot.is_active:
         messages.success(request, f'Bot {bot.name} has been activated!')
-        # Start the bot loop task
-        task = app.send_task('apps.bots.tasks.run_bot_loop', args=[bot.id, 30])
+        task = app.send_task('apps.bots.tasks.analyze_cryptos', args=[bot_id, 60])
+        bot.task_id = task.id
+        bot.save(update_fields=['task_id'])
     else:
         messages.success(request, f'Bot {bot.name} has been deactivated!')
-        # Stop the bot loop task if it's running
         if bot.task_id:
             app.control.revoke(bot.task_id, terminate=True)
             bot.task_id = ''
             bot.save(update_fields=['task_id'])
+    return redirect('bot:bot_list')
 
-    return redirect('bots:bot_list')
-class CurrentSectionMixin:
-    current_section = None
+class StrategyListView(LoginRequiredMixin, CurrentSectionMixin, ListView):
+    model = Strategy
+    template_name = 'pages/bots/strategy_list.html'
+    context_object_name = 'strategies'
+    section = 'strategy_list'
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        if self.current_section:
-            context['current_section'] = self.current_section
+        context['section'] = self.section
         return context
 
-class StrategyListView(CurrentSectionMixin, ListView):
-    model = Strategy
-    template_name = 'pages/bots/strategy_list.html'
-    current_section = 'bots'
-
-class StrategyCreateView(CurrentSectionMixin, CreateView):
-    form_class = StrategyForm
-    template_name = 'pages/bots/strategy_form.html'
-    success_url = reverse_lazy('bots:strategy_list')
-    current_section = 'bots'
-
-class StrategyEditView(CurrentSectionMixin, UpdateView):
+class StrategyCreateView(LoginRequiredMixin, CurrentSectionMixin, CreateView):
     model = Strategy
     form_class = StrategyForm
     template_name = 'pages/bots/strategy_form.html'
     success_url = reverse_lazy('bots:strategy_list')
-    current_section = 'bots'
+    section = 'strategy_new'
 
-class StrategyDeleteView(CurrentSectionMixin, DeleteView):
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['section'] = self.section
+        return context
+
+class StrategyEditView(LoginRequiredMixin, CurrentSectionMixin, UpdateView):
+    model = Strategy
+    form_class = StrategyForm
+    template_name = 'pages/bots/strategy_form.html'
+    success_url = reverse_lazy('bots:strategy_list')
+    section = 'strategy_edit'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['section'] = self.section
+        return context
+
+class StrategyDeleteView(LoginRequiredMixin, CurrentSectionMixin, DeleteView):
     model = Strategy
     template_name = 'pages/bots/strategy_confirm_delete.html'
     success_url = reverse_lazy('bots:strategy_list')
-    current_section = 'bots'
+    section = 'strategy_delete'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['section'] = self.section
+        return context
+
+@login_required
+def bot_evaluation_chart_view(request):
+    evaluations = BotEvaluation.objects.all().order_by('evaluated_at')
+    data = {}
+    for eval in evaluations:
+        if eval.symbol not in data:
+            data[eval.symbol] = {'timestamps': [], 'prices': [], 'st_values': []}
+        data[eval.symbol]['timestamps'].append(eval.evaluated_at.strftime("%Y-%m-%d %H:%M:%S"))
+        data[eval.symbol]['prices'].append(eval.current_price)
+        data[eval.symbol]['st_values'].append(eval.st)
+    context = {
+        'data': data,
+        'current_section': 'bots',
+        'section': 'bot_evaluation_chart',
+        'show_sidebar': True
+    }
+    return render(request, 'pages/bots/bot_evaluation_chart.html', context)

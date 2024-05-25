@@ -13,6 +13,8 @@
     <div>
   <canvas id="myChart"></canvas>
 </div>
+    <script src="https://cdn.datatables.net/2.0.3/js/dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/2.0.3/js/dataTables.bulma.min.js"></script>
     <script>
     const ctx = document.getElementById('myChart').getContext('2d');
     const timestamps = {{ timestamps|safe }};
@@ -42,5 +44,6 @@
         }
     });
 </script>
+
 </body>
 {% endblock %}

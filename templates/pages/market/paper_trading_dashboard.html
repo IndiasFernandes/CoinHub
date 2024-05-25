@@ -1,0 +1,286 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container">
+    <h3 class="title is-3">Paper Trading Dashboard</h3>
+
+    <!-- Section for Creating New Paper Trade -->
+    <div class="box">
+        <form action="{% url 'market:create_paper_trade' %}" method="post">
+            {% csrf_token %}
+            <div class="field">
+                <label class="label">Trade Name</label>
+                <div class="control">
+                    <input class="input" type="text" name="trade_name" placeholder="Enter trade name" required>
+                </div>
+            </div>
+            <div class="field">
+                <label class="label">Initial Balance</label>
+                <div class="control">
+                    <input class="input" type="number" name="initial_balance" placeholder="Enter initial balance" required>
+                </div>
+            </div>
+            <div class="field">
+                <div class="control">
+                    <button class="button is-primary" type="submit">Create Trade</button>
+                </div>
+            </div>
+        </form>
+    </div>
+
+    <!-- Display Existing Paper Trades -->
+    <div class="columns is-multiline">
+        {% for trade in paper_trades %}
+        <div class="column is-one-third">
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title">{{ trade.name }}</p>
+                </header>
+                <div class="card-content">
+                    <div class="content">
+                        <p><strong>Initial Balance:</strong> {{ trade.initial_balance }}</p>
+                        <p><strong>Created At:</strong> {{ trade.created_at }}</p>
+                    </div>
+                </div>
+                <footer class="card-footer">
+                    <a href="#" class="card-footer-item">View Details</a>
+                    <a href="#" class="card-footer-item has-text-danger">Delete</a>
+                </footer>
+            </div>
+        </div>
+        {% empty %}
+        <p>No paper trades found. Create a new one above!</p>
+        {% endfor %}
+    </div>
+
+    <!-- Display Market Data -->
+    <div class="box">
+        <h4 class="title is-4">Market Data</h4>
+        <table class="table is-fullwidth is-striped">
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Price</th>
+                    <th>Change</th>
+                    <th>Volume</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for data in market_data %}
+                <tr>
+                    <td>{{ data.symbol }}</td>
+                    <td>{{ data.price }}</td>
+                    <td>{{ data.change }}</td>
+                    <td>{{ data.volume }}</td>
+                </tr>
+                {% empty %}
+                <tr>
+                    <td colspan="4">No market data available.</td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+    </div>
+
+    <!-- Display Top 5 Backtests -->
+    <div class="box">
+        <h4 class="title is-4">Top Backtests</h4>
+        <div class="field">
+            <label class="label">Sort By:</label>
+            <div class="control">
+                <div class="select">
+                    <select id="sortCriteria" onchange="sortBacktests()">
+                        <option value="return_percent">Profit</option>
+                        <option value="sharpe_ratio">Sharpe Ratio</option>
+                        <option value="sortino_ratio">Sortino Ratio</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <table class="table is-fullwidth is-striped">
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Time Period</th>
+                    <th>Duration</th>
+                    <th>Return %</th>
+                    <th>Sharpe Ratio</th>
+                    <th>Sortino Ratio</th>
+                    <th>View Details</th>
+                </tr>
+            </thead>
+            <tbody id="backtestTableBody">
+                {% for backtest in backtests %}
+                <tr>
+                    <td>{{ backtest.symbol }}</td>
+                    <td>{{ backtest.timeperiod }}</td>
+                    <td>{{ backtest.duration }}</td>
+                    <td>{{ backtest.return_percent }}</td>
+                    <td>{{ backtest.sharpe_ratio }}</td>
+                    <td>{{ backtest.sortino_ratio }}</td>
+                    <td><a href="{% url 'market:backtest_detail' backtest.id %}">Details</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <nav class="pagination" role="navigation" aria-label="pagination">
+            <a class="pagination-previous" onclick="prevPage('backtest')">Previous</a>
+            <a class="pagination-next" onclick="nextPage('backtest')">Next</a>
+        </nav>
+    </div>
+
+    <!-- Display Top 5 Optimizations -->
+    <div class="box">
+        <h4 class="title is-4">Top Optimizations</h4>
+        <div class="field">
+            <label class="label">Sort By:</label>
+            <div class="control">
+                <div class="select">
+                    <select id="sortOptCriteria" onchange="sortOptimizations()">
+                        <option value="sharpe_ratio">Sharpe Ratio</option>
+                        <option value="return_percent">Return %</option>
+                    </select>
+                </div>
+            </div>
+        </div>
+        <table class="table is-fullwidth is-striped">
+            <thead>
+                <tr>
+                    <th>Symbol</th>
+                    <th>Time Period</th>
+                    <th>Duration</th>
+                    <th>Return %</th>
+                    <th>Sharpe Ratio</th>
+                    <th>Number of Repetitions</th>
+                    <th>Strategy Variables</th>
+                    <th>View Details</th>
+                </tr>
+            </thead>
+            <tbody id="optimizationTableBody">
+                {% for optimization in optimizations %}
+                <tr>
+                    <td>{{ optimization.symbol }}</td>
+                    <td>{{ optimization.timeperiod }}</td>
+                    <td>{{ optimization.duration }}</td>
+                    <td>{{ optimization.return_percent }}</td>
+                    <td>{{ optimization.sharpe_ratio }}</td>
+                    <td>{{ optimization.repetitions }}</td>
+                    <td>
+                        <span class="icon has-tooltip-bottom" data-tooltip="ATR Timeperiod: {{ optimization.atr_timeperiod }}, ATR Multiplier: {{ optimization.atr_multiplier }}">
+                            <i class="fas fa-info-circle"></i>
+                        </span>
+                    </td>
+                    <td><a href="{% url 'market:optimize_detail' optimization.id %}">Details</a></td>
+                </tr>
+                {% endfor %}
+            </tbody>
+        </table>
+        <nav class="pagination" role="navigation" aria-label="pagination">
+            <a class="pagination-previous" onclick="prevPage('optimization')">Previous</a>
+            <a class="pagination-next" onclick="nextPage('optimization')">Next</a>
+        </nav>
+    </div>
+</div>
+
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="https://unpkg.com/tippy.js@6"></script>
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    let currentPageBacktest = 1;
+    let currentPageOptimization = 1;
+    const rowsPerPage = 5;
+
+    function sortBacktests() {
+        const criteria = document.getElementById('sortCriteria').value;
+        const rows = Array.from(document.querySelectorAll('#backtestTableBody tr'));
+        rows.sort((a, b) => {
+            const aValue = parseFloat(a.querySelector(`td:nth-child(${getColumnIndex(criteria)})`).innerText);
+            const bValue = parseFloat(b.querySelector(`td:nth-child(${getColumnIndex(criteria)})`).innerText);
+            return bValue - aValue; // descending order
+        });
+        updateTable(rows, 'backtest');
+    }
+
+    function getColumnIndex(criteria) {
+        switch (criteria) {
+            case 'return_percent': return 4;
+            case 'sharpe_ratio': return 5;
+            case 'sortino_ratio': return 6;
+            default: return 4;
+        }
+    }
+
+    function sortOptimizations() {
+        const criteria = document.getElementById('sortOptCriteria').value;
+        const rows = Array.from(document.querySelectorAll('#optimizationTableBody tr'));
+        rows.sort((a, b) => {
+            const aValue = parseFloat(a.querySelector(`td:nth-child(${getOptColumnIndex(criteria)})`).innerText);
+            const bValue = parseFloat(b.querySelector(`td:nth-child(${getOptColumnIndex(criteria)})`).innerText);
+            return bValue - aValue; // descending order
+        });
+        updateTable(rows, 'optimization');
+    }
+
+    function getOptColumnIndex(criteria) {
+        switch (criteria) {
+            case 'sharpe_ratio': return 5;
+            case 'return_percent': return 4;
+            default: return 5;
+        }
+    }
+
+    function updateTable(rows, type) {
+        const tbody = document.getElementById(`${type}TableBody`);
+        tbody.innerHTML = '';
+        rows.forEach(row => tbody.appendChild(row));
+        paginateTable(type);
+    }
+
+    function paginateTable(type) {
+        const rows = document.querySelectorAll(`#${type}TableBody tr`);
+        const pageCount = Math.ceil(rows.length / rowsPerPage);
+        const page = type === 'backtest' ? currentPageBacktest : currentPageOptimization;
+
+        rows.forEach((row, index) => {
+            row.style.display = (index >= (page - 1) * rowsPerPage && index < page * rowsPerPage) ? '' : 'none';
+        });
+    }
+
+    function nextPage(type) {
+        if (type === 'backtest') {
+            currentPageBacktest++;
+            paginateTable('backtest');
+        } else {
+            currentPageOptimization++;
+            paginateTable('optimization');
+        }
+    }
+
+    function prevPage(type) {
+        if (type === 'backtest') {
+            if (currentPageBacktest > 1) currentPageBacktest--;
+            paginateTable('backtest');
+        } else {
+            if (currentPageOptimization > 1) currentPageOptimization--;
+            paginateTable('optimization');
+        }
+    }
+
+    // Initialize sorting and pagination
+    sortBacktests();
+    sortOptimizations();
+    paginateTable('backtest');
+    paginateTable('optimization');
+
+    // Initialize tooltips
+    tippy('.has-tooltip-bottom', {
+        content(reference) {
+            return reference.getAttribute('data-tooltip');
+        },
+        placement: 'bottom',
+        animation: 'scale',
+    });
+});
+</script>
+{% endblock %}

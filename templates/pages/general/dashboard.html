@@ -1,49 +1,185 @@
 {% extends 'base/base.html' %}
 
 {% block content %}
-
 <div class="container">
     <h1 class="title">Dashboard</h1>
+
     <div class="columns">
-        <!-- Bots Summary -->
-        <div class="column">
-            <div class="box">
-                <h2 class="subtitle">Your Bots</h2>
-                <p><strong>Total Bots:</strong> {{ bots.count }}</p>
-                <p><strong>Active Bots:</strong> {{ active_bots_count }}</p> <!-- Custom template tag or method to filter active bots -->
-                <a href="{% url 'bot:bot_list' %}" class="button is-link">Manage Bots</a>
+        <!-- Account Value Chart -->
+        <div class="column is-two-thirds">
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        Account Value Chart
+                    </p>
+                </header>
+                <div class="card-content">
+                    <div class="content">
+                        <canvas id="accountValueChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
-        <!-- Trades Summary -->
-        {% if trades %}
-        <div class="column">
-            <div class="box">
-                <h2 class="subtitle">Recent Trades</h2>
-                {% for trade in trades|slice:":5" %}
-                    <p>{{ trade.market.name }}: {{ trade.volume }}</p>
-                {% empty %}
-                    <p>No recent trades.</p>
-                {% endfor %}
-                <a href="#" class="button is-link">View All Trades</a>
+
+        <!-- Portfolio Overview Chart -->
+        <div class="column is-one-third">
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        Portfolio Overview
+                    </p>
+                </header>
+                <div class="card-content">
+                    <div class="content">
+                        <canvas id="portfolioChart"></canvas>
+                    </div>
+                </div>
             </div>
         </div>
-        {% else %}
-    <article class="message is-warning">
-        <div class="message-body">
-            No trades found.
-        </div>
-    </article>
-    {% endif %}
     </div>
 
-    <!-- Additional Information -->
-    <div class="columns">
-        <div class="column is-full">
-            <div class="box">
-                <h2 class="subtitle">Market Insights</h2>
-                <p>Market trends, analysis, or other data-driven insights can go here.</p>
+    <!-- Your Paper Tradings -->
+    <div class="card">
+        <header class="card-header">
+            <p class="card-header-title">Your Paper Tradings</p>
+            <button class="button card-header-icon" aria-label="more options" onclick="toggleSection('paperTradingsSection')">
+                <span class="icon"><i class="fas fa-chevron-down"></i></span>
+            </button>
+        </header>
+        <div class="card-content is-hidden" id="paperTradingsSection">
+            <div class="content">
+                <div class="columns is-multiline">
+                    {% for trade in paper_trades %}
+                    <div class="column is-one-third">
+                        <div class="box">
+                            <h4 class="title is-4">{{ trade.name }}</h4>
+                            <p><strong>Initial Balance:</strong> {{ trade.initial_balance }}</p>
+                            <p><strong>Created At:</strong> {{ trade.created_at }}</p>
+                            <button class="button is-info is-light" onclick="window.location.href='#'">View Details</button>
+                            <button class="button is-danger is-light" onclick="window.location.href='#'">Delete</button>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>No paper trades found. Create a new one above!</p>
+                    {% endfor %}
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Your Bots -->
+    <div class="card">
+        <header class="card-header">
+            <p class="card-header-title">Your Bots</p>
+            <button class="button card-header-icon" aria-label="more options" onclick="toggleSection('botsSection')">
+                <span class="icon"><i class="fas fa-chevron-down"></i></span>
+            </button>
+        </header>
+        <div class="card-content is-hidden" id="botsSection">
+            <div class="content">
+                <div class="columns is-multiline">
+                    {% for bot in bots %}
+                    <div class="column is-one-third">
+                        <div class="box">
+                            <h4 class="title is-4">{{ bot.name }}</h4>
+                            <p><strong>Exchange:</strong> {{ bot.exchange.name }}</p>
+                            <p><strong>Strategy:</strong> {{ bot.strategy.name }}</p>
+                            <p><strong>Active:</strong> {{ bot.is_active }}</p>
+                            <button class="button is-info is-light" onclick="window.location.href='{% url 'bot:bot_detail' bot.id %}'">View Details</button>
+                            <button class="button is-danger is-light" onclick="window.location.href='{% url 'bot:delete_bot' bot.id %}'">Delete</button>
+                        </div>
+                    </div>
+                    {% empty %}
+                    <p>No bots found. Create a new one above!</p>
+                    {% endfor %}
+                </div>
             </div>
         </div>
     </div>
 </div>
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://unpkg.com/@popperjs/core@2"></script>
+<script src="https://unpkg.com/tippy.js@6"></script>
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        // Account Value Chart
+        const ctxAccount = document.getElementById('accountValueChart').getContext('2d');
+        const timestamps = {{ timestamps|safe }};
+        const accountValues = {{ account_values|safe }}.map(value => parseFloat(value));
+
+        new Chart(ctxAccount, {
+            type: 'line',
+            data: {
+                labels: timestamps,
+                datasets: [{
+                    label: 'Account Value',
+                    backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                    borderColor: 'rgba(255, 99, 132, 1)',
+                    data: accountValues,
+                    fill: false,
+                }]
+            },
+            options: {
+                responsive: true,
+                scales: {
+                    y: {
+                        beginAtZero: false
+                    }
+                }
+            }
+        });
+
+        // Portfolio Chart
+        const ctxPortfolio = document.getElementById('portfolioChart').getContext('2d');
+        const portfolioLabels = ['BTC', 'ETH', 'LTC'];
+        const portfolioData = [40, 30, 30];
+
+        new Chart(ctxPortfolio, {
+            type: 'pie',
+            data: {
+                labels: portfolioLabels,
+                datasets: [{
+                    label: 'Portfolio Distribution',
+                    data: portfolioData,
+                    backgroundColor: [
+                        'rgba(255, 99, 132, 0.2)',
+                        'rgba(54, 162, 235, 0.2)',
+                        'rgba(255, 206, 86, 0.2)'
+                    ],
+                    borderColor: [
+                        'rgba(255, 99, 132, 1)',
+                        'rgba(54, 162, 235, 1)',
+                        'rgba(255, 206, 86, 1)'
+                    ],
+                    borderWidth: 1
+                }]
+            },
+            options: {
+                responsive: true
+            }
+        });
+
+        // Collapsible sections
+        function toggleSection(sectionId) {
+            const section = document.getElementById(sectionId);
+            section.classList.toggle('is-hidden');
+            const icon = section.previousElementSibling.querySelector('.icon i');
+            icon.classList.toggle('fa-chevron-down');
+            icon.classList.toggle('fa-chevron-up');
+        }
+
+        // Initialize tooltips
+        tippy('.icon', {
+            content(reference) {
+                return reference.getAttribute('data-tooltip');
+            },
+            placement: 'top',
+            animation: 'scale',
+        });
+
+        // Attach the toggle function to the global scope for inline onclick attributes
+        window.toggleSection = toggleSection;
+    });
+</script>
 {% endblock %}

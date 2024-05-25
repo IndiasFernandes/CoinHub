@@ -1,0 +1,61 @@
+{% extends 'base/base.html' %}
+{% block content %}
+<style>
+    .dashboard-card {
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+        text-align: center;
+    }
+    .dashboard-card h2 {
+        margin-bottom: 1rem;
+        font-size: 1.5rem;
+    }
+    .dashboard-card p {
+        font-size: 1rem;
+        margin-bottom: 1.5rem;
+    }
+    .dashboard-card .button {
+        margin-top: 1rem;
+    }
+    .icon {
+        margin-bottom: 1rem;
+    }
+</style>
+<div class="container">
+    <h1 class="title has-text-centered">Bots Dashboard</h1>
+    <div class="columns">
+        <div class="column">
+            <div class="box dashboard-card">
+                <span class="icon">
+                    <i class="fas fa-robot fa-2x"></i>
+                </span>
+                <h2>Manage Bots</h2>
+                <p>View, create, and manage your bots.</p>
+                <a href="{% url 'bots:bot_list' %}" class="button is-link">Manage Bots</a>
+            </div>
+        </div>
+        <div class="column">
+            <div class="box dashboard-card">
+                <span class="icon">
+                    <i class="fas fa-chart-bar fa-2x"></i>
+                </span>
+                <h2>Manage Strategies</h2>
+                <p>Create and manage trading strategies.</p>
+                <a href="{% url 'bots:strategy_list' %}" class="button is-link">Manage Strategies</a>
+            </div>
+        </div>
+        <div class="column">
+            <div class="box dashboard-card">
+                <span class="icon">
+                    <i class="fas fa-chart-line fa-2x"></i>
+                </span>
+                <h2>Bot Evaluations</h2>
+                <p>View performance evaluations of your bots.</p>
+                <a href="{% url 'bots:bot_evaluation_chart' %}" class="button is-link">View Evaluations</a>
+            </div>
+        </div>
+    </div>
+</div>
+{% endblock %}

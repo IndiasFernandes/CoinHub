@@ -1,326 +1,227 @@
-import csv
-import os
-from datetime import datetime
-from urllib import request
-
-import numpy as np
-from backtesting.lib import plot_heatmaps
-
-from .backtesting.strategy.SuperTrend_Strategy_Optimize import SuperTrendOptimize
-from .models import Backtest, Optimize
-import pandas as pd
-from backtesting import Backtest as BT
-from django.shortcuts import render
-from django.http import JsonResponse
+from django.utils import timezone
+from django.utils.html import format_html
+from django.views import View
+from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
-from django.conf import settings
+import numpy as np
+from .models import PaperTrade, MarketData, Backtest, Optimize
+from .forms import BacktestForm, OptimizeForm
+from ..exchanges.utils.utils import run_exchange
+from ..exchanges.utils.hyperliquid.download_data import download_data
+from .backtesting.backtest_utils import run_backtest
+from .backtesting.optimize_utils import run_optimization
+from ..exchanges.models import Exchange
 
-from apps.exchanges.models import DownloadDataForm
-from apps.exchanges.utils.hyperliquid.download_data import initialize_exchange, download_data, heikin_ashi
-from apps.exchanges.utils.utils import import_csv
-from apps.market.backtesting.strategy.SuperTrend_Strategy_Backtest import SuperTrendBacktest
-
-# BACKTESTING Settings
-cash = 100000
-commission = .008
-openbrowser = False
-
-# Optimization Settings
-max_tries = 100
-atr_timeperiod_range = np.arange(0, 3, 0.2)
-atr_multiplier_range = np.arange(0, 3, 0.2)
-
-def backtest(symbol, cash, commission, openbrowser, df, timeperiod):
+def market_dashboard_view(request):
+    return render(request, 'pages/market/dashboard.html', {
+        'current_section': 'market',
+        'section': 'dashboard',
+        'show_sidebar': True
+    })
 
 
-    print('Backtesting - Bot Func ...')
-
-    bt = BT(df,
-                  SuperTrendBacktest,
-                  cash=cash,
-                  commission=commission,
-                  exclusive_orders=True)
-
-    main_path = os.path.join('static', 'backtest', 'backtest_results', f'{symbol.replace("/", "_")}{str(datetime.now()).replace(" ", "_")}' )
-    bt_path = os.path.join(settings.BASE_DIR, main_path)
-    stats = bt.run()
-    print(stats)
-    bt.plot(open_browser=openbrowser, filename=bt_path)
-
-    path = os.path.join(settings.BASE_DIR, 'static', 'backtest', 'last_price.csv')
-    data = import_csv(path)
-
-    for items in data:
-        for item in items:
-            price_value = float(item)
-
-    path = os.path.join(settings.BASE_DIR, 'static', 'backtest', 'last_st.csv')
-
-    data = import_csv(path)
-
-    for items in data:
-        for item in items:
-            st_value = float(item)
-
-    backtest_instance = Backtest(
-        symbol=symbol,
-        cash=cash,
-        commission=commission,
-        start_date=stats['_trades'].iloc[0]['EntryTime'] if not stats['_trades'].empty else None,
-        end_date=stats['_trades'].iloc[-1]['ExitTime'] if not stats['_trades'].empty else None,
-        duration=stats['Duration'],
-        exposure_time_percent=stats['Exposure Time [%]'],
-        equity_final=stats['Equity Final [$]'],
-        equity_peak=stats['Equity Peak [$]'],
-        return_percent=stats['Return [%]'],
-        annual_return_percent=stats['Return (Ann.) [%]'],
-        max_drawdown_percent=stats['Max. Drawdown [%]'],
-        sharpe_ratio=stats['Sharpe Ratio'],
-        sortino_ratio=stats['Sortino Ratio'],
-        calmar_ratio=stats['Calmar Ratio'],
-        number_of_trades=stats['# Trades'],
-        win_rate_percent=stats['Win Rate [%]'],
-        avg_trade_percent=stats['Avg. Trade [%]'],
-        profit_factor=stats['Profit Factor'],
-        sqn=stats['SQN'],
-        created_at=datetime.now(),
-        graph_link=main_path+'.html',
-        timeperiod=timeperiod
-    )
-    backtest_instance.save()
-    if st_value and price_value:
-        return st_value, price_value
-    else:
-        return
-
-
-def optimize(symbol, interval, cash, commission, openbrowser, df, max_tries, atr_timeperiod_range,
-             atr_multiplier_range):
-    print('Optimizing - Bot Func ...')
-
-    bt = BT(df,
-                  SuperTrendOptimize,
-                  cash=cash,
-                  commission=commission,
-                  exclusive_orders=True)
-
-    stats, heatmap = bt.optimize(
-        atr_timeperiod=atr_timeperiod_range,
-        atr_multiplier=atr_multiplier_range,
-        maximize='Sharpe Ratio',
-        return_heatmap=True,
-        max_tries=max_tries,
-        method="skopt")
-
-    # Output Paths
-    hm_main_path = os.path.join('static', 'optimize', 'optimize_results',
-                             f'{max_tries}_{symbol.replace("/", "_")}_{str(datetime.now()).replace(" ", "_")}_Heat_Map.html')
-    bt_main_path = os.path.join('static', 'optimize', 'optimize_results', f'{max_tries}_{symbol.replace("/", "_")}_{str(datetime.now()).replace(" ", "_")}_Backtest.html')
-    hm_path = os.path.join(settings.BASE_DIR, hm_main_path)
-    bt_path = os.path.join(settings.BASE_DIR, bt_main_path)
-    stats_path = os.path.join(settings.BASE_DIR, 'static', 'optimize', 'optimize_results', f'{max_tries}_{symbol.replace("/", "_")}_{str(datetime.now()).replace(" ", "_")}_Statistics.txt')
-    run_path = os.path.join(settings.BASE_DIR, 'static', 'optimize', 'optimize_results', f'{max_tries}_{symbol.replace("/", "_")}_{str(datetime.now()).replace(" ", "_")}_Best_Parameters.csv')
-    dict_path = os.path.join(settings.BASE_DIR, 'static', 'optimize', 'optimize_results', 'Review.csv')
-
-    # Plotting
-    bt.plot(open_browser=openbrowser, filename=bt_path)
-    plot_heatmaps(heatmap, open_browser=openbrowser, filename=hm_path)
-
-    # Dictionary with Best Parameters
-    bestParams = {
-        "atr_timeperiod": float(stats["_strategy"].atr_timeperiod),
-        "atr_multiplier": float(stats["_strategy"].atr_multiplier),
-    }
-    print(stats)
-
-
-    # Save Best Parameters
-    with open(run_path, 'w') as file:
-        for key in bestParams.keys():
-            file.write("%s, %s\n" % (key, bestParams[key]))
-
-    # Dictionary with Review
-    reviewD = {
-        "Coin": symbol,
-        "Timeframe": interval,
-        "Trades": str(stats["# Trades"]),
-        "Sharp Ratio": str(stats["Sharpe Ratio"]),
-        "Return": str(stats["Return [%]"]),
-        "Max. Drawdown": str(stats["Max. Drawdown [%]"])
-    }
-
-    # Save Review
-    reviewD = pd.DataFrame(reviewD, index=[0])
-    if os.path.isfile(dict_path):
-        reviewD.to_csv(dict_path, mode='a', index=False, header=False)  # save the file
-    else:
-        reviewD.to_csv(dict_path, mode='a', index=False)
-
-    # Save Statistics
-    with open(stats_path, 'w', encoding='utf-8') as f:
-        f.write(stats.to_string())
-
-    data_path = os.path.join(settings.BASE_DIR, 'static', 'backtest', 'last_price.csv')
-    data = import_csv(data_path)
-
-    for items in data:
-        for item in items:
-            price_value = float(item)
-
-    data_path = os.path.join(settings.BASE_DIR, 'static', 'backtest', 'last_st.csv')
-    data = import_csv(data_path)
-
-    for items in data:
-        for item in items:
-            st_value = float(item)
-
-    optimization_instance = Optimize(
-        symbol=symbol,
-        timeperiod=interval,
-        atr_timeperiod=bestParams['atr_timeperiod'],
-        atr_multiplier=bestParams['atr_multiplier'],
-        return_percent=stats['Return [%]'],
-        max_drawdown_percent=stats['Max. Drawdown [%]'],
-        start_date=stats['_trades'].iloc[0]['EntryTime'] if not stats['_trades'].empty else None,
-        end_date=stats['_trades'].iloc[-1]['ExitTime'] if not stats['_trades'].empty else None,
-        duration=stats['Duration'],
-        exposure_time_percent=stats['Exposure Time [%]'],
-        equity_final=stats['Equity Final [$]'],
-        annual_return_percent=stats['Return (Ann.) [%]'],
-        sharpe_ratio=stats['Sharpe Ratio'],
-        sortino_ratio=stats['Sortino Ratio'],
-        calmar_ratio=stats['Calmar Ratio'],
-        number_of_trades=stats['# Trades'],
-        win_rate_percent=stats['Win Rate [%]'],
-        avg_trade_percent=stats['Avg. Trade [%]'],
-        sqn=stats['SQN'],
-        created_at=datetime.now(),
-        graph_link=bt_main_path,
-        heat_map_link=hm_main_path,
-        repetitions=max_tries,
-        cash=cash,
-        commission=commission,
-        equity_peak=stats['Equity Peak [$]'],
-    )
-    optimization_instance.save()
-
-    # If not a POST request, show the optimization form
-    return
-
-
-def perform_backtest(df, symbol, timeperiod):
-
-    # Save Heikin Ashi to static folder
-    output_path = os.path.join(settings.BASE_DIR, 'static', 'backtest', 'current_backtest_symbol.csv')
-    with open(output_path, "w", newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow([symbol])
-
-    output_path = os.path.join(settings.BASE_DIR, 'static', 'backtest', 'current_backtest_timeperiod.csv')
-
-    with open(output_path, "w", newline='') as file:
-        writer = csv.writer(file)
-        writer.writerow([timeperiod])
-
-    df_ha = heikin_ashi(df.reset_index())
-    df_ha.set_index('Timestamp', inplace=True)
-    # st, price = backtest(symbol, cash, commission, openbrowser, df)
-    backtest(symbol, cash, commission, openbrowser, df, timeperiod)
-    # if price > st:
-    #     dict[timeperiod] = 'Long'
-    # elif price < st:
-    #     dict[timeperiod] = 'Short'
-
-    return {"symbol": symbol, "timeframe": timeperiod, "file": output_path}
-
-def run_backtest(request):
+def run_backtest_view(request):
+    exchanges = Exchange.objects.all()
     if request.method == 'POST':
-        form = DownloadDataForm(request.POST)
+        form = BacktestForm(request.POST)
+        form_data = {
+            "exchange": request.POST.get('exchange'),
+            "symbols": request.POST.getlist('symbol'),
+            "timeframes": request.POST.getlist('timeframe'),
+            "start_date": request.POST.get('start_date'),
+            "end_date": request.POST.get('end_date'),
+            "cash": request.POST.get('cash'),
+            "commission": request.POST.get('commission'),
+            "openbrowser": request.POST.get('openbrowser')
+        }
         if form.is_valid():
+            exchange_id = form.cleaned_data['exchange']
+            exchange = get_object_or_404(Exchange, id_char=exchange_id)
+            key = exchange.api_key
+            secret = exchange.secret_key
+
+            exchange_instance = run_exchange(exchange_id, key, secret)
             symbols = form.cleaned_data['symbol']
-            timeperiods = form.cleaned_data['timeframe']
+            timeframes = form.cleaned_data['timeframe']
             start_date = form.cleaned_data['start_date'].strftime('%Y-%m-%d')
             end_date = form.cleaned_data['end_date'].strftime('%Y-%m-%d')
-            exchange_id = form.cleaned_data['exchange_id']
-            exchange = initialize_exchange(exchange_id, api_key='your_api_key', secret='your_secret')
-
+            cash = form.cleaned_data['cash']
+            commission = form.cleaned_data['commission']
+            openbrowser = form.cleaned_data['openbrowser']
             results = []
+
+            # Log or display form data
+            form_data.update({
+                "exchange": exchange_id,
+                "symbols": symbols,
+                "timeframes": timeframes,
+                "start_date": start_date,
+                "end_date": end_date,
+                "cash": cash,
+                "commission": commission,
+                "openbrowser": openbrowser
+            })
+            print("Backtest Form Data:", form_data)  # This will log data to the console
+
             for symbol in symbols:
-                for timeperiod in timeperiods:
-                    df = download_data([symbol], [timeperiod], start_date, end_date, exchange)
-                    print(df)
-                    result = perform_backtest(df, symbol, timeperiod)
-                    results.append(result)
+                for timeframe in timeframes:
+                    df = download_data([symbol], [timeframe], start_date, end_date, exchange_instance)
+                    st, price = run_backtest(symbol, df, timeframe, cash, commission, openbrowser)
+                    results.append({"symbol": symbol, "timeframe": timeframe, "st": st, "price": price})
 
             messages.success(request, "Backtest completed successfully.")
-            return JsonResponse({'results': results})
+            return redirect('market:run_backtest')
         else:
-            messages.error(request, "Form data is invalid.")
+            error_messages = format_html('<ul>{}</ul>', ''.join([format_html('<li>{}: {}</li>', field.label, error) for field in form for error in field.errors]))
+            messages.error(request, format_html("Form data is invalid: {}<br>Form Data: {}", error_messages, form_data))
     else:
-        form = DownloadDataForm()
-    return render(request, 'pages/market/backtest_form.html', {'form': form, 'current_section': 'market'})
+        form = BacktestForm()
 
-def perform_optimization(df, symbol, timeperiod):
+    return render(request, 'pages/market/backtest_form.html', {
+        'form': form,
+        'exchanges': exchanges,
+        'current_section': 'market',
+        'section': 'run_backtest',
+        'show_sidebar': True
+    })
 
-        # Save Heikin Ashi to static folder
-        output_path = os.path.join(settings.BASE_DIR, 'static', 'backtest', 'current_optimize_symbol.csv')
-        with open(output_path, "w", newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow([symbol])
 
-        output_path = os.path.join(settings.BASE_DIR, 'static', 'backtest', 'current_optimize_timeperiod.csv')
-
-        with open(output_path, "w", newline='') as file:
-            writer = csv.writer(file)
-            writer.writerow([timeperiod])
-
-        optimize(symbol, timeperiod, cash, commission, openbrowser, df, max_tries, atr_timeperiod_range,
-             atr_multiplier_range)
-
-        return {"symbol": symbol, "timeframe": timeperiod, "file": output_path}
-
-def run_optimization(request):
+def run_optimization_view(request):
+    exchanges = Exchange.objects.all()
     if request.method == 'POST':
-        form = DownloadDataForm(request.POST)
+        form = OptimizeForm(request.POST)
         if form.is_valid():
+            exchange_id_char = form.cleaned_data['exchange']
+            exchange = get_object_or_404(Exchange, id_char=exchange_id_char)
+            key = exchange.api_key
+            secret = exchange.secret_key
+
+            exchange_instance = run_exchange(exchange.id_char, key, secret)
             symbols = form.cleaned_data['symbol']
-            timeperiods = form.cleaned_data['timeframe']
+            timeframes = form.cleaned_data['timeframe']
             start_date = form.cleaned_data['start_date'].strftime('%Y-%m-%d')
             end_date = form.cleaned_data['end_date'].strftime('%Y-%m-%d')
-            exchange_id = form.cleaned_data['exchange_id']
-            exchange = initialize_exchange(exchange_id, api_key='your_api_key', secret='your_secret')
-
+            cash = form.cleaned_data['cash']
+            commission = form.cleaned_data['commission']
+            openbrowser = form.cleaned_data['openbrowser']
+            max_tries = form.cleaned_data['max_tries']
+            min_timeperiod = form.cleaned_data['min_timeperiod']
+            max_timeperiod = form.cleaned_data['max_timeperiod']
+            interval_timeperiod = form.cleaned_data['interval_timeperiod']
+            min_multiplier = form.cleaned_data['min_multiplier']
+            max_multiplier = form.cleaned_data['max_multiplier']
+            interval_multiplier = form.cleaned_data['interval_multiplier']
+            atr_timeperiod_range = np.arange(min_timeperiod, max_timeperiod, interval_timeperiod)
+            atr_multiplier_range = np.arange(min_multiplier, max_multiplier, interval_multiplier)
             results = []
+
+            # Log or display form data
+            form_data = {
+                "exchange": exchange_id_char,
+                "symbols": symbols,
+                "timeframes": timeframes,
+                "start_date": start_date,
+                "end_date": end_date,
+                "cash": cash,
+                "commission": commission,
+                "openbrowser": openbrowser,
+                "max_tries": max_tries,
+                "min_timeperiod": min_timeperiod,
+                "max_timeperiod": max_timeperiod,
+                "interval_timeperiod": interval_timeperiod,
+                "min_multiplier": min_multiplier,
+                "max_multiplier": max_multiplier,
+                "interval_multiplier": interval_multiplier
+            }
+            print("Optimization Form Data:", form_data)  # This will log data to the console
+
             for symbol in symbols:
-                for timeperiod in timeperiods:
-                    df = download_data([symbol], [timeperiod], start_date, end_date, exchange)
-                    print(df)
-                    result = perform_optimization(df, symbol, timeperiod)
-                    results.append(result)
+                for timeframe in timeframes:
+                    df = download_data([symbol], [timeframe], start_date, end_date, exchange_instance)
+                    run_optimization(symbol, timeframe, cash, commission, openbrowser, df, max_tries, atr_timeperiod_range, atr_multiplier_range)
+                    results.append({"symbol": symbol, "timeframe": timeframe})
 
             messages.success(request, "Optimization completed successfully.")
-            return JsonResponse({'results': results})
+            return redirect('market:run_optimization')
         else:
-            messages.error(request, "Form data is invalid.")
+            error_messages = format_html('<ul>{}</ul>', ''.join([format_html('<li>{}: {}</li>', field.label, error) for field in form for error in field.errors]))
+            messages.error(request, format_html("Form data is invalid: {}", error_messages))
     else:
-        form = DownloadDataForm()
-    return render(request, 'pages/market/optimize_form.html', {'form': form, 'current_section': 'market'})
+        form = OptimizeForm()
+
+    return render(request, 'pages/market/optimize_form.html', {
+        'form': form,
+        'exchanges': exchanges,
+        'current_section': 'market',
+        'section': 'run_optimization',
+        'show_sidebar': True
+    })
 
 
-def backtest_list(request):
-    backtests = Backtest.objects.all()  # Fetch all backtest records
-    return render(request, 'pages/market/backtests_list.html', {'backtests': backtests, 'current_section': 'market'})
+def backtests_list_view(request):
+    backtests = Backtest.objects.all()
+    return render(request, 'pages/market/backtests_list.html', {
+        'backtests': backtests,
+        'current_section': 'market',
+        'section': 'backtests_list',
+        'show_sidebar': True
+    })
 
-def backtest_detail(request, backtest_id):
-    backtest = Backtest.objects.get(id=backtest_id)
 
-    return render(request, 'pages/market/backtest_detail.html', {'backtest': backtest, 'current_section': 'market'})
+def backtest_detail_view(request, backtest_id):
+    backtest = get_object_or_404(Backtest, id=backtest_id)
+    return render(request, 'pages/market/backtest_detail.html', {
+        'backtest': backtest,
+        'current_section': 'market',
+        'section': 'backtest_detail',
+        'show_sidebar': True
+    })
 
-def optimize_detail(request, optimize_id):
-    optimization = Optimize.objects.get(id=optimize_id)
 
-    return render(request, 'pages/market/optimize_detail.html', {'optimization': optimization, 'current_section': 'market'})
+def optimize_list_view(request):
+    optimizations = Optimize.objects.all()
+    return render(request, 'pages/market/optimize_list.html', {
+        'optimizations': optimizations,
+        'current_section': 'market',
+        'section': 'optimize_list',
+        'show_sidebar': True
+    })
 
-def optimize_list(request):
-    optimization = Optimize.objects.all()  # Fetch all optimization results
-    return render(request, 'pages/market/optimize_list.html', {'optimizations': optimization, 'current_section': 'market'})
+
+def optimize_detail_view(request, optimize_id):
+    optimization = get_object_or_404(Optimize, id=optimize_id)
+    return render(request, 'pages/market/optimize_detail.html', {
+        'optimization': optimization,
+        'current_section': 'market',
+        'section': 'optimize_detail',
+        'show_sidebar': True
+    })
+
+
+class PaperTradingDashboardView(View):
+    def get(self, request):
+        paper_trades = PaperTrade.objects.all()
+        market_data = MarketData.objects.all()
+
+        context = {
+            'paper_trades': paper_trades,
+            'market_data': market_data,
+            'current_section': 'market',
+            'section': 'paper_trading_dashboard',
+            'show_sidebar': True
+        }
+        return render(request, 'pages/market/paper_trading_dashboard.html', context)
+
+
+class CreatePaperTradeView(View):
+    def post(self, request):
+        trade_name = request.POST.get('trade_name')
+        initial_balance = request.POST.get('initial_balance')
+
+        if trade_name and initial_balance:
+            PaperTrade.objects.create(
+                name=trade_name,
+                initial_balance=initial_balance,
+                created_at=timezone.now()
+            )
+        return redirect('market:paper_trading_dashboard')

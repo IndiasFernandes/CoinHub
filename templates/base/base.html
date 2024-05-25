@@ -6,49 +6,353 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>CoinHub</title>
 
-    <!-- Include jQuery first -->
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.7.1/jquery.min.js"></script>
-
-    <!-- Then include DataTables JS -->
-    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
-
     <!-- CSS for Bulma, FontAwesome, DataTables -->
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/5.13.0/css/all.min.css">
-    <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bulma.min.css">
     <link rel="stylesheet" href="{% static 'css/main.css' %}">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bulma@1.0.0/css/bulma.min.css">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.1.2/css/all.min.css">
+    <link rel="stylesheet" href="https://cdn.datatables.net/1.12.1/css/dataTables.bulma.min.css">
+
+    <!-- Favicon and Web App Manifest -->
+    <link rel="apple-touch-icon" sizes="180x180" href="{% static 'images/favicon/apple-touch-icon.png' %}">
+    <link rel="icon" type="image/png" sizes="32x32" href="{% static 'images/favicon/favicon-32x32.png' %}">
+    <link rel="icon" type="image/png" sizes="16x16" href="{% static 'images/favicon/favicon-16x16.png' %}">
+    <link rel="manifest" href="{% static 'images/favicon/site.webmanifest' %}">
+    <link rel="mask-icon" href="{% static 'images/favicon/safari-pinned-tab.svg' %}" color="#5bbad5">
+    <meta name="msapplication-TileColor" content="#da532c">
+    <meta name="theme-color" content="#ffffff">
+
+    <style>
+        /* CSS Variables */
+        :root {
+            --primary-color: #1D63FF;
+            --accent-color1: #8C2B32;
+            --accent-color2: #E5BB89;
+            --accent-color3: #A3EA71;
+            --accent-color4: #5FAFC9;
+            --highlight-color: #FFCE32;
+            --neutral-color: #ECF0F1;
+            --dark-color: #2C3E50;
+            --almost-black: #090a0b;
+            --font-family: 'Roboto', sans-serif;
+        }
+
+        /* Ensure the body and html fill the entire viewport */
+        html, body {
+            height: 100%;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Global Styles */
+        body {
+            font-family: var(--font-family);
+            color: var(--dark-color);
+            background-color: var(--dark-color);
+            line-height: 1.6;
+            margin: 0;
+            padding: 0;
+        }
+
+        /* Navbar Styles */
+        .navbar {
+            background-color: var(--almost-black);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+            position: fixed;
+            top: 0;
+            width: 100%;
+            z-index: 1001;
+            border-bottom: none;
+        }
+
+        /* Ensure the content starts below the navbar */
+        .app-container {
+            margin-top: 52px; /* Adjust based on navbar height */
+        }
+
+        @media screen and (max-width: 768px) {
+            .navbar-menu.is-active {
+                display: flex !important;
+                flex-direction: column;
+            }
+            .navbar-item {
+                text-align: center;
+            }
+            .navbar-end {
+                margin-top: 10px;
+            }
+            .app-container.navbar-menu-active {
+                margin-top: calc(52px + 200px); /* Adjust based on the height of the expanded navbar menu */
+            }
+        }
+
+        /* Utility Classes */
+        .text-center {
+            text-align: center;
+        }
+
+        .mb-2 {
+            margin-bottom: 1rem;
+        }
+
+        .container {
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 0 2rem;
+        }
+
+        /* Sidebar Styles */
+        #sidebar {
+            width: 250px;
+            background-color: var(--almost-black);
+            color: var(--neutral-color);
+            transform: translateX(-250px);
+            overflow-y: auto;
+            position: fixed;
+            height: calc(100% - 52px); /* Adjust for header height */
+            z-index: 1000;
+            box-shadow: 2px 0 5px rgba(0, 0, 0, 0.1);
+            transition: transform 0.3s ease;
+            top: 52px; /* Ensures sidebar starts below the header */
+        }
+
+        #sidebar.is-visible {
+            transform: translateX(0);
+        }
+
+        /* Sidebar Container */
+        .sidebar-container {
+            display: flex;
+            height: 100%;
+        }
+
+        /* Content Wrapper */
+        .content-wrapper {
+            flex-grow: 1;
+            margin-left: 0;
+            transition: margin-left 0.3s ease;
+            width: 100%;
+            padding-top: 52px; /* Space for the header */
+        }
+
+        .sidebar-is-visible .content-wrapper {
+            margin-left: 250px;
+            width: calc(100% - 250px);
+        }
+
+        /* Sidebar Toggle Button */
+        #sidebarToggle {
+            position: fixed;
+            color: white;
+            top: 50%;
+            left: 10px;
+            transform: translateY(-50%);
+            transition: transform 0.3s ease, left 0.3s ease;
+            border: none;
+            background: transparent;
+            cursor: pointer;
+            z-index: 1101;
+        }
+
+        #sidebar.is-visible + #sidebarToggle {
+            left: 260px;
+            transform: translateY(-50%);
+        }
+
+        /* Sidebar Menu Items */
+        .menu-list .sidebar-item {
+            padding: 0.5rem 1rem;
+            margin-bottom: 0.5rem;
+            display: flex;
+            align-items: center;
+            color: var(--neutral-color);
+            transition: background-color 0.3s;
+        }
+
+        .menu-list .sidebar-item:hover {
+            background-color: var(--accent-color1);
+            color: #fff;
+            border-radius: 4px;
+        }
+
+        .menu-list .sidebar-item i {
+            margin-right: 0.75rem;
+        }
+
+        .menu .menu-label {
+            color: var(--accent-color4);
+            font-weight: bold;
+            padding: 0.5rem 1rem;
+        }
+
+        /* Main Content Styles */
+        .content-wrapper {
+            padding: 2rem;
+            background-color: var(--dark-color);
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Notification Styles */
+        .notification {
+            border-left: 5px solid var(--primary-color);
+            box-shadow: 0 2px 5px rgba(0, 0, 0, 0.1);
+        }
+
+        /* Form Styles */
+        input[type="text"], input[type="email"], input[type="password"], select {
+            border: 1px solid var(--dark-color);
+            padding: 0.5rem;
+            width: 100%;
+            margin-bottom: 1rem;
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: #fff;
+            border: none;
+            padding: 0.75rem 1.5rem;
+            cursor: pointer;
+            transition: background-color 0.3s;
+        }
+
+        button:hover {
+            background-color: var(--highlight-color);
+        }
+
+        /* Ensure the app container fills the viewport height */
+        .app-container {
+            display: flex;
+            flex-direction: column;
+            height: 100%;
+        }
+
+        /* Ensure content fills the remaining space */
+        .content-wrapper {
+            flex: 1;
+            overflow: auto;
+        }
+    </style>
 </head>
 <body>
-{% include 'base/header.html' %}
+    <!-- Header Section -->
+    {% include 'base/header.html' %}
 
-<section class="section">
-    <div class="container">
-        <div class="columns">
-            <div class="column is-one-fifth">
-                {% include 'base/sidebar.html' %}
-            </div>
-            <div class="column">
-                {% if messages %}
-                    <div class="notification is-primary">
-                        {% for message in messages %}
-                            <button class="delete"></button>
-                            {{ message }}
-                        {% endfor %}
-                    </div>
+    <div class="app-container">
+        <!-- Sidebar and Content Container -->
+        <div class="sidebar-container">
+            <!-- Sidebar Section -->
+            {% if user.is_authenticated %}
+                {% if show_sidebar %}
+                    {% include 'base/sidebar.html' %}
                 {% endif %}
-                {% block content %}{% endblock %}
+            {% endif %}
+
+            <!-- Main Content Section -->
+            <div id="content" class="content-wrapper {% if show_sidebar %}sidebar-is-visible{% endif %}">
+                <section class="section">
+                    <div class="container">
+                        <!-- Notification Section -->
+                        {% if messages %}
+                            <div class="notification">
+                                <span class="delete"></span>
+                                {% for message in messages %}
+                                    {{ message }}
+                                {% endfor %}
+                            </div>
+                        {% endif %}
+                        <!-- Page Specific Content -->
+                        {% block content %}{% endblock %}
+                    </div>
+                </section>
             </div>
         </div>
     </div>
-</section>
 
-<script>
+    <!-- Include jQuery first -->
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/jquery/3.5.1/jquery.min.js" integrity="sha512-bLT0Qm9VnAYZDflyKcBaQ2gg0hSYNQrJ8RilYldYQ1FxQYoCLtUjuuRuZo+fjqhx/qtq/1itJ0C2ejDxltZVFg==" crossorigin="anonymous"></script>
+    <!-- Include DataTables JS -->
+    <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.datatables.net/1.12.1/js/dataTables.bulma.min.js"></script>
+
+    <!-- Custom JS -->
+    <script src="{% static 'js/main.js' %}"></script>
+
+    <script>
     $(document).ready(function () {
+        // Navbar Burger Toggle
+        $(".navbar-burger").click(function () {
+            var target = $(this).data("target");
+            $(this).toggleClass("is-active");
+            $("#" + target).toggleClass("is-active");
+            $(".app-container").toggleClass("navbar-menu-active");
+        });
+
+        // Toggle My Account dropdown on desktop and mobile
+        $(".navbar-link").click(function(e) {
+            e.preventDefault();
+            $(this).parent().toggleClass("is-active");
+        });
+
+        // Close notification
         $('.notification .delete').click(function () {
             $(this).parent().fadeOut(() => $(this).remove());
         });
+
+        const sidebar = document.getElementById('sidebar');
+        const content = document.getElementById('content');
+        const sidebarToggle = document.getElementById('sidebarToggle');
+        if (sidebarToggle) {
+            const toggleIcon = sidebarToggle.querySelector('.icon i');
+
+            function updateSidebarState(isVisible) {
+                localStorage.setItem('sidebarIsVisible', isVisible ? 'true' : 'false');
+                setSidebarVisibility(isVisible);
+            }
+
+            function setSidebarVisibility(visible) {
+                if (visible) {
+                    sidebar.classList.add('is-visible');
+                    toggleIcon.classList.add('fa-chevron-left');
+                    toggleIcon.classList.remove('fa-chevron-right');
+                    content.style.marginLeft = '250px';
+                } else {
+                    sidebar.classList.remove('is-visible');
+                    toggleIcon.classList.add('fa-chevron-right');
+                    toggleIcon.classList.remove('fa-chevron-left');
+                    content.style.marginLeft = '0';
+                }
+            }
+
+            // Disable transitions initially
+            sidebar.style.transition = 'none';
+            content.style.transition = 'none';
+            sidebarToggle.style.transition = 'none';
+
+            // Set initial state based on local storage or default
+            const sidebarIsVisible = localStorage.getItem('sidebarIsVisible') === 'true';
+            setSidebarVisibility(sidebarIsVisible);
+
+            // Re-enable transitions after initial state
+            setTimeout(() => {
+                sidebar.style.transition = '';
+                content.style.transition = '';
+                sidebarToggle.style.transition = '';
+            }, 10);
+
+            sidebarToggle.addEventListener('click', () => {
+                const isVisible = !sidebar.classList.contains('is-visible');
+                updateSidebarState(isVisible);
+            });
+
+            // Add touch event listener
+            sidebarToggle.addEventListener('touchstart', (e) => {
+                e.preventDefault();
+                const isVisible = !sidebar.classList.contains('is-visible');
+                updateSidebarState(isVisible);
+            });
+        }
     });
-</script>
-{% block extra_js %}{% endblock %}
+    </script>
+
+    {% block extra_js %}{% endblock %}
 </body>
 </html>

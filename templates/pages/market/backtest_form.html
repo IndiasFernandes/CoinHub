@@ -3,63 +3,195 @@
 {% block content %}
 <style>
     .small-label {
-        font-size: 0.9rem;
+        font-size: 1rem;
     }
     .centered-button {
         display: flex;
         justify-content: center;
+        margin-top: 1.5rem;
     }
     .help-message {
-        font-size: 0.8rem;
+        font-size: 0.85rem;
         color: #6e6e6e;
+    }
+    .select-all-button {
+        margin-bottom: 1rem;
+    }
+    .box, .card {
+        border-radius: 8px;
+        box-shadow: 0 2px 8px rgba(0, 0, 0, 0.1);
+        padding: 2rem;
+        margin-bottom: 1.5rem;
+    }
+    .field:not(:last-child) {
+        margin-bottom: 1.5rem;
+    }
+    .title, .subtitle, .explanation {
+        color: white;
+    }
+    .title {
+        font-size: 2rem;
+    }
+    .subtitle {
+        font-size: 1.25rem;
+        margin-bottom: 1rem;
+    }
+    .explanation {
+        font-size: 1rem;
+        margin-bottom: 2rem;
+        display: flex;
+        align-items: center;
+        background-color: #3273dc;
+        padding: 1rem;
+        border-radius: 8px;
+    }
+    .explanation-icon {
+        margin-right: 1rem;
+    }
+    .button.is-link {
+        background-color: #3273dc;
+        border-color: transparent;
+    }
+    .button.is-link:hover {
+        background-color: #276cda;
+    }
+    .is-collapsible {
+        cursor: pointer;
+    }
+    .is-collapsible .card-content {
+        display: none;
     }
 </style>
 <div class="container">
     <div class="columns is-centered">
-        <div class="column is-half">
+        <div class="column is-three-quarters">
             <div class="box">
-                <h1 class="title" style="font-size: 1.5rem;">Backtest</h1>
+                <h1 class="title has-text-centered">Backtest</h1>
+                <p class="subtitle has-text-centered">Run backtests for your chosen symbols and timeframes.</p>
+                <div class="notification is-info" style="border-left: none; padding: 1rem;">
+                    <span class="icon explanation-icon" style="vertical-align: middle; margin-right: 0.5rem;">
+                        <i class="fas fa-info-circle"></i>
+                    </span>
+                    <span><strong>Select the exchange, symbols, and timeframes</strong> you want to backtest. Customize the parameters as needed and click the <strong>"Run Backtest"</strong> button to start.</span>
+                </div>
+
+
+
+
+
                 <form method="post">
                     {% csrf_token %}
-                    {% for field in form %}
-                    <div class="field">
-                        <label class="label small-label">{{ field.label }}</label>
-                        <div class="control">
-                            {% if field.label == "Symbol" %}
-                                <button type="button" class="button is-small" onclick="toggleSelection('symbol-checkbox')">Select All Symbols</button>
-                                {% for choice_value, choice_label in field.field.choices %}
-                                    <label class="checkbox">
-                                        <input type="checkbox" name="{{ field.name }}" value="{{ choice_value }}" class="symbol-checkbox">
-                                        {{ choice_label }}
-                                    </label>
-                                {% endfor %}
-                            {% elif field.label == "Timeframe" %}
-                                <button type="button" class="button is-small" onclick="toggleSelection('timeframe-checkbox')">Select All Timeframes</button>
-                                {% for choice_value, choice_label in field.field.choices %}
-                                    <label class="checkbox">
-                                        <input type="checkbox" name="{{ field.name }}" value="{{ choice_value }}" class="timeframe-checkbox">
-                                        {{ choice_label }}
-                                    </label>
-                                {% endfor %}
-                            {% else %}
-                                {{ field|add_class:"input" }}
-                            {% endif %}
+                    <div class="card is-collapsible">
+                        <header class="card-header">
+                            <p class="card-header-title">Exchange and Market Data</p>
+                            <span class="card-header-icon" aria-label="more options">
+                                <span class="icon">
+                                    <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                </span>
+                            </span>
+                        </header>
+                        <div class="card-content">
+                            <div class="field">
+                                <label class="label small-label">Exchange</label>
+                                <div class="control">
+                                    <select name="exchange" class="input" id="exchange-select">
+                                        {% for exchange in exchanges %}
+                                            <option value="{{ exchange.id_char }}" {% if exchange.id_char == "hyperliquid" %}selected{% endif %}>{{ exchange.name }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label small-label">Symbols</label>
+                                <div class="buttons has-addons select-all-button">
+                                    <button type="button" class="button is-small is-info" onclick="toggleSelection('symbol-checkbox')">Select All Symbols</button>
+                                </div>
+                                <div class="control" id="symbol-options">
+                                    {% for choice_value, choice_label in form.symbol.field.choices %}
+                                        <label class="checkbox">
+                                            <input type="checkbox" name="{{ form.symbol.name }}" value="{{ choice_value }}" class="symbol-checkbox">
+                                            {{ choice_label }}
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label small-label">Timeframes</label>
+                                <div class="buttons has-addons select-all-button">
+                                    <button type="button" class="button is-small is-info" onclick="toggleSelection('timeframe-checkbox')">Select All Timeframes</button>
+                                </div>
+                                <div class="control" id="timeframe-options">
+                                    {% for choice_value, choice_label in form.timeframe.field.choices %}
+                                        <label class="checkbox">
+                                            <input type="checkbox" name="{{ form.timeframe.name }}" value="{{ choice_value }}" class="timeframe-checkbox">
+                                            {{ choice_label }}
+                                        </label>
+                                    {% endfor %}
+                                </div>
+                            </div>
                         </div>
-                        {% if field.help_text %}
-                        <p class="help help-message">{{ field.help_text }}</p>
-                        {% endif %}
-                        {% for error in field.errors %}
-                        <p class="help is-danger">{{ error }}</p>
-                        {% endfor %}
                     </div>
-                    {% endfor %}
+
+                    <div class="card is-collapsible">
+                        <header class="card-header">
+                            <p class="card-header-title">Backtest Parameters</p>
+                            <span class="card-header-icon" aria-label="more options">
+                                <span class="icon">
+                                    <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                </span>
+                            </span>
+                        </header>
+                        <div class="card-content">
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label class="label small-label">Start Date</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field">
+                                        <div class="control">
+                                            <input type="date" name="{{ form.start_date.name }}" value="{{ form.start_date.value|default:form.start_date.initial|date:'Y-m-d' }}" class="input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field-label is-normal">
+                                    <label class="label small-label">End Date</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field">
+                                        <div class="control">
+                                            <input type="date" name="{{ form.end_date.name }}" value="{{ form.end_date.value|default:form.end_date.initial|date:'Y-m-d'  }}" class="input">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label small-label">Cash</label>
+                                <div class="control">
+                                    <input type="number" name="{{ form.cash.name }}" value="{{ form.cash.value|default:10000 }}" class="input">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label small-label">Commission</label>
+                                <div class="control">
+                                    <input type="number" step="0.001" name="{{ form.commission.name }}" value="{{ form.commission.value|default:0.008 }}" class="input">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label small-label">Open Browser</label>
+                                <div class="control">
+                                    <input type="checkbox" name="{{ form.openbrowser.name }}" {% if form.openbrowser.value %}checked{% endif %}>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="field">
                         <div class="control centered-button">
-                            <button type="submit" class="button is-link">Download</button>
+                            <button type="submit" class="button is-link">Run Backtest</button>
                         </div>
                     </div>
                 </form>
-            </div>
+
         </div>
     </div>
 </div>
@@ -72,5 +204,66 @@ function toggleSelection(className) {
         checkbox.checked = !allChecked;
     });
 }
+
+document.querySelector('#exchange-select').addEventListener('change', function() {
+    const exchangeIdChar = this.value;
+    fetch(`/exchanges/${exchangeIdChar}/data/`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(data => {
+            const symbolField = document.querySelector('#symbol-options');
+            const timeframeField = document.querySelector('#timeframe-options');
+            symbolField.innerHTML = '';
+            timeframeField.innerHTML = '';
+
+            data.symbols.forEach(symbol => {
+                const label = document.createElement('label');
+                label.className = 'checkbox';
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.name = 'symbol';
+                input.value = symbol;
+                input.className = 'symbol-checkbox';
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(symbol));
+                symbolField.appendChild(label);
+            });
+
+            data.timeframes.forEach(timeframe => {
+                const label = document.createElement('label');
+                label.className = 'checkbox';
+                const input = document.createElement('input');
+                input.type = 'checkbox';
+                input.name = 'timeframe';
+                input.value = timeframe;
+                input.className = 'timeframe-checkbox';
+                label.appendChild(input);
+                label.appendChild(document.createTextNode(timeframe));
+                timeframeField.appendChild(label);
+            });
+        })
+        .catch(error => {
+            console.error('There has been a problem with your fetch operation:', error);
+        });
+});
+
+// Collapsible cards
+document.querySelectorAll('.card-header').forEach(header => {
+    header.addEventListener('click', () => {
+        const cardContent = header.nextElementSibling;
+        cardContent.style.display = cardContent.style.display === 'block' ? 'none' : 'block';
+        header.querySelector('.icon i').classList.toggle('fa-angle-down');
+        header.querySelector('.icon i').classList.toggle('fa-angle-up');
+    });
+});
+
+// Close notification
+document.querySelector('.notification .delete').addEventListener('click', function () {
+    this.parentNode.style.display = 'none';
+});
 </script>
 {% endblock %}
