@@ -11,6 +11,12 @@ def run_exchange(exchange_id, api_key, secret):
             'apiKey': api_key,
             'secret': secret,
         })
+    if exchange_id == 'binance':
+        exchange_class = getattr(ccxt, exchange_id)
+        exchange = exchange_class({
+            'apiKey': api_key,
+            'secret': secret,
+        })
     return exchange
 
 def get_coins(exchange):
