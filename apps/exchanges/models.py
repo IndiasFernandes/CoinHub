@@ -12,7 +12,7 @@ class Exchange(models.Model):
         return self.name
 
 class Coin(models.Model):
-    symbol = models.CharField(max_length=10, null=True, blank=True)  # Example: BTC, ETH
+    symbol = models.CharField(max_length=15, null=True, blank=True)  # Example: BTC, ETH
 
     def __str__(self):
         return self.symbol

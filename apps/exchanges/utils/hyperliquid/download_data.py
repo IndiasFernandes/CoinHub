@@ -30,6 +30,8 @@ def heikin_ashi(df):
 
     return df_ha
 
+
+
 def download_data(symbols, timeframes, start_date, end_date, exchange):
     for symbol in symbols:
         for timeframe in timeframes:
@@ -74,3 +76,7 @@ def download_data(symbols, timeframes, start_date, end_date, exchange):
                 return df
             else:
                 logging.info("No data fetched.")
+
+
+def get_coins(exchange):
+    return exchange.fetch_markets()

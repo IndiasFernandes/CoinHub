@@ -12,11 +12,30 @@ from .forms import ExchangeForm, DownloadDataForm  # Ensure both forms are impor
 import requests
 from .utils.hyperliquid.bot import BotAccount
 from .utils.hyperliquid.download_data import download_data, initialize_exchange
-from .utils.utils import run_exchange
+from .utils.utils import run_exchange, get_coins
 
 # Get an instance of a logger
 logger = logging.getLogger('django')
 
+from django.urls import reverse
+from .forms import MarketForm
+
+
+def add_market(request, exchange_id):
+    exchange = get_object_or_404(Exchange, id=exchange_id)
+
+    if request.method == 'POST':
+        form = MarketForm(request.POST)
+        if form.is_valid():
+            market = form.save(commit=False)
+            market.exchange = exchange
+            market.save()
+            form.save_m2m()  # To save many-to-many relations
+            return redirect(reverse('exchange:exchange_detail', args=[exchange_id]))
+    else:
+        form = MarketForm()
+
+    return render(request, 'pages/exchanges/add_market.html', {'form': form, 'exchange': exchange, 'current_section': 'exchanges', 'show_sidebar': True})
 
 @login_required
 def exchange_list(request):
@@ -75,22 +94,42 @@ def chart_view(request):
     return render(request, 'pages/general/graphs/chart.html', context)
 
 
+
 @login_required
 def update_market_coins(request, market_id):
     market = get_object_or_404(Market, pk=market_id)
-    try:
-        bot_account = BotAccount()
-        coins_prices = bot_account.all_coins()
-        for coin_symbol in coins_prices:
-            coin, created = Coin.objects.get_or_create(symbol=coin_symbol)
-            market.coins.add(coin)
-        market.save()
-        messages.success(request, "Market coins updated successfully.")
-    except requests.RequestException as e:
-        messages.error(request, f"Failed to update market coins: {e}")
-    return redirect('exchange:exchange_detail', exchange_id=market.exchange.pk)
+    exchange = market.exchange
 
+    if request.method == 'POST':
+        form = MarketForm(request.POST, instance=market)
+        if form.is_valid():
+            exchange_id = form.cleaned_data['exchange'].id_char
+            exchange = get_object_or_404(Exchange, id_char=exchange_id)
+            key = exchange.api_key
+            secret = exchange.secret_key
 
+            exchange_instance = run_exchange(exchange_id, key, secret)
+
+            try:
+                #bot_account = BotAccount()
+                #coins_prices = bot_account.all_coins()
+                coins = get_coins(exchange_instance)  # Ensure this is defined and properly integrated
+                print(coins)
+                for coin in coins:
+                    print(coin)
+                    coin = coin['symbol']
+                    print(f'printed {coin}')
+                    coin, created = Coin.objects.get_or_create(symbol=coin)
+                    market.coins.add(coin)
+                market.save()
+                messages.success(request, "Market coins updated successfully.")
+            except requests.RequestException as e:
+                messages.error(request, f"Failed to update market coins: {e}")
+            return redirect('exchange:exchange_detail', exchange_id=market.exchange.pk)
+    else:
+        form = MarketForm(instance=market)
+
+    return render(request, 'pages/exchanges/update_market_coins.html', {'form': form, 'market': market})
 @login_required
 def download_data_view(request):
     if request.method == 'POST':

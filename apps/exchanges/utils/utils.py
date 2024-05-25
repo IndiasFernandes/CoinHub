@@ -12,6 +12,10 @@ def run_exchange(exchange_id, api_key, secret):
             'secret': secret,
         })
     return exchange
+
+def get_coins(exchange):
+    return exchange.fetch_markets()
+
 def ensure_dir(path):
     """Ensure the directory exists, create it if it doesn't."""
     os.makedirs(path, exist_ok=True)
