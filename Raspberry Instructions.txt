@@ -1,5 +1,2 @@
 # Activate Venv
 source venv/bin/activate
-
-
-d
