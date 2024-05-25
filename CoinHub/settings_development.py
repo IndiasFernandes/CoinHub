@@ -70,7 +70,7 @@ WSGI_APPLICATION = 'CoinHub.wsgi.application'
 DATABASES = {
     'default': {
         'ENGINE': 'django.db.backends.postgresql',
-        'NAME': 'main_db',
+        'NAME': 'oncoins_db',
         'USER': 'indiasfernandes',
         'PASSWORD': 'V28ad18@2720',
         'HOST': '85.242.116.211',
