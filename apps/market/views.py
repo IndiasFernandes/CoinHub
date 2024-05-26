@@ -77,8 +77,11 @@ def run_backtest_view(request):
 
             for symbol in symbols:
                 for timeframe in timeframes:
+                    print(f"Running backtest for {symbol} ({timeframe})")
                     df = download_data([symbol], [timeframe], start_date, end_date, exchange_instance)
+                    print("Downloaded data.")
                     st, price = run_backtest(symbol, df, timeframe, cash, commission, openbrowser)
+                    print("Backtest results: st: ", st, ", price:", price)
                     results.append({"symbol": symbol, "timeframe": timeframe, "st": st, "price": price})
 
             messages.success(request, "Backtest completed successfully.")
