@@ -29,7 +29,7 @@ def run_optimization(symbol, interval, cash, commission, openbrowser, df, max_tr
     hm_main_path, bt_main_path, stats_path, run_path, dict_path = generate_paths(symbol, max_tries)
     bt.plot(open_browser=openbrowser, filename=bt_main_path)
     plot_heatmaps(heatmap, open_browser=openbrowser, filename=hm_main_path)
-
+    print(stats)
     save_best_parameters(stats, run_path)
     save_review(stats, symbol, interval, dict_path)
     save_stats(stats, stats_path)
@@ -111,4 +111,5 @@ def save_optimization_instance(exchange, stats, symbol, interval, price_value, s
             commission=float(commission),
             equity_peak=float(stats['Equity Peak [$]']),
             exchange=exchange,
+
         )
