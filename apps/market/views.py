@@ -1,5 +1,5 @@
 import os
-
+import warnings
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.utils.html import format_html
@@ -43,6 +43,7 @@ def load_symbols_and_timeframes(request):
     return JsonResponse(data)
 @login_required
 def run_backtest_view(request):
+    warnings.simplefilter(action='ignore', category=FutureWarning)
     exchanges = Exchange.objects.all()
     if request.method == 'POST':
         form = BacktestForm(request.POST)
@@ -101,6 +102,7 @@ def run_backtest_view(request):
 
 @login_required
 def run_optimization_view(request):
+    warnings.simplefilter(action='ignore', category=FutureWarning)
     exchanges = Exchange.objects.all()
     if request.method == 'POST':
         form = OptimizeForm(request.POST)
