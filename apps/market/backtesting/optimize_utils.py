@@ -36,13 +36,15 @@ def run_optimization(symbol, interval, cash, commission, openbrowser, df, max_tr
     price_value, st_value = fetch_latest_values('optimize')
     save_optimization_instance(exchange, stats, symbol, interval, price_value, st_value, hm_main_path, bt_main_path, cash, commission, max_tries)
 
+    return stats, heatmap
+
 def generate_paths(symbol, max_tries):
     base_dir = 'static/optimize/optimize_results'
     timestamp = datetime.now().isoformat()
-    hm_main_path = os.path.join(base_dir, f'{max_tries}_{symbol.replace("/", "_")}_{timestamp}_Heat_Map.html')
-    bt_main_path = os.path.join(base_dir, f'{max_tries}_{symbol.replace("/", "_")}_{timestamp}_Backtest.html')
-    stats_path = os.path.join(base_dir, f'{max_tries}_{symbol.replace("/", "_")}_{timestamp}_Statistics.txt')
-    run_path = os.path.join(base_dir, f'{max_tries}_{symbol.replace("/", "_")}_{timestamp}_Best_Parameters.csv')
+    hm_main_path = os.path.join(base_dir, f'{max_tries}_{str(symbol).replace("/", "_")}_{timestamp}_Heat_Map.html')
+    bt_main_path = os.path.join(base_dir, f'{max_tries}_{str(symbol).replace("/", "_")}_{timestamp}_Backtest.html')
+    stats_path = os.path.join(base_dir, f'{max_tries}_{str(symbol).replace("/", "_")}_{timestamp}_Statistics.txt')
+    run_path = os.path.join(base_dir, f'{max_tries}_{str(symbol).replace("/", "_")}_{timestamp}_Best_Parameters.csv')
     dict_path = os.path.join(base_dir, 'Review.csv')
     return hm_main_path, bt_main_path, stats_path, run_path, dict_path
 

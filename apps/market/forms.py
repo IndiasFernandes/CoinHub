@@ -6,14 +6,6 @@ from ..exchanges.models import Exchange, Market, Coin
 
 class BacktestForm(forms.ModelForm):
 
-    symbol = forms.MultipleChoiceField(
-        widget=forms.CheckboxSelectMultiple,
-        choices=[]
-    )
-    timeframe = forms.MultipleChoiceField(
-        widget=forms.CheckboxSelectMultiple,
-        choices=[]
-    )
     class Meta:
         model = Backtest
         fields = ['exchange', 'symbol', 'timeframe', 'cash', 'commission', 'start_date', 'end_date', 'openbrowser']
@@ -67,15 +59,6 @@ class BacktestForm(forms.ModelForm):
         print("Initial end_date:", self.fields['end_date'].initial)
 
 class OptimizeForm(forms.ModelForm):
-
-    symbol = forms.MultipleChoiceField(
-        widget=forms.CheckboxSelectMultiple,
-        choices=[]
-    )
-    timeframe = forms.MultipleChoiceField(
-        widget=forms.CheckboxSelectMultiple,
-        choices=[]
-    )
     min_timeperiod = forms.FloatField()
     max_timeperiod = forms.FloatField()
     interval_timeperiod = forms.FloatField()

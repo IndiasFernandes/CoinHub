@@ -32,50 +32,49 @@ def heikin_ashi(df):
 
 
 
-def download_data(symbols, timeframes, start_date, end_date, exchange):
-    for symbol in symbols:
-        for timeframe in timeframes:
-            start_timestamp = int(datetime.strptime(start_date, "%Y-%m-%d").timestamp() * 1000)
-            end_timestamp = int(datetime.strptime(end_date, "%Y-%m-%d").timestamp() * 1000)
+def download_data(symbol, timeframe, start_date, end_date, exchange):
 
-            data_dir = os.path.join(settings.BASE_DIR, 'static', 'data', exchange.id, timeframe)
-            ensure_dir(data_dir)
-            file_path = os.path.join(data_dir, f'{symbol.replace("/", "_")}.csv')
-            #fetch_ohlcv = exchange.fetch_ohlcv(symbol="AAVE/USDC:USDC", timeframe='5m',
-            #                                   since=int(datetime(2024, 4, 11).timestamp() * 1000), limit=1000,
-            #                                   params={})
+        start_timestamp = int(datetime.strptime(start_date, "%Y-%m-%d").timestamp() * 1000)
+        end_timestamp = int(datetime.strptime(end_date, "%Y-%m-%d").timestamp() * 1000)
 
-            logging.info(f"Downloading data for {symbol} ({timeframe}) to {file_path}")
-            all_data = []
-            while start_timestamp < end_timestamp:
-                try:
-                    data = exchange.fetch_ohlcv(symbol, timeframe, since=start_timestamp, limit=1000)
-                    if data:
-                        start_timestamp = data[-1][0] + 1
-                        all_data.extend(data)
-                    else:
-                        a = 1
-                except ccxt.NetworkError as e:
-                    logging.error(f"Network error occurred: {e}")
-                    break
-                except ccxt.ExchangeError as e:
-                    logging.error(f"Exchange error occurred: {e}")
-                    break
+        data_dir = os.path.join(settings.BASE_DIR, 'static', 'data', exchange.id, timeframe)
+        ensure_dir(data_dir)
+        file_path = os.path.join(data_dir, f'{symbol.replace("/", "_")}.csv')
+        #fetch_ohlcv = exchange.fetch_ohlcv(symbol="AAVE/USDC:USDC", timeframe='5m',
+        #                                   since=int(datetime(2024, 4, 11).timestamp() * 1000), limit=1000,
+        #                                   params={})
 
-            if all_data:
-                df = pd.DataFrame(all_data, columns=['Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume'])
-                df['Timestamp'] = pd.to_datetime(df['Timestamp'], unit='ms')
-                df.set_index('Timestamp', inplace=True)
-                merge_and_save_data(df, file_path)
+        logging.info(f"Downloading data for {symbol} ({timeframe}) to {file_path}")
+        all_data = []
+        while start_timestamp < end_timestamp:
+            try:
+                data = exchange.fetch_ohlcv(symbol, timeframe, since=start_timestamp, limit=1000)
+                if data:
+                    start_timestamp = data[-1][0] + 1
+                    all_data.extend(data)
+                else:
+                    a = 1
+            except ccxt.NetworkError as e:
+                logging.error(f"Network error occurred: {e}")
+                break
+            except ccxt.ExchangeError as e:
+                logging.error(f"Exchange error occurred: {e}")
+                break
 
-                # Heikin Ashi Conversion
-                df_ha = heikin_ashi(df.reset_index())
-                df_ha.set_index('Timestamp', inplace=True)
-                ha_file_path = os.path.join(data_dir, f'{symbol.replace("/", "_")}_HA.csv')
-                merge_and_save_data(df_ha, ha_file_path)
-                return df
-            else:
-                logging.info("No data fetched.")
+        if all_data:
+            df = pd.DataFrame(all_data, columns=['Timestamp', 'Open', 'High', 'Low', 'Close', 'Volume'])
+            df['Timestamp'] = pd.to_datetime(df['Timestamp'], unit='ms')
+            df.set_index('Timestamp', inplace=True)
+            merge_and_save_data(df, file_path)
+
+            # Heikin Ashi Conversion
+            df_ha = heikin_ashi(df.reset_index())
+            df_ha.set_index('Timestamp', inplace=True)
+            ha_file_path = os.path.join(data_dir, f'{symbol.replace("/", "_")}_HA.csv')
+            merge_and_save_data(df_ha, ha_file_path)
+            return df
+        else:
+            logging.info("No data fetched.")
 
 
 def get_coins(exchange):

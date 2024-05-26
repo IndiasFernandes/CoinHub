@@ -104,6 +104,10 @@ def run_optimization_view(request):
     exchanges = Exchange.objects.all()
     if request.method == 'POST':
         form = OptimizeForm(request.POST)
+        timeframes = list(request.POST.getlist('timeframe'))
+        symbols = list(request.POST.getlist('symbol'))
+        print("Symbols:", symbols)
+        print("Timeframes:", timeframes)
         if form.is_valid():
             exchange_id_char = form.cleaned_data['exchange']
             exchange = get_object_or_404(Exchange, id_char=exchange_id_char)
@@ -111,8 +115,6 @@ def run_optimization_view(request):
             secret = exchange.secret_key
 
             exchange_instance = run_exchange(exchange.id_char, key, secret)
-            symbols = form.cleaned_data.get('symbol')
-            timeframes = form.cleaned_data.get('timeframe')
             start_date = form.cleaned_data['start_date'].strftime('%Y-%m-%d')
             end_date = form.cleaned_data['end_date'].strftime('%Y-%m-%d')
             cash = form.cleaned_data['cash']
@@ -128,10 +130,11 @@ def run_optimization_view(request):
             atr_timeperiod_range = np.arange(min_timeperiod, max_timeperiod + interval_timeperiod, interval_timeperiod)
             atr_multiplier_range = np.arange(min_multiplier, max_multiplier + interval_multiplier, interval_multiplier)
 
-            for symbol in [symbols]:
-                for timeframe in [timeframes]:
-                    df = download_data([symbol], [timeframe], start_date, end_date, exchange_instance)
-                    stats, heatmap = run_optimization(symbol, timeframe, cash, commission, openbrowser, df, max_tries, atr_timeperiod_range, atr_multiplier_range)
+            for symbol in symbols:
+                for timeframe in timeframes:
+                    print(f"Running optimization for {symbol} ({timeframe})"    )
+                    df = download_data(symbol, timeframe, start_date, end_date, exchange_instance)
+                    stats, heatmap = run_optimization(symbol, timeframe, cash, commission, openbrowser, df, max_tries, atr_timeperiod_range, atr_multiplier_range, exchange_instance)
                     print(f"Optimization results for {symbol} ({timeframe}):", stats, heatmap)
 
             messages.success(request, "Optimization completed successfully.")
