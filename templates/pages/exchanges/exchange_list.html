@@ -7,7 +7,8 @@
         text-align: center; /* Center-align the title */
         margin-bottom: 1rem; /* Space below the title */
     }
-    .add-exchange-button {
+    .add-exchange-button,
+    .update-exchange-button {
         display: block;
         width: fit-content;
         margin: 0 auto 1.5rem; /* Center the button and add space below it */
@@ -23,6 +24,7 @@
 <div class="container">
     <h2 class="title exchange-list-title">Exchange List</h2>
     <a href="{% url 'exchange:exchange_new' %}" class="button is-primary add-exchange-button">Add New Exchange</a>
+    <a href="{% url 'exchange:update_exchange_markets' %}" class="button is-link update-exchange-button">Update Exchange Markets</a>
     <div class="box">
         {% for exchange in exchanges %}
         <article class="media exchange-item">

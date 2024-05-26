@@ -1,0 +1,177 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<style>
+    .exchange-list-title {
+        font-size: 1.5rem;
+        text-align: center;
+        margin-bottom: 1rem;
+    }
+    .card-container {
+        display: flex;
+        flex-wrap: wrap;
+        justify-content: center;
+    }
+    .card {
+        width: 100%;
+        max-width: 300px;
+        margin: 0.5rem;
+        flex: 1;
+    }
+    .market-list, .coin-list {
+        margin-top: 1rem;
+    }
+    .market-button, .coin-button {
+        margin-top: 0.5rem;
+    }
+    .refresh-button {
+        display: block;
+        margin: 1.5rem auto;
+    }
+    .box {
+        display: flex;
+        flex-direction: column;
+        align-items: center;
+    }
+</style>
+
+<div class="container">
+    <h2 class="title exchange-list-title">Update Exchange Markets</h2>
+
+    {% if message %}
+        <div class="notification is-success">
+            {{ message }}
+        </div>
+    {% endif %}
+
+    <div class="box" id="exchange-container">
+        <div class="card-container">
+            {% for exchange in exchanges %}
+            <div class="card exchange-item">
+                <div class="card-content">
+                    <div class="content">
+                        <p>
+                            <strong>{{ exchange }}</strong>
+                            <br>
+                            <button class="button is-link is-small market-button" data-exchange="{{ exchange }}">View Markets</button>
+                            <button class="button is-warning is-small update-exchange-button" data-exchange="{{ exchange }}">Update</button>
+                        </p>
+                        <div class="market-container" id="market-container-{{ exchange }}" style="display: none;"></div>
+                    </div>
+                </div>
+            </div>
+            {% empty %}
+            <p>No exchanges found.</p>
+            {% endfor %}
+        </div>
+    </div>
+
+    <form method="get" action="{% url 'exchange:update_exchange_markets' %}">
+        <button type="submit" class="button is-info refresh-button">Refresh Exchange List</button>
+    </form>
+</div>
+
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        document.querySelectorAll('.market-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const exchangeId = this.getAttribute('data-exchange');
+                const marketContainer = document.getElementById(`market-container-${exchangeId}`);
+                if (marketContainer.style.display === 'none') {
+                    fetchMarketTypes(exchangeId, marketContainer);
+                } else {
+                    marketContainer.style.display = 'none';
+                }
+            });
+        });
+
+        document.querySelectorAll('.update-exchange-button').forEach(button => {
+            button.addEventListener('click', function() {
+                const exchangeId = this.getAttribute('data-exchange');
+                fetchUpdate(exchangeId);
+            });
+        });
+    });
+
+    function fetchMarketTypes(exchangeId, container) {
+        fetch("{% url 'exchange:update_exchange_markets' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ exchange_id: exchangeId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            container.style.display = 'block';
+            container.innerHTML = `
+                <div class="market-list">
+                    <h3>${exchangeId} Markets</h3>
+                    <ul>
+                        ${data.market_types.map(marketType => `<li>
+                            ${marketType}
+                            <button class="button is-small is-success coin-button" data-exchange="${exchangeId}" data-market-type="${marketType}">View Coins</button>
+                        </li>`).join('')}
+                    </ul>
+                </div>
+            `;
+            document.querySelectorAll('.coin-button').forEach(button => {
+                button.addEventListener('click', function() {
+                    const exchangeId = this.getAttribute('data-exchange');
+                    const marketType = this.getAttribute('data-market-type');
+                    const parentLi = this.parentElement;
+                    fetchCoins(exchangeId, marketType, parentLi);
+                });
+            });
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function fetchCoins(exchangeId, marketType, container) {
+        fetch("{% url 'exchange:update_exchange_markets' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ exchange_id: exchangeId, market_type: marketType })
+        })
+        .then(response => response.json())
+        .then(data => {
+            let coinList = container.querySelector('.coin-list');
+            if (!coinList) {
+                coinList = document.createElement('div');
+                coinList.classList.add('coin-list');
+                container.appendChild(coinList);
+            }
+            coinList.innerHTML = `
+                <h3>${marketType} Coins</h3>
+                <ul>
+                    ${data.symbols.map(symbol => `<li>${symbol}</li>`).join('')}
+                </ul>
+            `;
+        })
+        .catch(error => console.error('Error:', error));
+    }
+
+    function fetchUpdate(exchangeId) {
+        fetch("{% url 'exchange:update_exchange_markets' %}", {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-Requested-With': 'XMLHttpRequest',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ update_exchange_id: exchangeId })
+        })
+        .then(response => response.json())
+        .then(data => {
+            alert(data.message);
+        })
+        .catch(error => console.error('Error:', error));
+    }
+</script>
+{% endblock %}

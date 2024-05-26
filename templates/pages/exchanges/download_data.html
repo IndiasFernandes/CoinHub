@@ -128,17 +128,59 @@
 </div>
 
 <script>
-function toggleSelection(className) {
-    const checkboxes = document.querySelectorAll('.' + className);
-    const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = !allChecked;
-    });
-}
+document.addEventListener('DOMContentLoaded', function () {
+    const exchangeField = document.getElementById('id_exchange');
+    const marketField = document.getElementById('id_market');
+    const symbolField = document.getElementById('id_symbol');
+    const timeframeField = document.getElementById('id_timeframe');
 
-// Close notification
-document.querySelector('.explanation .delete').addEventListener('click', function () {
-    this.parentNode.style.display = 'none';
+    exchangeField.addEventListener('change', function () {
+        const exchangeId = this.value;
+        if (!exchangeId) {
+            marketField.innerHTML = '<option value="">Select Market</option>';
+            symbolField.innerHTML = '<option value="">Select Symbol</option>';
+            timeframeField.innerHTML = '<option value="">Select Timeframe</option>';
+            return;
+        }
+        fetch(`/ajax/load-markets/?exchange=${exchangeId}`)
+            .then(response => response.json())
+            .then(data => {
+                marketField.innerHTML = '<option value="">Select Market</option>';
+                data.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.market_type;
+                    marketField.appendChild(option);
+                });
+            });
+    });
+
+    marketField.addEventListener('change', function () {
+        const marketId = this.value;
+        if (!marketId) {
+            symbolField.innerHTML = '<option value="">Select Symbol</option>';
+            timeframeField.innerHTML = '<option value="">Select Timeframe</option>';
+            return;
+        }
+        fetch(`/ajax/load-symbols-timeframes/?market=${marketId}`)
+            .then(response => response.json())
+            .then(data => {
+                symbolField.innerHTML = '<option value="">Select Symbol</option>';
+                data.symbols.forEach(item => {
+                    const option = document.createElement('option');
+                    option.value = item.id;
+                    option.textContent = item.symbol;
+                    symbolField.appendChild(option);
+                });
+                timeframeField.innerHTML = '<option value="">Select Timeframe</option>';
+                data.timeframes.forEach(timeframe => {
+                    const option = document.createElement('option');
+                    option.value = timeframe[0];
+                    option.textContent = timeframe[1];
+                    timeframeField.appendChild(option);
+                });
+            });
+    });
 });
 </script>
 {% endblock %}

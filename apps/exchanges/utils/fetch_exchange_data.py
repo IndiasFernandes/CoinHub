@@ -1,48 +1,104 @@
+import ccxt
 import requests
-from exchanges.models import Exchange, Coin, Market
-from django.core.management.base import BaseCommand
+import sys
 
-API_ENDPOINTS = {
-    'hyperliquid': 'https://api.hyperliquid.exchange/v1/market/symbols',
-    'binance': 'https://api.binance.com/api/v3/exchangeInfo'
-}
 
-def fetch_hyperliquid():
-    response = requests.get(API_ENDPOINTS['hyperliquid'])
-    data = response.json()
-    symbols = [f"{symbol['baseAsset']}/{symbol['quoteAsset']}" for symbol in data['symbols']]
-    timeframes = ['1m', '5m', '15m', '30m', '1h', '4h', '1d', '1w', '1M']
+def list_exchanges():
+    return ccxt.exchanges
+
+
+def fetch_exchange_data(exchange_id):
+    exchange_class = getattr(ccxt, exchange_id)()
+    markets = exchange_class.load_markets()
+
+    symbols = list(markets.keys())
+    timeframes = exchange_class.timeframes if hasattr(exchange_class, 'timeframes') else []
+
     return symbols, timeframes
 
-def fetch_binance():
-    response = requests.get(API_ENDPOINTS['binance'])
-    data = response.json()
-    symbols = [f"{symbol['baseAsset']}/{symbol['quoteAsset']}" for symbol in data['symbols']]
-    timeframes = ['1m', '3m', '5m', '15m', '30m', '1h', '2h', '4h', '6h', '8h', '12h', '1d', '3d', '1w', '1M']
-    return symbols, timeframes
 
-def update_exchange_data():
-    exchanges_data = {
-        'hyperliquid': fetch_hyperliquid(),
-        'binance': fetch_binance()
-    }
+def fetch_all_exchange_data(selected_exchange):
+    exchanges = [selected_exchange]
+    exchange_data = {}
 
+    for exchange_id in exchanges:
+        try:
+            symbols, timeframes = fetch_exchange_data(exchange_id)
+            exchange_data[f"{exchange_id}_spot"] = (symbols, timeframes)
+            # If the exchange supports futures, add futures data as well
+            if exchange_id in ['binance', 'kraken']:  # Add other exchanges with futures markets here
+                futures_exchange_id = f"{exchange_id}futures"
+                futures_symbols, futures_timeframes = fetch_exchange_data(futures_exchange_id)
+                exchange_data[f"{exchange_id}_futures"] = (futures_symbols, futures_timeframes)
+        except Exception as e:
+            print(f"Failed to fetch data for {exchange_id}: {str(e)}")
+
+    return exchange_data
+
+
+def update_exchange_data_file(exchanges_data):
+    file_content = "EXCHANGES = {\n"
     for exchange_name, (symbols, timeframes) in exchanges_data.items():
-        exchange, created = Exchange.objects.get_or_create(name=exchange_name.capitalize())
+        exchange_id_char, market_type = exchange_name.split('_')
+        name = exchange_id_char.capitalize()
+        market_name = "Spot" if market_type == "spot" else "Futures"
 
-        # Delete existing symbols and markets for this exchange
-        Market.objects.filter(exchange=exchange).delete()
-        Coin.objects.filter(markets__exchange=exchange).delete()
+        file_content += f"    '{exchange_id_char}': {{\n"
+        file_content += f"        'name': '{name}',\n"
+        file_content += f"        'market': '{market_name}',\n"
+        file_content += f"        'symbols': {symbols},\n"
+        file_content += f"        'timeframes': {timeframes}\n"
+        file_content += f"    }},\n"
 
-        # Add new symbols and markets
+    file_content += "}\n"
+
+    with open('exchanges/exchange_data.py', 'w') as f:
+        f.write(file_content)
+
+
+def run_update(selected_exchange):
+    exchange_data = fetch_all_exchange_data(selected_exchange)
+
+    for exchange_name, (symbols, timeframes) in exchange_data.items():
+        exchange_id_char, market_type = exchange_name.split('_')
+        exchange, created = Exchange.objects.get_or_create(id_char=exchange_id_char,
+                                                           defaults={'name': exchange_id_char.capitalize()})
+
+        if not created:
+            Market.objects.filter(exchange=exchange).delete()
+
+        market = Market.objects.create(exchange=exchange, market_type=market_type)
+
         for symbol in symbols:
-            coin, created = Coin.objects.get_or_create(symbol=symbol)
-            market, created = Market.objects.get_or_create(exchange=exchange, market_type='spot')
+            coin, _ = Coin.objects.get_or_create(symbol=symbol)
             market.coins.add(coin)
 
-class Command(BaseCommand):
-    help = 'Fetches and updates exchange data'
+        print(f'Successfully updated {exchange.name} - {market_type} market')
 
-    def handle(self, *args, **kwargs):
-        update_exchange_data()
-        self.stdout.write(self.style.SUCCESS('Successfully updated exchange data'))
+    update_exchange_data_file(exchange_data)
+    print('exchange_data.py has been updated')
+
+
+if __name__ == "__main__":
+    if len(sys.argv) > 1:
+        available_exchanges = list_exchanges()
+        selected_index = int(sys.argv[1]) - 1
+        if selected_index < 0 or selected_index >= len(available_exchanges):
+            print('Invalid selection.')
+            sys.exit(1)
+
+        selected_exchange = available_exchanges[selected_index]
+        run_update(selected_exchange)
+    else:
+        available_exchanges = list_exchanges()
+        print("Available exchanges:")
+        for idx, exchange in enumerate(available_exchanges):
+            print(f"{idx + 1}. {exchange}")
+
+        selected_index = int(input("Select an exchange by number: ")) - 1
+        if selected_index < 0 or selected_index >= len(available_exchanges):
+            print('Invalid selection.')
+            sys.exit(1)
+
+        selected_exchange = available_exchanges[selected_index]
+        run_update(selected_exchange)

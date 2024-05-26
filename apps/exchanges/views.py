@@ -1,25 +1,31 @@
-import os
+import os, json
+from django.views.decorators.csrf import csrf_exempt
+
 import logging
 from datetime import datetime
+
+import ccxt
 from django.contrib import messages
 from django.http import JsonResponse
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 
 from .exchange_data import EXCHANGES
-from .fetch_exchange_data import fetch_all_exchange_data
 from .models import Exchange, Market, Coin, ExchangeInfo
 from .forms import ExchangeForm, DownloadDataForm  # Ensure both forms are imported correctly
 import requests
-from .utils.hyperliquid.bot import BotAccount
+
+from .utils.fetch_exchange_data import fetch_all_exchange_data
 from .utils.hyperliquid.download_data import download_data, initialize_exchange
-from .utils.utils import run_exchange, get_coins
+from .utils.utils import run_exchange, get_coins, run_update
 
 # Get an instance of a logger
 logger = logging.getLogger('django')
 
 from django.urls import reverse
 from .forms import MarketForm
+
+
 
 
 def add_market(request, exchange_id):
@@ -194,41 +200,97 @@ def download_data_view(request):
 
 
 def get_exchange_data(request, exchange_id_char):
-    exchange_data = EXCHANGES.get(exchange_id_char)
-    if exchange_data:
-        symbols = exchange_data['symbols']
-        timeframes = exchange_data['timeframes']
-        data = {
-            'symbols': symbols,
-            'timeframes': timeframes
-        }
-        return JsonResponse(data)
-    else:
+    try:
+        exchange = Exchange.objects.get(id_char=exchange_id_char)
+    except Exchange.DoesNotExist:
         return JsonResponse({'error': 'Exchange not found'}, status=404)
 
+    symbols = Coin.objects.filter(markets__exchange=exchange).distinct()
+    timeframes = Market.objects.filter(exchange=exchange).values_list('market_type', flat=True).distinct()
 
-def update_exchanges(request):
-    exchange_data = fetch_all_exchange_data()
-    for exchange_name, markets in exchange_data.items():
-        exchange, created = Exchange.objects.get_or_create(
-            id_char=exchange_name,
-            defaults={'name': exchange_name.capitalize()}
+    data = {
+        'symbols': [symbol.symbol for symbol in symbols],
+        'timeframes': list(timeframes)
+    }
+    return JsonResponse(data)
+
+def list_exchanges():
+    return ccxt.exchanges
+
+def fetch_market_types(exchange_id):
+    exchange_class = getattr(ccxt, exchange_id)()
+    markets = exchange_class.load_markets()
+    market_types = set(market.get('type', 'spot') for market in markets.values())
+    return market_types
+
+def fetch_markets(exchange_id, market_type):
+    exchange_class = getattr(ccxt, exchange_id)()
+    markets = exchange_class.load_markets()
+    symbols = [symbol for symbol, market in markets.items() if market.get('type', 'spot') == market_type]
+    return symbols
+
+@login_required
+@csrf_exempt
+def update_exchange_markets(request):
+    if request.method == 'POST' and request.headers.get('x-requested-with') == 'XMLHttpRequest':
+        body = json.loads(request.body)
+        if 'exchange_id' in body and 'market_type' not in body:
+            exchange_id = body['exchange_id']
+            market_types = fetch_market_types(exchange_id)
+            return JsonResponse({'market_types': list(market_types)})
+        elif 'exchange_id' in body and 'market_type' in body:
+            exchange_id = body['exchange_id']
+            market_type = body['market_type']
+            symbols = fetch_markets(exchange_id, market_type)
+            return JsonResponse({'symbols': symbols})
+        elif 'update_exchange_id' in body:
+            exchange_id = body['update_exchange_id']
+            update_exchange_in_db(exchange_id)
+            return JsonResponse({'message': f'{exchange_id} updated successfully.'})
+
+    return render(request, 'pages/exchanges/update_exchange_page.html', {
+        'exchanges': list_exchanges(),
+        'current_section': 'exchanges',
+        'section': 'update_exchange_markets',
+        'show_sidebar': True
+    })
+
+@login_required
+def load_markets(request):
+    exchange_id = request.GET.get('exchange')
+    markets = Market.objects.filter(exchange_id=exchange_id).all()
+    return JsonResponse(list(markets.values('id', 'market_type')), safe=False)
+
+@login_required
+def load_symbols_and_timeframes(request):
+    market_id = request.GET.get('market')
+    coins = Coin.objects.filter(markets__id=market_id).distinct()
+    market = Market.objects.get(id=market_id)
+    data = {
+        'symbols': list(coins.values('id', 'symbol')),
+        'timeframes': [(market.market_type, market.market_type)],
+    }
+    return JsonResponse(data)
+
+def update_exchange_in_db(exchange_id):
+    exchange_class = getattr(ccxt, exchange_id)()
+    markets = exchange_class.load_markets()
+
+    exchange, created = Exchange.objects.get_or_create(
+        id_char=exchange_id,
+        defaults={'name': exchange_class.name}
+    )
+
+    if not created:
+        Market.objects.filter(exchange=exchange).delete()
+
+    for market_id, market_data in markets.items():
+        market_type = market_data.get('type', 'spot')
+        market, created = Market.objects.get_or_create(
+            exchange=exchange,
+            market_type=market_type
         )
-
-        if not created:
-            # Delete existing markets for the exchange
-            exchange.market_set.all().delete()
-
-        for market_type, (symbols, timeframes) in markets.items():
-            market_name = f"{market_type.capitalize()} {exchange.name}"
-            print(f"Creating market: {market_name}")
-            market = Market.objects.create(exchange=exchange, market_type=market_type)
-
-            for symbol in symbols:
-                print(f"Creating coin: {symbol}")
-                coin, _ = Coin.objects.get_or_create(symbol=symbol)
-                market.coins.add(coin)
-            market.save()
-
-    messages.success(request, "Exchanges and markets updated successfully.")
-    return redirect('exchange:exchange_list')
+        symbol = market_data['symbol']
+        coin, _ = Coin.objects.get_or_create(symbol=symbol)
+        market.coins.add(coin)
+    market.save()

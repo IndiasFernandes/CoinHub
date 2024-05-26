@@ -24,9 +24,7 @@
                         <span class="tag is-primary is-light">{{ coin.symbol }}</span>
                         {% endfor %}
                     </div>
-
-                <a href="{% url 'exchange:update_market_coins' exchange.id %}" class="button is-primary">Update Coins</a>
-
+                    <a href="{% url 'exchange:update_exchange_markets' %}" class="button is-primary">Update Coins</a>
                 </div>
                 {% endfor %}
             </div>
@@ -39,8 +37,6 @@
             </div>
         </div>
         {% endif %}
-
-
 
         <footer class="card-footer">
             <a href="{% url 'exchange:exchange_list' %}" class="card-footer-item">Back to List</a>

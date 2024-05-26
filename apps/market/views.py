@@ -1,3 +1,4 @@
+from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.utils.html import format_html
 from django.views import View
@@ -10,7 +11,8 @@ from ..exchanges.utils.utils import run_exchange
 from ..exchanges.utils.hyperliquid.download_data import download_data
 from .backtesting.backtest_utils import run_backtest
 from .backtesting.optimize_utils import run_optimization
-from ..exchanges.models import Exchange
+from ..exchanges.models import Exchange, Market, Coin
+
 
 def market_dashboard_view(request):
     return render(request, 'pages/market/dashboard.html', {
@@ -225,3 +227,22 @@ class CreatePaperTradeView(View):
                 created_at=timezone.now()
             )
         return redirect('market:paper_trading_dashboard')
+
+from django.http import JsonResponse
+
+@login_required
+def load_markets(request):
+    exchange_id = request.GET.get('exchange')
+    markets = Market.objects.filter(exchange_id=exchange_id).all()
+    return JsonResponse(list(markets.values('id', 'market_type')), safe=False)
+
+@login_required
+def load_symbols_and_timeframes(request):
+    market_id = request.GET.get('market')
+    coins = Coin.objects.filter(markets__id=market_id).distinct()
+    market = Market.objects.get(id=market_id)
+    data = {
+        'symbols': list(coins.values('id', 'symbol')),
+        'timeframes': [(market.market_type, market.market_type)],
+    }
+    return JsonResponse(data)

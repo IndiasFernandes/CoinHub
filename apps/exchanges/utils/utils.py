@@ -2,6 +2,7 @@ import os
 
 import ccxt
 import pandas as pd
+from ..models import Exchange, Market, Coin
 
 
 def run_exchange(exchange_id, api_key, secret):
@@ -81,3 +82,27 @@ def import_csv(filepath):
             return [line.strip().split(',') for line in file.readlines()]
     else:
         return []  # Return an empty list if file does not exist
+
+# utils.py or a similar utility file
+import ccxt
+from ..models import Exchange, Market, Coin
+
+def run_update(selected_exchange):
+    exchange_class = getattr(ccxt, selected_exchange)()
+    markets = exchange_class.load_markets()
+    symbols = list(markets.keys())
+    timeframes = exchange_class.timeframes if hasattr(exchange_class, 'timeframes') else []
+
+    exchange, created = Exchange.objects.get_or_create(id_char=selected_exchange,
+                                                       defaults={'name': exchange_class.name})
+
+    if not created:
+        Market.objects.filter(exchange=exchange).delete()
+
+    market = Market.objects.create(exchange=exchange, market_type='spot')
+
+    for symbol in symbols:
+        coin, _ = Coin.objects.get_or_create(symbol=symbol)
+        market.coins.add(coin)
+
+    print(f'Successfully updated {exchange.name} - spot market')
