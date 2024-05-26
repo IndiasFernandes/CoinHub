@@ -1,7 +1,7 @@
 from django.db import models
 
 class Exchange(models.Model):
-    id_char = models.CharField(max_length=100, null=True, blank=True)
+    id_char = models.CharField(max_length=100, null=True, blank=True, unique=True)
     name = models.CharField(max_length=100, null=True, blank=True)
     description = models.TextField(null=True, blank=True)
     api_url = models.URLField(null=True, blank=True)

@@ -221,9 +221,11 @@ def update_exchanges(request):
 
         for market_type, (symbols, timeframes) in markets.items():
             market_name = f"{market_type.capitalize()} {exchange.name}"
+            print(f"Creating market: {market_name}")
             market = Market.objects.create(exchange=exchange, market_type=market_type)
 
             for symbol in symbols:
+                print(f"Creating coin: {symbol}")
                 coin, _ = Coin.objects.get_or_create(symbol=symbol)
                 market.coins.add(coin)
             market.save()
