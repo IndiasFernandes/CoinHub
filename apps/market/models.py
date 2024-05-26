@@ -3,8 +3,11 @@ from datetime import timedelta
 from django.db import models
 from django.utils import timezone
 
+from apps.exchanges.models import Exchange
+
+
 class Backtest(models.Model):
-    exchange = models.ForeignKey('exchanges.Exchange', on_delete=models.CASCADE, null=True, blank=True)
+    exchange = models.ForeignKey(Exchange, on_delete=models.CASCADE, null=True, blank=True)
     symbol = models.CharField(max_length=50, null=True, blank=True)
     timeframe = models.CharField(max_length=50, null=True, blank=True)
     cash = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
@@ -35,7 +38,7 @@ class Backtest(models.Model):
         verbose_name_plural = "Backtests"
 
 class Optimize(models.Model):
-    exchange = models.ForeignKey('exchanges.Exchange', on_delete=models.CASCADE, null=True, blank=True)
+    exchange = models.ForeignKey(Exchange, on_delete=models.CASCADE, null=True, blank=True)
     symbol = models.CharField(max_length=50, null=True, blank=True)
     timeframe = models.CharField(max_length=50, null=True, blank=True)
     cash = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
