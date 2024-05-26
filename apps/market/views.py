@@ -22,10 +22,12 @@ def market_dashboard_view(request):
     })
 @login_required
 def run_backtest_view(request):
+    exchanges = Exchange.objects.all()
     if request.method == 'POST':
         form = BacktestForm(request.POST)
         if form.is_valid():
             exchange_id = form.cleaned_data['exchange']
+            print("Form is valid. Selected exchange_id:", exchange_id)
             exchange = get_object_or_404(Exchange, id_char=exchange_id)
             key = exchange.api_key
             secret = exchange.secret_key
@@ -61,14 +63,17 @@ def run_backtest_view(request):
             messages.success(request, "Backtest completed successfully.")
             return redirect('market:run_backtest')
         else:
+            print("Form is invalid.")
             for field, errors in form.errors.items():
                 for error in errors:
+                    print(f"Error in {form[field].label}: {error}")
                     messages.error(request, f"Error in {form[field].label}: {error}")
     else:
         form = BacktestForm()
 
     return render(request, 'pages/market/backtest_form.html', {
         'form': form,
+        'exchanges': exchanges,
         'current_section': 'market',
         'section': 'run_backtest',
         'show_sidebar': True

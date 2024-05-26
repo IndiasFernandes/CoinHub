@@ -94,8 +94,8 @@
                                 <div class="control">
                                     <select name="exchange" class="input" id="exchange-select">
                                         <option value="">Select Exchange</option>
-                                        {% for exchange in form.fields.exchange.choices %}
-                                            <option value="{{ exchange.0 }}" {% if exchange.0 == form.data.exchange %}selected{% endif %}>{{ exchange.1 }}</option>
+                                        {% for exchange in exchanges %}
+                                            <option value="{{ exchange.id_char }}" {% if exchange.id_char == form.initial.exchange %}selected{% endif %}>{{ exchange.name }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
