@@ -134,13 +134,17 @@ def run_optimization_view(request):
             interval_multiplier = form.cleaned_data['interval_multiplier']
             atr_timeperiod_range = np.arange(min_timeperiod, max_timeperiod + interval_timeperiod, interval_timeperiod)
             atr_multiplier_range = np.arange(min_multiplier, max_multiplier + interval_multiplier, interval_multiplier)
-
+            timerSymbol = 1
+            timerTimeframe = 1
             for symbol in symbols:
+                print(f"{timerSymbol}/{len(symbols)}: Symbol {symbol}")
+                timerSymbol += 1
                 for timeframe in timeframes:
-                    print(f"Running optimization for {symbol} ({timeframe})"    )
+                    print(f"{timerTimeframe}/{len(timeframes)}: Timeframe {timeframe}")
+                    timerTimeframe += 1
                     df = download_data(symbol, timeframe, start_date, end_date, exchange_instance)
                     stats, heatmap = run_optimization(symbol, timeframe, cash, commission, openbrowser, df, max_tries, atr_timeperiod_range, atr_multiplier_range, exchange_instance)
-                    print(f"Optimization results for {symbol} ({timeframe}):", stats, heatmap)
+
 
             messages.success(request, "Optimization completed successfully.")
             return redirect('market:run_optimization')
