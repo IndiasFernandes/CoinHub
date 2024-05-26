@@ -1,3 +1,6 @@
+# forms.py
+from datetime import datetime, timedelta
+
 from django import forms
 from .models import Backtest, Optimize
 from ..exchanges.models import Exchange, Market, Coin
@@ -15,18 +18,34 @@ class BacktestForm(forms.ModelForm):
 
         if 'exchange' in self.data:
             try:
-                exchange_id = int(self.data.get('exchange'))
-                self.fields['market'].queryset = Market.objects.filter(exchange_id=exchange_id)
+                exchange_id = self.data.get('exchange')
+                markets = Market.objects.filter(exchange__id_char=exchange_id)
+                self.fields['symbol'].choices = [
+                    (coin.symbol, coin.symbol) for coin in Coin.objects.filter(markets__exchange__id_char=exchange_id).distinct()
+                ]
+                self.fields['timeframe'].choices = [
+                    (market.market_type, market.market_type) for market in markets
+                ]
             except (ValueError, TypeError):
                 pass
 
         if 'market' in self.data:
             try:
-                market_id = int(self.data.get('market'))
-                self.fields['symbol'].choices = [(coin.id, coin.symbol) for coin in Coin.objects.filter(markets__id=market_id).distinct()]
-                self.fields['timeframe'].choices = [(market.market_type, market.market_type) for market in Market.objects.filter(id=market_id)]
+                market_id = self.data.get('market')
+                coins = Coin.objects.filter(markets__id=market_id).distinct()
+                self.fields['symbol'].choices = [(coin.symbol, coin.symbol) for coin in coins]
+                self.fields['timeframe'].choices = [
+                    ('1m', '1m'), ('5m', '5m'), ('15m', '15m'), ('1h', '1h'), ('4h', '4h'),
+                    ('1d', '1d'), ('1w', '1w'), ('1M', '1M')
+                ]
             except (ValueError, TypeError):
                 pass
+
+        # Set initial values for date fields if not already set
+        if not self.fields['start_date'].initial:
+            self.fields['start_date'].initial = datetime.now().replace(day=1).strftime('%Y-%m-%d')
+        if not self.fields['end_date'].initial:
+            self.fields['end_date'].initial = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
 
 class OptimizeForm(forms.ModelForm):
     min_timeperiod = forms.FloatField()
@@ -50,15 +69,15 @@ class OptimizeForm(forms.ModelForm):
 
         if 'exchange' in self.data:
             try:
-                exchange_id = int(self.data.get('exchange'))
-                self.fields['market'].queryset = Market.objects.filter(exchange_id=exchange_id)
+                exchange_id = self.data.get('exchange')
+                self.fields['symbol'].choices = self.get_symbol_choices(exchange_id)
+                self.fields['timeframe'].choices = self.get_timeframe_choices(exchange_id)
             except (ValueError, TypeError):
                 pass
 
-        if 'market' in self.data:
-            try:
-                market_id = int(self.data.get('market'))
-                self.fields['symbol'].choices = [(coin.id, coin.symbol) for coin in Coin.objects.filter(markets__id=market_id).distinct()]
-                self.fields['timeframe'].choices = [(market.market_type, market.market_type) for market in Market.objects.filter(id=market_id)]
-            except (ValueError, TypeError):
-                pass
+    def get_symbol_choices(self, exchange_id):
+        coins = Coin.objects.filter(markets__exchange_id=exchange_id).distinct()
+        return [(coin.symbol, coin.symbol) for coin in coins]
+
+    def get_timeframe_choices(self, exchange_id):
+        return [('1m', '1m'), ('5m', '5m'), ('15m', '15m'), ('1h', '1h'), ('4h', '4h'), ('1d', '1d'), ('1w', '1w'), ('1M', '1M')]

@@ -1,4 +1,4 @@
-
+<!-- backtest_form.html -->
 
 {% extends 'base/base.html' %}
 {% load widget_tweaks %}
@@ -77,7 +77,7 @@
                     <span><strong>Select the exchange, symbols, and timeframes</strong> you want to backtest. Customize the parameters as needed and click the <strong>"Run Backtest"</strong> button to start.</span>
                 </div>
 
-                <form method="post">
+                <form method="post" id="backtest-form">
                     {% csrf_token %}
                     <div class="card is-collapsible">
                         <header class="card-header">
@@ -93,8 +93,9 @@
                                 <label class="label small-label">Exchange</label>
                                 <div class="control">
                                     <select name="exchange" class="input" id="exchange-select">
-                                        {% for exchange in exchanges %}
-                                            <option value="{{ exchange.id_char }}">{{ exchange.name }}</option>
+                                        <option value="">Select Exchange</option>
+                                        {% for exchange in form.fields.exchange.choices %}
+                                            <option value="{{ exchange.0 }}" {% if exchange.0 == form.data.exchange %}selected{% endif %}>{{ exchange.1 }}</option>
                                         {% endfor %}
                                     </select>
                                 </div>
@@ -155,7 +156,7 @@
                                 <div class="field-body">
                                     <div class="field">
                                         <div class="control">
-                                            <input type="date" name="{{ form.end_date.name }}" value="{{ form.end_date.value|default:form.end_date.initial|date:'Y-m-d'  }}" class="input">
+                                            <input type="date" name="{{ form.end_date.name }}" value="{{ form.end_date.value|default:form.end_date.initial|date:'Y-m-d' }}" class="input">
                                         </div>
                                     </div>
                                 </div>
@@ -191,7 +192,16 @@
         </div>
     </div>
 </div>
+
 <script>
+function toggleSelection(className) {
+    const checkboxes = document.querySelectorAll('.' + className);
+    const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = !allChecked;
+    });
+}
+
 document.addEventListener('DOMContentLoaded', function() {
     const exchangeSelect = document.querySelector('#exchange-select');
     const marketSelect = document.querySelector('#market-select');
@@ -200,7 +210,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function loadMarkets() {
         const exchangeIdChar = exchangeSelect.value;
-        fetch(`/ajax/load-markets/?exchange=${exchangeIdChar}`)
+        fetch(`/market/ajax/load-markets/?exchange=${exchangeIdChar}`)
             .then(response => response.json())
             .then(data => {
                 marketSelect.innerHTML = '<option value="">Select market</option>';
@@ -210,7 +220,6 @@ document.addEventListener('DOMContentLoaded', function() {
                     option.textContent = market.market_type;
                     marketSelect.appendChild(option);
                 });
-                // Clear symbols and timeframes when exchange changes
                 symbolOptions.innerHTML = '';
                 timeframeOptions.innerHTML = '';
             })
@@ -219,7 +228,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function loadSymbolsAndTimeframes() {
         const marketId = marketSelect.value;
-        fetch(`/ajax/load-symbols-timeframes/?market=${marketId}`)
+        fetch(`/market/ajax/load-symbols-timeframes/?market=${marketId}`)
             .then(response => response.json())
             .then(data => {
                 symbolOptions.innerHTML = '';
@@ -255,22 +264,27 @@ document.addEventListener('DOMContentLoaded', function() {
 
     exchangeSelect.addEventListener('change', loadMarkets);
     marketSelect.addEventListener('change', loadSymbolsAndTimeframes);
-});
 
-// Collapsible cards
-document.querySelectorAll('.card-header').forEach(header => {
-    header.addEventListener('click', () => {
-        const cardContent = header.nextElementSibling;
-        cardContent.style.display = cardContent.style.display === 'block' ? 'none' : 'block';
-        header.querySelector('.icon i').classList.toggle('fa-angle-down');
-        header.querySelector('.icon i').classList.toggle('fa-angle-up');
+    document.querySelectorAll('.card-header').forEach(header => {
+        header.addEventListener('click', () => {
+            const cardContent = header.nextElementSibling;
+            cardContent.style.display = cardContent.style.display === 'block' ? 'none' : 'block';
+            header.querySelector('.icon i').classList.toggle('fa-angle-down');
+            header.querySelector('.icon i').classList.toggle('fa-angle-up');
+        });
+    });
+
+    // Initially load markets if an exchange is pre-selected
+    if (exchangeSelect.value) {
+        loadMarkets();
+    }
+
+    // Close notification
+    document.querySelectorAll('.notification .delete').forEach(button => {
+        button.addEventListener('click', function() {
+            this.parentElement.style.display = 'none';
+        });
     });
 });
-
-// Close notification
-document.querySelector('.notification .delete').addEventListener('click', function () {
-    this.parentNode.style.display = 'none';
-});
 </script>
-
 {% endblock %}

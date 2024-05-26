@@ -144,6 +144,7 @@ def update_market_coins(request, market_id):
         form = MarketForm(instance=market)
 
     return render(request, 'pages/exchanges/update_market_coins.html', {'form': form, 'market': market})
+
 @login_required
 def download_data_view(request):
     if request.method == 'POST':
@@ -189,6 +190,11 @@ def download_data_view(request):
 
             messages.success(request, message)
             return redirect('exchange:download_data')
+        else:
+            for field in form:
+                for error in field.errors:
+                    messages.error(request, f"Error in {field.label}: {error}")
+
     else:
         form = DownloadDataForm()
     return render(request, 'pages/exchanges/download_data.html', {
@@ -264,11 +270,12 @@ def load_markets(request):
 @login_required
 def load_symbols_and_timeframes(request):
     market_id = request.GET.get('market')
-    coins = Coin.objects.filter(markets__id=market_id).distinct()
-    market = Market.objects.get(id=market_id)
+    coins = Coin.objects.filter(markets__id=market_id).distinct().values('symbol')
+    # Define a list of timeframes directly or fetch them from a model if they are stored in the database.
+    timeframes = ['1m', '5m', '15m', '1h', '4h', '1d', '1w', '1M']
     data = {
-        'symbols': list(coins.values('id', 'symbol')),
-        'timeframes': [(market.market_type, market.market_type)],
+        'symbols': list(coins),
+        'timeframes': timeframes,
     }
     return JsonResponse(data)
 

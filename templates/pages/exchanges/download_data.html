@@ -1,3 +1,5 @@
+<!-- download_data.html -->
+
 {% extends 'base/base.html' %}
 {% load widget_tweaks %}
 {% block content %}
@@ -68,54 +70,89 @@
                     </span>
                     <span><strong>Select the symbols</strong> and <strong>timeframes</strong> you want to download data for. Once you've made your selections, click the <strong>"Download"</strong> button to retrieve the data.</span>
                 </div>
-                <form method="post">
-                    {% csrf_token %}
-                    {% for field in form %}
-                    <div class="field">
-                        <label class="label small-label">{{ field.label }}</label>
-                        <div class="control">
-                            {% if field.label == "Symbol" %}
-                                <div class="buttons has-addons select-all-button">
-                                    <button type="button" class="button is-small is-info" onclick="toggleSelection('symbol-checkbox')">Select All Symbols</button>
-                                </div>
-                                <div class="control">
-                                    {% for choice_value, choice_label in field.field.choices %}
-                                        <label class="checkbox">
-                                            <input type="checkbox" name="{{ field.name }}" value="{{ choice_value }}" class="symbol-checkbox">
-                                            {{ choice_label }}
-                                        </label>
-                                    {% endfor %}
-                                </div>
-                            {% elif field.label == "Timeframe" %}
-                                <div class="buttons has-addons select-all-button">
-                                    <button type="button" class="button is-small is-info" onclick="toggleSelection('timeframe-checkbox')">Select All Timeframes</button>
-                                </div>
-                                <div class="control">
-                                    {% for choice_value, choice_label in field.field.choices %}
-                                        <label class="checkbox">
-                                            <input type="checkbox" name="{{ field.name }}" value="{{ choice_value }}" class="timeframe-checkbox">
-                                            {{ choice_label }}
-                                        </label>
-                                    {% endfor %}
-                                </div>
-                            {% elif field.label == "Start date" or field.label == "End date" %}
-                                <div class="field is-grouped">
-                                    <div class="control is-expanded">
-                                        {{ field|add_class:"input" }}
-                                    </div>
-                                </div>
-                            {% else %}
-                                {{ field|add_class:"input" }}
-                            {% endif %}
-                        </div>
-                        {% if field.help_text %}
-                        <p class="help help-message">{{ field.help_text }}</p>
-                        {% endif %}
-                        {% for error in field.errors %}
-                        <p class="help is-danger">{{ error }}</p>
+                {% if messages %}
+                    <div class="notification is-danger">
+                        <button class="delete"></button>
+                        {% for message in messages %}
+                            <p>{{ message }}</p>
                         {% endfor %}
                     </div>
-                    {% endfor %}
+                {% endif %}
+                <form method="post">
+                    {% csrf_token %}
+                    <div class="field">
+                        <label class="label small-label">Exchange</label>
+                        <div class="control">
+                            <select name="exchange_id" class="input" id="exchange-select">
+                                <option value="">Select Exchange</option>
+                                {% for exchange in form.fields.exchange_id.choices %}
+                                    <option value="{{ exchange.0 }}">{{ exchange.1 }}</option>
+                                {% endfor %}
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label small-label">Market</label>
+                        <div class="control">
+                            <select name="market" class="input" id="market-select">
+                                <option value="">Select Market</option>
+                                <!-- Options will be dynamically loaded -->
+                            </select>
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label small-label">Symbols</label>
+                        <div class="buttons has-addons select-all-button">
+                            <button type="button" class="button is-small is-info" onclick="toggleSelection('symbol-checkbox')">Select All Symbols</button>
+                        </div>
+                        <div class="control" id="symbol-options">
+                            <!-- Options will be dynamically loaded -->
+                        </div>
+                    </div>
+                    <div class="field">
+                        <label class="label small-label">Timeframes</label>
+                        <div class="buttons has-addons select-all-button">
+                            <button type="button" class="button is-small is-info" onclick="toggleSelection('timeframe-checkbox')">Select All Timeframes</button>
+                        </div>
+                        <div class="control" id="timeframe-options">
+                            <!-- Options will be dynamically loaded -->
+                        </div>
+                    </div>
+
+                    <div class="card is-collapsible">
+                        <header class="card-header">
+                            <span class="card-header-icon" aria-label="more options">
+                                <span class="icon">
+                                    <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                </span>
+                            </span>
+                        </header>
+                        <div class="card-content">
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label class="label small-label">Start Date</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field">
+                                        <div class="control">
+                                            <input type="date" name="{{ form.start_date.name }}" value="{{ form.start_date.value|default:form.start_date.initial|date:'Y-m-d' }}" class="input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field-label is-normal">
+                                    <label class="label small-label">End Date</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field">
+                                        <div class="control">
+                                            <input type="date" name="{{ form.end_date.name }}" value="{{ form.end_date.value|default:form.end_date.initial|date:'Y-m-d' }}" class="input">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+
                     <div class="field">
                         <div class="control centered-button">
                             <button type="submit" class="button is-link is-large">Download</button>
@@ -129,20 +166,20 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function () {
-    const exchangeField = document.getElementById('id_exchange');
-    const marketField = document.getElementById('id_market');
-    const symbolField = document.getElementById('id_symbol');
-    const timeframeField = document.getElementById('id_timeframe');
+    const exchangeField = document.getElementById('exchange-select');
+    const marketField = document.getElementById('market-select');
+    const symbolOptions = document.getElementById('symbol-options');
+    const timeframeOptions = document.getElementById('timeframe-options');
 
     exchangeField.addEventListener('change', function () {
         const exchangeId = this.value;
         if (!exchangeId) {
             marketField.innerHTML = '<option value="">Select Market</option>';
-            symbolField.innerHTML = '<option value="">Select Symbol</option>';
-            timeframeField.innerHTML = '<option value="">Select Timeframe</option>';
+            symbolOptions.innerHTML = '';
+            timeframeOptions.innerHTML = '';
             return;
         }
-        fetch(`/ajax/load-markets/?exchange=${exchangeId}`)
+        fetch(`/market/ajax/load-markets/?exchange=${exchangeId}`)
             .then(response => response.json())
             .then(data => {
                 marketField.innerHTML = '<option value="">Select Market</option>';
@@ -158,29 +195,55 @@ document.addEventListener('DOMContentLoaded', function () {
     marketField.addEventListener('change', function () {
         const marketId = this.value;
         if (!marketId) {
-            symbolField.innerHTML = '<option value="">Select Symbol</option>';
-            timeframeField.innerHTML = '<option value="">Select Timeframe</option>';
+            symbolOptions.innerHTML = '';
+            timeframeOptions.innerHTML = '';
             return;
         }
-        fetch(`/ajax/load-symbols-timeframes/?market=${marketId}`)
+        fetch(`/market/ajax/load-symbols-timeframes/?market=${marketId}`)
             .then(response => response.json())
             .then(data => {
-                symbolField.innerHTML = '<option value="">Select Symbol</option>';
+                symbolOptions.innerHTML = '';
                 data.symbols.forEach(item => {
-                    const option = document.createElement('option');
-                    option.value = item.id;
-                    option.textContent = item.symbol;
-                    symbolField.appendChild(option);
+                    const label = document.createElement('label');
+                    label.className = 'checkbox';
+                    const input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.name = 'symbol';
+                    input.value = item.symbol;
+                    input.className = 'symbol-checkbox';
+                    label.appendChild(input);
+                    label.appendChild(document.createTextNode(item.symbol));
+                    symbolOptions.appendChild(label);
                 });
-                timeframeField.innerHTML = '<option value="">Select Timeframe</option>';
+                timeframeOptions.innerHTML = '';
                 data.timeframes.forEach(timeframe => {
-                    const option = document.createElement('option');
-                    option.value = timeframe[0];
-                    option.textContent = timeframe[1];
-                    timeframeField.appendChild(option);
+                    const label = document.createElement('label');
+                    label.className = 'checkbox';
+                    const input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.name = 'timeframe';
+                    input.value = timeframe;
+                    input.className = 'timeframe-checkbox';
+                    label.appendChild(input);
+                    label.appendChild(document.createTextNode(timeframe));
+                    timeframeOptions.appendChild(label);
                 });
             });
     });
+
+    document.querySelectorAll('.notification .delete').forEach(button => {
+        button.addEventListener('click', function () {
+            this.parentElement.style.display = 'none';
+        });
+    });
 });
+
+function toggleSelection(className) {
+    const checkboxes = document.querySelectorAll('.' + className);
+    const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
+    checkboxes.forEach(checkbox => {
+        checkbox.checked = !allChecked;
+    });
+}
 </script>
 {% endblock %}
