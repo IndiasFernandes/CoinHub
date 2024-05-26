@@ -23,38 +23,24 @@ def market_dashboard_view(request):
         'show_sidebar': True
     })
 
-    if request.method == 'POST':
-        form = DownloadDataForm(request.POST)
-        if form.is_valid():
-            exchange_id = form.cleaned_data['exchange_id']
-            exchange = get_object_or_404(Exchange, id_char=exchange_id)
 
-            key = exchange.api_key
-            secret = exchange.secret_key
+@login_required
+def load_markets(request):
+    exchange_id = request.GET.get('exchange')
+    exchange = get_object_or_404(Exchange, id_char=exchange_id)  # Ensure correct field used for lookup
+    markets = Market.objects.filter(exchange=exchange).values('id', 'market_type')
+    return JsonResponse(list(markets), safe=False)
 
-            exchange_instance = run_exchange(exchange_id, key, secret)
-
-            symbols = form.cleaned_data['symbol']
-            timeframes = form.cleaned_data['timeframe']
-            start_date = form.cleaned_data['start_date'].strftime('%Y-%m-%d')
-            end_date = form.cleaned_data['end_date'].strftime('%Y-%m-%d')
-
-            downloaded_symbols = []
-            start_time = datetime.now()
-
-            for symbol in symbols:
-                for timeframe in timeframes:
-                    file_path = f"static/data/{exchange_id}/{timeframe}/{symbol.replace('/', '_')}.csv"
-                    if os.path.exists(file_path):
-                        os.remove(file_path)
-                        logger.info(f"Deleted existing file: {file_path}")
-
-                    print(f"Downloading data for {symbol} ({timeframe})")
-                    download_data([symbol], [timeframe], start_date, end_date, exchange_instance)
-                    downloaded_symbols.append(f"{symbol} ({timeframe})")
-
-
-
+@login_required
+def load_symbols_and_timeframes(request):
+    market_id = request.GET.get('market')
+    coins = Coin.objects.filter(markets__id=market_id).distinct()
+    timeframes = ['1m', '5m', '15m', '30m', '1h', '4h', '1d', '1w', '1M']
+    data = {
+        'symbols': list(coins.values('id', 'symbol')),
+        'timeframes': timeframes
+    }
+    return JsonResponse(data)
 @login_required
 def run_backtest_view(request):
     exchanges = Exchange.objects.all()
@@ -62,14 +48,13 @@ def run_backtest_view(request):
         form = BacktestForm(request.POST)
         if form.is_valid():
             exchange_id = form.cleaned_data['exchange']
-            print("Form is valid. Selected exchange_id:", exchange_id)
             exchange = get_object_or_404(Exchange, id_char=exchange_id)
             key = exchange.api_key
             secret = exchange.secret_key
 
             exchange_instance = run_exchange(exchange_id, key, secret)
-            symbols = form.cleaned_data['symbol']
-            timeframes = form.cleaned_data['timeframe']
+            symbols = form.cleaned_data.get('symbol')
+            timeframes = form.cleaned_data.get('timeframe')
             start_date = form.cleaned_data['start_date'].strftime('%Y-%m-%d')
             end_date = form.cleaned_data['end_date'].strftime('%Y-%m-%d')
             cash = form.cleaned_data['cash']
@@ -89,16 +74,10 @@ def run_backtest_view(request):
             }
             print("Backtest Form Data:", form_data)
 
-            for symbol in [symbols]:
-                for timeframe in [timeframes]:
-                    file_path = f"static/data/{exchange_id}/{timeframe}/{symbol.replace('/', '_')}.csv"
-                    if os.path.exists(file_path):
-                        os.remove(file_path)
-
-                    print(f"Downloading data for {symbol} ({timeframe})")
+            for symbol in symbols:
+                for timeframe in timeframes:
                     df = download_data([symbol], [timeframe], start_date, end_date, exchange_instance)
-                    st, price = run_backtest(symbol, df, timeframe, exchange, cash, commission, openbrowser)
-
+                    st, price = run_backtest(symbol, df, timeframe, cash, commission, openbrowser)
                     results.append({"symbol": symbol, "timeframe": timeframe, "st": st, "price": price})
 
             messages.success(request, "Backtest completed successfully.")
@@ -121,24 +100,6 @@ def run_backtest_view(request):
     })
 
 @login_required
-def load_markets(request):
-    exchange_id = request.GET.get('exchange')
-    exchange = get_object_or_404(Exchange, id_char=exchange_id)  # Ensure correct field used for lookup
-    markets = Market.objects.filter(exchange=exchange).values('id', 'market_type')
-    return JsonResponse(list(markets), safe=False)
-
-@login_required
-def load_symbols_and_timeframes(request):
-    market_id = request.GET.get('market')
-    coins = Coin.objects.filter(markets__id=market_id).distinct()
-    timeframes = ['1m', '5m', '15m', '1h', '4h', '1d', '1w', '1M']
-    data = {
-        'symbols': list(coins.values('id', 'symbol')),
-        'timeframes': timeframes
-    }
-    return JsonResponse(data)
-
-@login_required
 def run_optimization_view(request):
     exchanges = Exchange.objects.all()
     if request.method == 'POST':
@@ -150,8 +111,8 @@ def run_optimization_view(request):
             secret = exchange.secret_key
 
             exchange_instance = run_exchange(exchange.id_char, key, secret)
-            symbols = form.cleaned_data['symbol']
-            timeframes = form.cleaned_data['timeframe']
+            symbols = form.cleaned_data.get('symbol')
+            timeframes = form.cleaned_data.get('timeframe')
             start_date = form.cleaned_data['start_date'].strftime('%Y-%m-%d')
             end_date = form.cleaned_data['end_date'].strftime('%Y-%m-%d')
             cash = form.cleaned_data['cash']
@@ -164,40 +125,23 @@ def run_optimization_view(request):
             min_multiplier = form.cleaned_data['min_multiplier']
             max_multiplier = form.cleaned_data['max_multiplier']
             interval_multiplier = form.cleaned_data['interval_multiplier']
-            atr_timeperiod_range = np.arange(float(min_timeperiod), float(max_timeperiod), float(interval_timeperiod))
-            atr_multiplier_range = np.arange(float(min_multiplier), float(max_multiplier), float(interval_multiplier))
-            results = []
-
-            form_data = {
-                "exchange": exchange_id_char,
-                "symbols": symbols,
-                "timeframes": timeframes,
-                "start_date": start_date,
-                "end_date": end_date,
-                "cash": cash,
-                "commission": commission,
-                "openbrowser": openbrowser,
-                "max_tries": max_tries,
-                "min_timeperiod": min_timeperiod,
-                "max_timeperiod": max_timeperiod,
-                "interval_timeperiod": interval_timeperiod,
-                "min_multiplier": min_multiplier,
-                "max_multiplier": max_multiplier,
-                "interval_multiplier": interval_multiplier
-            }
-            print("Optimization Form Data:", form_data)
+            atr_timeperiod_range = np.arange(min_timeperiod, max_timeperiod + interval_timeperiod, interval_timeperiod)
+            atr_multiplier_range = np.arange(min_multiplier, max_multiplier + interval_multiplier, interval_multiplier)
 
             for symbol in [symbols]:
                 for timeframe in [timeframes]:
                     df = download_data([symbol], [timeframe], start_date, end_date, exchange_instance)
-                    run_optimization(symbol, timeframe, cash, commission, openbrowser, df, max_tries, atr_timeperiod_range, atr_multiplier_range, exchange)
-                    results.append({"symbol": symbol, "timeframe": timeframe})
+                    stats, heatmap = run_optimization(symbol, timeframe, cash, commission, openbrowser, df, max_tries, atr_timeperiod_range, atr_multiplier_range)
+                    print(f"Optimization results for {symbol} ({timeframe}):", stats, heatmap)
 
             messages.success(request, "Optimization completed successfully.")
             return redirect('market:run_optimization')
         else:
-            error_messages = format_html('<ul>{}</ul>', ''.join([format_html('<li>{}: {}</li>', field.label, error) for field in form for error in field.errors]))
-            messages.error(request, format_html("Form data is invalid: {}", error_messages))
+            print("Form is invalid.")
+            for field, errors in form.errors.items():
+                for error in errors:
+                    print(f"Error in {form[field].label}: {error}")
+                    messages.error(request, f"Error in {form[field].label}: {error}")
     else:
         form = OptimizeForm()
 

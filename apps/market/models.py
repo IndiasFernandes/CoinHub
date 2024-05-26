@@ -5,6 +5,8 @@ from django.utils import timezone
 
 from apps.exchanges.models import Exchange
 
+def default_start_date():
+    return timezone.now() - timedelta(days=60)
 
 class Backtest(models.Model):
     exchange = models.CharField(max_length=50, null=True, blank=True)
@@ -12,7 +14,7 @@ class Backtest(models.Model):
     timeframe = models.CharField(max_length=50, null=True, blank=True)
     cash = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     commission = models.DecimalField(max_digits=5, decimal_places=4, null=True, blank=True)
-    start_date = models.DateTimeField(default=timezone.now, null=True, blank=True)
+    start_date = models.DateTimeField(default=default_start_date, null=True, blank=True)
     end_date = models.DateTimeField(default=timezone.now, null=True, blank=True)
     duration = models.DurationField(null=True, blank=True)
     exposure_time_percent = models.FloatField(null=True, blank=True)
@@ -51,7 +53,7 @@ class Optimize(models.Model):
     graph_link = models.URLField(blank=True, null=True)
     heat_map_link = models.URLField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
-    start_date = models.DateTimeField(default=timezone.now, blank=True, null=True)
+    start_date = models.DateTimeField(default=default_start_date, blank=True, null=True)
     end_date = models.DateTimeField(default=timezone.now, blank=True, null=True)
     duration = models.DurationField(blank=True, null=True)
     exposure_time_percent = models.FloatField(null=True, blank=True)
@@ -66,7 +68,7 @@ class Optimize(models.Model):
     calmar_ratio = models.FloatField(null=True, blank=True)
     sqn = models.FloatField(blank=True, null=True)
     openbrowser = models.BooleanField(default=False)  # Add this field
-    max_tries = models.IntegerField(default=50, null=True, blank=True)  # Add this field
+    max_tries = models.IntegerField(default=10, null=True, blank=True)  # Add this field
 
     class Meta:
         verbose_name = "Optimization"

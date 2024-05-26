@@ -108,4 +108,5 @@ def save_optimization_instance(exchange, stats, symbol, interval, price_value, s
             cash=float(cash),
             commission=float(commission),
             equity_peak=float(stats['Equity Peak [$]']),
+            exchange=exchange,
         )

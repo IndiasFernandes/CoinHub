@@ -23,7 +23,7 @@
                                     </tr>
                                     <tr>
                                         <td><strong>Time Period</strong></td>
-                                        <td>{{ optimization.timeperiod }}</td>
+                                        <td>{{ optimization.timeframe }}</td>
                                     </tr>
                                     <tr>
                                         <td><strong>Cash</strong></td>
@@ -31,7 +31,7 @@
                                     </tr>
                                     <tr>
                                         <td><strong>Commission</strong></td>
-                                        <td>{{ optimization.commission|floatformat:2 }}%</td>
+                                        <td>{{ optimization.commission|floatformat:3 }}%</td>
                                     </tr>
                                     <tr>
                                         <td><strong>Start Date</strong></td>
@@ -87,8 +87,8 @@
                                         <td>{{ optimization.avg_trade_percent|floatformat:2 }}%</td>
                                     </tr>
                                     <tr>
-                                        <td><strong>Profit Factor</strong></td>
-                                        <td>{{ optimization.profit_factor|floatformat:2 }}</td>
+                                        <td><strong>Max Tries</strong></td>
+                                        <td>{{ optimization.max_tries }}</td>
                                     </tr>
                                 </tbody>
                             </table>

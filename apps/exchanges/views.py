@@ -272,7 +272,7 @@ def load_symbols_and_timeframes(request):
     market_id = request.GET.get('market')
     coins = Coin.objects.filter(markets__id=market_id).distinct().values('symbol')
     # Define a list of timeframes directly or fetch them from a model if they are stored in the database.
-    timeframes = ['1m', '5m', '15m', '1h', '4h', '1d', '1w', '1M']
+    timeframes = ['1m', '5m', '15m', '30m' '1h', '4h', '1d', '1w', '1M']
     data = {
         'symbols': list(coins),
         'timeframes': timeframes,

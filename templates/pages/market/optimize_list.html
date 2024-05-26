@@ -68,6 +68,7 @@
                             <th>Max. Drawdown [%]</th>
                             <th>Sharp Ratio</th>
                             <th>Sortino Ratio</th>
+                            <th>Exchange</th>
                             <th>Details</th>
                         </tr>
                     </thead>
@@ -75,8 +76,8 @@
                         {% for optimization in optimizations %}
                         <tr>
                             <td>{{ optimization.symbol }}</td>
-                            <td>{{ optimization.timeperiod }}</td>
-                            <td>{{ optimization.repetitions }}</td>
+                            <td>{{ optimization.timeframe }}</td>
+                            <td>{{ optimization.max_tries }}</td>
                             <td>{{ optimization.start_date|date:"Y-m-d" }}</td>
                             <td>{{ optimization.end_date|date:"Y-m-d" }}</td>
                             <td>{{ optimization.duration }}</td>
@@ -94,6 +95,7 @@
                                 </span>
                             </td>
                             <td>{{ optimization.sortino_ratio|floatformat:2 }}</td>
+                            <td>{{ optimization.exchange }}</td>
                             <td><a class="button is-small is-info" href="{% url 'market:optimize_detail' optimization.id %}">View</a></td>
                         </tr>
                         {% endfor %}
