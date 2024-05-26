@@ -1,4 +1,3 @@
-
 # forms.py
 from datetime import datetime, timedelta
 from django import forms
@@ -57,6 +56,7 @@ class BacktestForm(forms.ModelForm):
 
         print("Initial start_date:", self.fields['start_date'].initial)
         print("Initial end_date:", self.fields['end_date'].initial)
+
 
 class OptimizeForm(forms.ModelForm):
     min_timeperiod = forms.FloatField()

@@ -20,6 +20,8 @@ def market_dashboard_view(request):
         'section': 'dashboard',
         'show_sidebar': True
     })
+
+
 @login_required
 def run_backtest_view(request):
     exchanges = Exchange.objects.all()
