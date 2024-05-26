@@ -1,4 +1,5 @@
 import os
+from _decimal import Decimal
 from datetime import datetime
 from backtesting import Backtest as BT
 
@@ -8,7 +9,11 @@ from .strategy.SuperTrend_Strategy_Backtest import SuperTrendBacktest
 from ..models import Backtest
 
 
-def run_backtest(symbol, df, timeperiod, cash=100000, commission=.008, openbrowser=False):
+def run_backtest(symbol, df, timeperiod, exchange, cash=100000, commission=.008, openbrowser=False):
+    # Convert Decimal to float
+    cash = float(cash) if isinstance(cash, Decimal) else cash
+    commission = float(commission) if isinstance(commission, Decimal) else commission
+
     bt = BT(df, SuperTrendBacktest, cash=cash, commission=commission, exclusive_orders=True)
     main_path = os.path.join('static', 'backtest', 'backtest_results',
                              f'{symbol.replace("/", "_")}_{datetime.now().isoformat()}')
@@ -17,7 +22,7 @@ def run_backtest(symbol, df, timeperiod, cash=100000, commission=.008, openbrows
     bt.plot(open_browser=openbrowser, filename=bt_path)
 
     price_value, st_value = fetch_latest_values('backtest')
-    save_backtest_instance(stats, symbol, cash, commission, timeperiod, main_path)
+    save_backtest_instance(exchange, stats, symbol, cash, commission, timeperiod, main_path)
 
     return st_value, price_value
 
@@ -31,10 +36,10 @@ def fetch_latest_values(folder):
 
     return price_value, st_value
 
-
-def save_backtest_instance(stats, symbol, cash, commission, timeperiod, main_path):
+def save_backtest_instance(exchange, stats, symbol, cash, commission, timeperiod, main_path):
     if stats['# Trades'] > 1:
         Backtest.objects.create(
+            exchange=exchange,
             symbol=symbol,
             cash=cash,
             commission=commission,
@@ -56,5 +61,5 @@ def save_backtest_instance(stats, symbol, cash, commission, timeperiod, main_pat
             sqn=stats['SQN'],
             created_at=datetime.now(),
             graph_link=main_path + '.html',
-            timeperiod=timeperiod
+            timeframe=timeperiod
         )

@@ -66,7 +66,7 @@ class Optimize(models.Model):
     calmar_ratio = models.FloatField(null=True, blank=True)
     sqn = models.FloatField(blank=True, null=True)
     openbrowser = models.BooleanField(default=False)  # Add this field
-    max_tries = models.IntegerField(default=1, null=True, blank=True)  # Add this field
+    max_tries = models.IntegerField(default=50, null=True, blank=True)  # Add this field
 
     class Meta:
         verbose_name = "Optimization"

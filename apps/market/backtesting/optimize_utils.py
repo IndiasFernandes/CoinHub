@@ -1,4 +1,5 @@
 import os
+from _decimal import Decimal
 from datetime import datetime
 import pandas as pd
 from backtesting import Backtest as BT
@@ -10,7 +11,10 @@ from .strategy.SuperTrend_Strategy_Optimize import SuperTrendOptimize
 from ..models import Optimize
 
 
-def run_optimization(symbol, interval, cash, commission, openbrowser, df, max_tries, atr_timeperiod_range, atr_multiplier_range):
+def run_optimization(symbol, interval, cash, commission, openbrowser, df, max_tries, atr_timeperiod_range, atr_multiplier_range, exchange):
+    cash = float(cash) if isinstance(cash, Decimal) else cash
+    commission = float(commission) if isinstance(commission, Decimal) else commission
+
     bt = BT(df, SuperTrendOptimize, cash=cash, commission=commission, exclusive_orders=True)
 
     stats, heatmap = bt.optimize(
@@ -30,7 +34,7 @@ def run_optimization(symbol, interval, cash, commission, openbrowser, df, max_tr
     save_review(stats, symbol, interval, dict_path)
     save_stats(stats, stats_path)
     price_value, st_value = fetch_latest_values('optimize')
-    save_optimization_instance(stats, symbol, interval, price_value, st_value, hm_main_path, bt_main_path, cash, commission, max_tries)
+    save_optimization_instance(exchange, stats, symbol, interval, price_value, st_value, hm_main_path, bt_main_path, cash, commission, max_tries)
 
 def generate_paths(symbol, max_tries):
     base_dir = 'static/optimize/optimize_results'
@@ -75,34 +79,33 @@ def fetch_latest_values(folder):
     st_value = float(import_csv(st_path)[0][0]) if os.path.exists(st_path) else 0
 
     return price_value, st_value
-
-def save_optimization_instance(stats, symbol, interval, price_value, st_value, hm_main_path, bt_main_path, cash, commission, max_tries):
+def save_optimization_instance(exchange, stats, symbol, interval, price_value, st_value, hm_main_path, bt_main_path, cash, commission, max_tries):
     if stats['# Trades'] > 1:
         Optimize.objects.create(
             symbol=symbol,
-            timeperiod=interval,
+            timeframe=interval,
             atr_timeperiod=stats["_strategy"].atr_timeperiod,
             atr_multiplier=stats["_strategy"].atr_multiplier,
-            return_percent=stats['Return [%]'],
-            max_drawdown_percent=stats['Max. Drawdown [%]'],
+            return_percent=float(stats['Return [%]']),
+            max_drawdown_percent=float(stats['Max. Drawdown [%]']),
             start_date=stats['_trades'].iloc[0]['EntryTime'] if not stats['_trades'].empty else None,
             end_date=stats['_trades'].iloc[-1]['ExitTime'] if not stats['_trades'].empty else None,
             duration=stats['Duration'],
-            exposure_time_percent=stats['Exposure Time [%]'],
-            equity_final=stats['Equity Final [$]'],
-            annual_return_percent=stats['Return (Ann.) [%]'],
-            sharpe_ratio=stats['Sharpe Ratio'],
-            sortino_ratio=stats['Sortino Ratio'],
-            calmar_ratio=stats['Calmar Ratio'],
-            number_of_trades=stats['# Trades'],
-            win_rate_percent=stats['Win Rate [%]'],
-            avg_trade_percent=stats['Avg. Trade [%]'],
-            sqn=stats['SQN'],
+            exposure_time_percent=float(stats['Exposure Time [%]']),
+            equity_final=float(stats['Equity Final [$]']),
+            annual_return_percent=float(stats['Return (Ann.) [%]']),
+            sharpe_ratio=float(stats['Sharpe Ratio']),
+            sortino_ratio=float(stats['Sortino Ratio']),
+            calmar_ratio=float(stats['Calmar Ratio']),
+            number_of_trades=int(stats['# Trades']),
+            win_rate_percent=float(stats['Win Rate [%]']),
+            avg_trade_percent=float(stats['Avg. Trade [%]']),
+            sqn=float(stats['SQN']),
             created_at=datetime.now(),
             graph_link=bt_main_path,
             heat_map_link=hm_main_path,
-            repetitions=max_tries,
-            cash=cash,
-            commission=commission,
-            equity_peak=stats['Equity Peak [$]'],
+            max_tries=int(max_tries),
+            cash=float(cash),
+            commission=float(commission),
+            equity_peak=float(stats['Equity Peak [$]']),
         )

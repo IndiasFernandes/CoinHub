@@ -40,7 +40,7 @@ class BacktestForm(forms.ModelForm):
                 coins = Coin.objects.filter(markets__id=market_id).distinct()
                 self.fields['symbol'].choices = [(coin.symbol, coin.symbol) for coin in coins]
                 self.fields['timeframe'].choices = [
-                    ('1m', '1m'), ('5m', '5m'), ('15m', '15m'), ('1h', '1h'), ('4h', '4h'),
+                    ('1m', '1m'), ('5m', '5m'), ('15m', '15m'), ('30m', '30m'), ('1h', '1h'), ('4h', '4h'),
                     ('1d', '1d'), ('1w', '1w'), ('1M', '1M')
                 ]
                 print("Updated symbol choices based on market:", self.fields['symbol'].choices)
@@ -56,7 +56,6 @@ class BacktestForm(forms.ModelForm):
 
         print("Initial start_date:", self.fields['start_date'].initial)
         print("Initial end_date:", self.fields['end_date'].initial)
-
 
 class OptimizeForm(forms.ModelForm):
     min_timeperiod = forms.FloatField()
@@ -91,4 +90,4 @@ class OptimizeForm(forms.ModelForm):
         return [(coin.symbol, coin.symbol) for coin in coins]
 
     def get_timeframe_choices(self, exchange_id):
-        return [('1m', '1m'), ('5m', '5m'), ('15m', '15m'), ('1h', '1h'), ('4h', '4h'), ('1d', '1d'), ('1w', '1w'), ('1M', '1M')]
+        return [('1m', '1m'), ('5m', '5m'), ('15m', '15m'), ('30m', '30m'), ('1h', '1h'), ('4h', '4h'), ('1d', '1d'), ('1w', '1w'), ('1M', '1M')]
