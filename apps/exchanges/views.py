@@ -7,6 +7,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib.auth.decorators import login_required
 
 from .exchange_data import EXCHANGES
+from .fetch_exchange_data import fetch_all_exchange_data
 from .models import Exchange, Market, Coin, ExchangeInfo
 from .forms import ExchangeForm, DownloadDataForm  # Ensure both forms are imported correctly
 import requests
@@ -108,18 +109,25 @@ def update_market_coins(request, market_id):
             key = exchange.api_key
             secret = exchange.secret_key
 
-            exchange_instance = run_exchange(exchange_id, key, secret)
+            if exchange_id == 'hyperliquid':
+                url = 'https://api.hyperliquid.xyz/info'
+                headers = {'Content-Type': 'application/json'}
+                data = {'type': 'allMids'}
+                response = requests.post(url, headers=headers, json=data)
+                symbols = response.json().keys()
+            elif exchange_id == 'binance':
+                url = 'https://api.binance.com/api/v3/exchangeInfo'
+                response = requests.get(url)
+                data = response.json()
+                symbols = [s['symbol'] for s in data['symbols']]
+            else:
+                exchange_instance = run_exchange(exchange_id, key, secret)
+                symbols = get_coins(exchange_instance)
 
             try:
-                #bot_account = BotAccount()
-                #coins_prices = bot_account.all_coins()
-                coins = get_coins(exchange_instance)  # Ensure this is defined and properly integrated
-                print(coins)
-                for coin in coins:
-                    print(coin)
-                    coin = coin['symbol']
-                    print(f'printed {coin}')
-                    coin, created = Coin.objects.get_or_create(symbol=coin)
+                market.coins.clear()  # Clear existing coins
+                for symbol in symbols:
+                    coin, created = Coin.objects.get_or_create(symbol=symbol)
                     market.coins.add(coin)
                 market.save()
                 messages.success(request, "Market coins updated successfully.")
@@ -197,3 +205,28 @@ def get_exchange_data(request, exchange_id_char):
         return JsonResponse(data)
     else:
         return JsonResponse({'error': 'Exchange not found'}, status=404)
+
+
+def update_exchanges(request):
+    exchange_data = fetch_all_exchange_data()
+    for exchange_name, markets in exchange_data.items():
+        exchange, created = Exchange.objects.get_or_create(
+            id_char=exchange_name,
+            defaults={'name': exchange_name.capitalize()}
+        )
+
+        if not created:
+            # Delete existing markets for the exchange
+            exchange.market_set.all().delete()
+
+        for market_type, (symbols, timeframes) in markets.items():
+            market_name = f"{market_type.capitalize()} {exchange.name}"
+            market = Market.objects.create(exchange=exchange, market_type=market_type)
+
+            for symbol in symbols:
+                coin, _ = Coin.objects.get_or_create(symbol=symbol)
+                market.coins.add(coin)
+            market.save()
+
+    messages.success(request, "Exchanges and markets updated successfully.")
+    return redirect('exchange:exchange_list')

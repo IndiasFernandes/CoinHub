@@ -1,6 +1,6 @@
 from django.urls import path
 from .views import exchange_list, exchange_detail, exchange_new, chart_view, update_market_coins, download_data_view, \
-    get_exchange_data, add_market
+    get_exchange_data, add_market, update_exchanges
 
 app_name = 'exchange'
 
@@ -13,5 +13,6 @@ urlpatterns = [
     path('download/', download_data_view, name='download_data'),
     path('add-market/<int:exchange_id>/', add_market, name='add_market'),
     path('<str:exchange_id_char>/data/', get_exchange_data, name='get_exchange_data'),
+    path('update_exchanges/', update_exchanges, name='update_exchanges'),  # New URL pattern
 
 ]
