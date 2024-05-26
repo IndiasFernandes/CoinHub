@@ -227,3 +227,25 @@ class CreatePaperTradeView(View):
                 created_at=timezone.now()
             )
         return redirect('market:paper_trading_dashboard')
+
+
+class TogglePaperTradingView(View):
+    def post(self, request, trade_id):
+        paper_trade = PaperTrade.objects.get(id=trade_id)
+        paper_trade.trading_enabled = not paper_trade.trading_enabled
+        paper_trade.save()
+        return redirect('market:paper_trading_dashboard')
+
+class UpdateAccountHistoryView(View):
+    def get(self, request, trade_id):
+        paper_trade = PaperTrade.objects.get(id=trade_id)
+        if paper_trade.trading_enabled:
+            # Simulate fetching current market data and calculating super trend
+            current_price = random.uniform(100.0, 200.0)
+            super_trend_status = 'long' if random.choice([True, False]) else 'short'
+            AccountHistory.objects.create(
+                paper_trade=paper_trade,
+                price=current_price,
+                super_trend_status=super_trend_status
+            )
+        return redirect('market:paper_trading_dashboard')

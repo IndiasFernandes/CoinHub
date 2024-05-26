@@ -43,7 +43,8 @@
                     </div>
                 </div>
                 <footer class="card-footer">
-                    <a href="#" class="card-footer-item">View Details</a>
+                    <a href="{% url 'market:toggle_paper_trading' trade.id %}" class="card-footer-item">{{ trade.trading_enabled|yesno:"Disable,Enable" }} Trading</a>
+                    <a href="{% url 'market:update_account_history' trade.id %}" class="card-footer-item">Update History</a>
                     <a href="#" class="card-footer-item has-text-danger">Delete</a>
                 </footer>
             </div>
