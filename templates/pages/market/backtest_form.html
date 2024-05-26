@@ -75,10 +75,6 @@
                     <span><strong>Select the exchange, symbols, and timeframes</strong> you want to backtest. Customize the parameters as needed and click the <strong>"Run Backtest"</strong> button to start.</span>
                 </div>
 
-
-
-
-
                 <form method="post">
                     {% csrf_token %}
                     <div class="card is-collapsible">
@@ -96,8 +92,16 @@
                                 <div class="control">
                                     <select name="exchange" class="input" id="exchange-select">
                                         {% for exchange in exchanges %}
-                                            <option value="{{ exchange.id_char }}" {% if exchange.id_char == "hyperliquid" %}selected{% endif %}>{{ exchange.name }}</option>
+                                            <option value="{{ exchange.id_char }}">{{ exchange.name }}</option>
                                         {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label small-label">Market</label>
+                                <div class="control">
+                                    <select name="market" class="input" id="market-select">
+                                        <option value="">Select Market</option>
                                     </select>
                                 </div>
                             </div>
@@ -106,96 +110,19 @@
                                 <div class="buttons has-addons select-all-button">
                                     <button type="button" class="button is-small is-info" onclick="toggleSelection('symbol-checkbox')">Select All Symbols</button>
                                 </div>
-                                <div class="control" id="symbol-options">
-                                    {% for choice_value, choice_label in form.symbol.field.choices %}
-                                        <label class="checkbox">
-                                            <input type="checkbox" name="{{ form.symbol.name }}" value="{{ choice_value }}" class="symbol-checkbox">
-                                            {{ choice_label }}
-                                        </label>
-                                    {% endfor %}
-                                </div>
+                                <div class="control" id="symbol-options"></div>
                             </div>
                             <div class="field">
                                 <label class="label small-label">Timeframes</label>
                                 <div class="buttons has-addons select-all-button">
                                     <button type="button" class="button is-small is-info" onclick="toggleSelection('timeframe-checkbox')">Select All Timeframes</button>
                                 </div>
-                                <div class="control" id="timeframe-options">
-                                    {% for choice_value, choice_label in form.timeframe.field.choices %}
-                                        <label class="checkbox">
-                                            <input type="checkbox" name="{{ form.timeframe.name }}" value="{{ choice_value }}" class="timeframe-checkbox">
-                                            {{ choice_label }}
-                                        </label>
-                                    {% endfor %}
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+                                <div class="control" id="timeframe-options"></div>
+                            </div### Script Section for `backtest_form.html`
 
-                    <div class="card is-collapsible">
-                        <header class="card-header">
-                            <p class="card-header-title">Backtest Parameters</p>
-                            <span class="card-header-icon" aria-label="more options">
-                                <span class="icon">
-                                    <i class="fas fa-angle-down" aria-hidden="true"></i>
-                                </span>
-                            </span>
-                        </header>
-                        <div class="card-content">
-                            <div class="field is-horizontal">
-                                <div class="field-label is-normal">
-                                    <label class="label small-label">Start Date</label>
-                                </div>
-                                <div class="field-body">
-                                    <div class="field">
-                                        <div class="control">
-                                            <input type="date" name="{{ form.start_date.name }}" value="{{ form.start_date.value|default:form.start_date.initial|date:'Y-m-d' }}" class="input">
-                                        </div>
-                                    </div>
-                                </div>
-                                <div class="field-label is-normal">
-                                    <label class="label small-label">End Date</label>
-                                </div>
-                                <div class="field-body">
-                                    <div class="field">
-                                        <div class="control">
-                                            <input type="date" name="{{ form.end_date.name }}" value="{{ form.end_date.value|default:form.end_date.initial|date:'Y-m-d'  }}" class="input">
-                                        </div>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="field">
-                                <label class="label small-label">Cash</label>
-                                <div class="control">
-                                    <input type="number" name="{{ form.cash.name }}" value="{{ form.cash.value|default:10000 }}" class="input">
-                                </div>
-                            </div>
-                            <div class="field">
-                                <label class="label small-label">Commission</label>
-                                <div class="control">
-                                    <input type="number" step="0.001" name="{{ form.commission.name }}" value="{{ form.commission.value|default:0.008 }}" class="input">
-                                </div>
-                            </div>
-                            <div class="field">
-                                <label class="label small-label">Open Browser</label>
-                                <div class="control">
-                                    <input type="checkbox" name="{{ form.openbrowser.name }}" {% if form.openbrowser.value %}checked{% endif %}>
-                                </div>
-                            </div>
-                        </div>
-                    </div>
+This script will handle the dynamic loading of markets and coins based on the selected exchange.
 
-                    <div class="field">
-                        <div class="control centered-button">
-                            <button type="submit" class="button is-link">Run Backtest</button>
-                        </div>
-                    </div>
-                </form>
-            </div>
-        </div>
-    </div>
-</div>
-
+```html
 <script>
 function toggleSelection(className) {
     const checkboxes = document.querySelectorAll('.' + className);
@@ -207,7 +134,31 @@ function toggleSelection(className) {
 
 document.querySelector('#exchange-select').addEventListener('change', function() {
     const exchangeIdChar = this.value;
-    fetch(`/exchanges/${exchangeIdChar}/data/`)
+    fetch(`/exchanges/ajax/load-markets/?exchange=${exchangeIdChar}`)
+        .then(response => {
+            if (!response.ok) {
+                throw new Error('Network response was not ok');
+            }
+            return response.json();
+        })
+        .then(markets => {
+            const marketSelect = document.querySelector('#market-select');
+            marketSelect.innerHTML = '<option value="">Select Market</option>';
+            markets.forEach(market => {
+                const option = document.createElement('option');
+                option.value = market.id;
+                option.textContent = market.market_type;
+                marketSelect.appendChild(option);
+            });
+        })
+        .catch(error => {
+            console.error('There has been a problem with your fetch operation:', error);
+        });
+});
+
+document.querySelector('#market-select').addEventListener('change', function() {
+    const marketId = this.value;
+    fetch(`/exchanges/ajax/load-symbols-timeframes/?market=${marketId}`)
         .then(response => {
             if (!response.ok) {
                 throw new Error('Network response was not ok');
@@ -226,10 +177,10 @@ document.querySelector('#exchange-select').addEventListener('change', function()
                 const input = document.createElement('input');
                 input.type = 'checkbox';
                 input.name = 'symbol';
-                input.value = symbol;
+                input.value = symbol.id;
                 input.className = 'symbol-checkbox';
                 label.appendChild(input);
-                label.appendChild(document.createTextNode(symbol));
+                label.appendChild(document.createTextNode(symbol.symbol));
                 symbolField.appendChild(label);
             });
 
@@ -266,4 +217,3 @@ document.querySelector('.notification .delete').addEventListener('click', functi
     this.parentNode.style.display = 'none';
 });
 </script>
-{% endblock %}
