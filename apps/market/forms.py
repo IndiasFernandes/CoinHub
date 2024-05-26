@@ -15,11 +15,16 @@ class BacktestForm(forms.ModelForm):
 
         if 'exchange' in self.data:
             try:
-                exchange_id = self.data.get('exchange')
-                markets = Market.objects.filter(exchange_id=exchange_id)
-                symbols = Coin.objects.filter(markets__in=markets).distinct()
-                self.fields['symbol'].choices = [(symbol.id, symbol.symbol) for symbol in symbols]
-                self.fields['timeframe'].choices = [(market.market_type, market.market_type) for market in markets]
+                exchange_id = int(self.data.get('exchange'))
+                self.fields['market'].queryset = Market.objects.filter(exchange_id=exchange_id)
+            except (ValueError, TypeError):
+                pass
+
+        if 'market' in self.data:
+            try:
+                market_id = int(self.data.get('market'))
+                self.fields['symbol'].choices = [(coin.id, coin.symbol) for coin in Coin.objects.filter(markets__id=market_id).distinct()]
+                self.fields['timeframe'].choices = [(market.market_type, market.market_type) for market in Market.objects.filter(id=market_id)]
             except (ValueError, TypeError):
                 pass
 
@@ -33,7 +38,9 @@ class OptimizeForm(forms.ModelForm):
 
     class Meta:
         model = Optimize
-        fields = ['exchange', 'symbol', 'timeframe', 'cash', 'commission', 'start_date', 'end_date', 'max_tries', 'openbrowser', 'min_timeperiod', 'max_timeperiod', 'interval_timeperiod', 'min_multiplier', 'max_multiplier', 'interval_multiplier']
+        fields = ['exchange', 'symbol', 'timeframe', 'cash', 'commission', 'start_date', 'end_date',
+                  'max_tries', 'openbrowser', 'min_timeperiod', 'max_timeperiod',
+                  'interval_timeperiod', 'min_multiplier', 'max_multiplier', 'interval_multiplier']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -43,10 +50,15 @@ class OptimizeForm(forms.ModelForm):
 
         if 'exchange' in self.data:
             try:
-                exchange_id = self.data.get('exchange')
-                markets = Market.objects.filter(exchange_id=exchange_id)
-                symbols = Coin.objects.filter(markets__in=markets).distinct()
-                self.fields['symbol'].choices = [(symbol.id, symbol.symbol) for symbol in symbols]
-                self.fields['timeframe'].choices = [(market.market_type, market.market_type) for market in markets]
+                exchange_id = int(self.data.get('exchange'))
+                self.fields['market'].queryset = Market.objects.filter(exchange_id=exchange_id)
+            except (ValueError, TypeError):
+                pass
+
+        if 'market' in self.data:
+            try:
+                market_id = int(self.data.get('market'))
+                self.fields['symbol'].choices = [(coin.id, coin.symbol) for coin in Coin.objects.filter(markets__id=market_id).distinct()]
+                self.fields['timeframe'].choices = [(market.market_type, market.market_type) for market in Market.objects.filter(id=market_id)]
             except (ValueError, TypeError):
                 pass

@@ -1,3 +1,5 @@
+
+
 {% extends 'base/base.html' %}
 {% load widget_tweaks %}
 {% block content %}
@@ -101,7 +103,7 @@
                                 <label class="label small-label">Market</label>
                                 <div class="control">
                                     <select name="market" class="input" id="market-select">
-                                        <option value="">Select Market</option>
+                                        <!-- Options will be dynamically loaded -->
                                     </select>
                                 </div>
                             </div>
@@ -110,96 +112,149 @@
                                 <div class="buttons has-addons select-all-button">
                                     <button type="button" class="button is-small is-info" onclick="toggleSelection('symbol-checkbox')">Select All Symbols</button>
                                 </div>
-                                <div class="control" id="symbol-options"></div>
+                                <div class="control" id="symbol-options">
+                                    <!-- Options will be dynamically loaded -->
+                                </div>
                             </div>
                             <div class="field">
                                 <label class="label small-label">Timeframes</label>
                                 <div class="buttons has-addons select-all-button">
                                     <button type="button" class="button is-small is-info" onclick="toggleSelection('timeframe-checkbox')">Select All Timeframes</button>
                                 </div>
-                                <div class="control" id="timeframe-options"></div>
-                            </div### Script Section for `backtest_form.html`
+                                <div class="control" id="timeframe-options">
+                                    <!-- Options will be dynamically loaded -->
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-This script will handle the dynamic loading of markets and coins based on the selected exchange.
+                    <div class="card is-collapsible">
+                        <header class="card-header">
+                            <p class="card-header-title">Backtest Parameters</p>
+                            <span class="card-header-icon" aria-label="more options">
+                                <span class="icon">
+                                    <i class="fas fa-angle-down" aria-hidden="true"></i>
+                                </span>
+                            </span>
+                        </header>
+                        <div class="card-content">
+                            <div class="field is-horizontal">
+                                <div class="field-label is-normal">
+                                    <label class="label small-label">Start Date</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field">
+                                        <div class="control">
+                                            <input type="date" name="{{ form.start_date.name }}" value="{{ form.start_date.value|default:form.start_date.initial|date:'Y-m-d' }}" class="input">
+                                        </div>
+                                    </div>
+                                </div>
+                                <div class="field-label is-normal">
+                                    <label class="label small-label">End Date</label>
+                                </div>
+                                <div class="field-body">
+                                    <div class="field">
+                                        <div class="control">
+                                            <input type="date" name="{{ form.end_date.name }}" value="{{ form.end_date.value|default:form.end_date.initial|date:'Y-m-d'  }}" class="input">
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label small-label">Cash</label>
+                                <div class="control">
+                                    <input type="number" name="{{ form.cash.name }}" value="{{ form.cash.value|default:10000 }}" class="input">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label small-label">Commission</label>
+                                <div class="control">
+                                    <input type="number" step="0.001" name="{{ form.commission.name }}" value="{{ form.commission.value|default:0.008 }}" class="input">
+                                </div>
+                            </div>
+                            <div class="field">
+                                <label class="label small-label">Open Browser</label>
+                                <div class="control">
+                                    <input type="checkbox" name="{{ form.openbrowser.name }}" {% if form.openbrowser.value %}checked{% endif %}>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
 
-```html
+                    <div class="field">
+                        <div class="control centered-button">
+                            <button type="submit" class="button is-link">Run Backtest</button>
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </div>
+</div>
 <script>
-function toggleSelection(className) {
-    const checkboxes = document.querySelectorAll('.' + className);
-    const allChecked = Array.from(checkboxes).every(checkbox => checkbox.checked);
-    checkboxes.forEach(checkbox => {
-        checkbox.checked = !allChecked;
-    });
-}
+document.addEventListener('DOMContentLoaded', function() {
+    const exchangeSelect = document.querySelector('#exchange-select');
+    const marketSelect = document.querySelector('#market-select');
+    const symbolOptions = document.querySelector('#symbol-options');
+    const timeframeOptions = document.querySelector('#timeframe-options');
 
-document.querySelector('#exchange-select').addEventListener('change', function() {
-    const exchangeIdChar = this.value;
-    fetch(`/exchanges/ajax/load-markets/?exchange=${exchangeIdChar}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(markets => {
-            const marketSelect = document.querySelector('#market-select');
-            marketSelect.innerHTML = '<option value="">Select Market</option>';
-            markets.forEach(market => {
-                const option = document.createElement('option');
-                option.value = market.id;
-                option.textContent = market.market_type;
-                marketSelect.appendChild(option);
-            });
-        })
-        .catch(error => {
-            console.error('There has been a problem with your fetch operation:', error);
-        });
-});
+    function loadMarkets() {
+        const exchangeIdChar = exchangeSelect.value;
+        fetch(`/ajax/load-markets/?exchange=${exchangeIdChar}`)
+            .then(response => response.json())
+            .then(data => {
+                marketSelect.innerHTML = '<option value="">Select market</option>';
+                data.forEach(market => {
+                    const option = document.createElement('option');
+                    option.value = market.id;
+                    option.textContent = market.market_type;
+                    marketSelect.appendChild(option);
+                });
+                // Clear symbols and timeframes when exchange changes
+                symbolOptions.innerHTML = '';
+                timeframeOptions.innerHTML = '';
+            })
+            .catch(error => console.error('Error loading markets:', error));
+    }
 
-document.querySelector('#market-select').addEventListener('change', function() {
-    const marketId = this.value;
-    fetch(`/exchanges/ajax/load-symbols-timeframes/?market=${marketId}`)
-        .then(response => {
-            if (!response.ok) {
-                throw new Error('Network response was not ok');
-            }
-            return response.json();
-        })
-        .then(data => {
-            const symbolField = document.querySelector('#symbol-options');
-            const timeframeField = document.querySelector('#timeframe-options');
-            symbolField.innerHTML = '';
-            timeframeField.innerHTML = '';
+    function loadSymbolsAndTimeframes() {
+        const marketId = marketSelect.value;
+        fetch(`/ajax/load-symbols-timeframes/?market=${marketId}`)
+            .then(response => response.json())
+            .then(data => {
+                symbolOptions.innerHTML = '';
+                data.symbols.forEach(symbol => {
+                    const label = document.createElement('label');
+                    label.className = 'checkbox';
+                    const input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.name = 'symbol';
+                    input.value = symbol.symbol;
+                    input.className = 'symbol-checkbox';
+                    label.appendChild(input);
+                    label.appendChild(document.createTextNode(symbol.symbol));
+                    symbolOptions.appendChild(label);
+                });
 
-            data.symbols.forEach(symbol => {
-                const label = document.createElement('label');
-                label.className = 'checkbox';
-                const input = document.createElement('input');
-                input.type = 'checkbox';
-                input.name = 'symbol';
-                input.value = symbol.id;
-                input.className = 'symbol-checkbox';
-                label.appendChild(input);
-                label.appendChild(document.createTextNode(symbol.symbol));
-                symbolField.appendChild(label);
-            });
+                timeframeOptions.innerHTML = '';
+                data.timeframes.forEach(timeframe => {
+                    const label = document.createElement('label');
+                    label.className = 'checkbox';
+                    const input = document.createElement('input');
+                    input.type = 'checkbox';
+                    input.name = 'timeframe';
+                    input.value = timeframe;
+                    input.className = 'timeframe-checkbox';
+                    label.appendChild(input);
+                    label.appendChild(document.createTextNode(timeframe));
+                    timeframeOptions.appendChild(label);
+                });
+            })
+            .catch(error => console.error('Error loading symbols and timeframes:', error));
+    }
 
-            data.timeframes.forEach(timeframe => {
-                const label = document.createElement('label');
-                label.className = 'checkbox';
-                const input = document.createElement('input');
-                input.type = 'checkbox';
-                input.name = 'timeframe';
-                input.value = timeframe;
-                input.className = 'timeframe-checkbox';
-                label.appendChild(input);
-                label.appendChild(document.createTextNode(timeframe));
-                timeframeField.appendChild(label);
-            });
-        })
-        .catch(error => {
-            console.error('There has been a problem with your fetch operation:', error);
-        });
+    exchangeSelect.addEventListener('change', loadMarkets);
+    marketSelect.addEventListener('change', loadSymbolsAndTimeframes);
 });
 
 // Collapsible cards
@@ -217,3 +272,5 @@ document.querySelector('.notification .delete').addEventListener('click', functi
     this.parentNode.style.display = 'none';
 });
 </script>
+
+{% endblock %}

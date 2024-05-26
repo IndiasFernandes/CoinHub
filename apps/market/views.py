@@ -201,19 +201,18 @@ class CreatePaperTradeView(View):
         return redirect('market:paper_trading_dashboard')
 
 from django.http import JsonResponse
-@login_required
 def load_markets(request):
     exchange_id = request.GET.get('exchange')
-    markets = Market.objects.filter(exchange_id=exchange_id).all()
-    return JsonResponse(list(markets.values('id', 'market_type')), safe=False)
+    markets = Market.objects.filter(exchange_id=exchange_id).values('id', 'market_type')
+    return JsonResponse(list(markets), safe=False)
 
-@login_required
 def load_symbols_and_timeframes(request):
     market_id = request.GET.get('market')
-    coins = Coin.objects.filter(markets__id=market_id).distinct()
+    coins = Coin.objects.filter(markets__id=market_id).distinct().values('symbol')
     market = Market.objects.get(id=market_id)
+    timeframes = [market.market_type]  # Assuming you have timeframes stored this way, adjust if needed
     data = {
-        'symbols': list(coins.values('id', 'symbol')),
-        'timeframes': [(market.market_type, market.market_type)],
+        'symbols': list(coins),
+        'timeframes': timeframes,
     }
     return JsonResponse(data)
