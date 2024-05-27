@@ -1,3 +1,5 @@
+import json
+
 from django.core.management.base import BaseCommand
 from django_celery_beat.models import PeriodicTask, IntervalSchedule
 
@@ -16,7 +18,7 @@ class Command(BaseCommand):
             task, created = PeriodicTask.objects.get_or_create(
                 interval=schedule,
                 name=f'Paper Trade {trade.id} - {trade.name}',
-                task='path.to.run_paper_trading_task',
+                task='apps.market.run_paper_trading_task',
                 args=json.dumps([trade.id]),
             )
             if not created:

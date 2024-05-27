@@ -223,6 +223,7 @@ def get_exchange_data(request, exchange_id_char):
 def list_exchanges():
     return ccxt.exchanges
 
+
 def fetch_market_types(exchange_id):
     exchange_class = getattr(ccxt, exchange_id)()
     markets = exchange_class.load_markets()
@@ -261,23 +262,7 @@ def update_exchange_markets(request):
         'show_sidebar': True
     })
 
-@login_required
-def load_markets(request):
-    exchange_id = request.GET.get('exchange')
-    markets = Market.objects.filter(exchange_id=exchange_id).all()
-    return JsonResponse(list(markets.values('id', 'market_type')), safe=False)
 
-@login_required
-def load_symbols_and_timeframes(request):
-    market_id = request.GET.get('market')
-    coins = Coin.objects.filter(markets__id=market_id).distinct().values('symbol')
-    # Define a list of timeframes directly or fetch them from a model if they are stored in the database.
-    timeframes = ['1m', '5m', '15m', '30m' '1h', '4h', '1d', '1w', '1M']
-    data = {
-        'symbols': list(coins),
-        'timeframes': timeframes,
-    }
-    return JsonResponse(data)
 
 def update_exchange_in_db(exchange_id):
     exchange_class = getattr(ccxt, exchange_id)()

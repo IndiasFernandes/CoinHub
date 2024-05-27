@@ -24,10 +24,10 @@ INSTALLED_APPS = [
     'apps.bots',
     'apps.exchanges',
     'apps.accounts',
-    'apps.market',
     'widget_tweaks',
     'django_celery_beat',
     'corsheaders',
+    'apps.market.apps.MarketConfig'
 ]
 
 MIDDLEWARE = [

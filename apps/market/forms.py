@@ -1,7 +1,7 @@
 # forms.py
 from datetime import datetime, timedelta
 from django import forms
-from .models import Backtest, Optimize
+from .models import Backtest, Optimize, PaperTrade
 from ..exchanges.models import Exchange, Market, Coin
 
 class BacktestForm(forms.ModelForm):
@@ -92,3 +92,15 @@ class OptimizeForm(forms.ModelForm):
 
     def get_timeframe_choices(self, exchange_id):
         return [('1m', '1m'), ('5m', '5m'), ('15m', '15m'), ('30m', '30m'), ('1h', '1h'), ('4h', '4h'), ('1d', '1d'), ('1w', '1w'), ('1M', '1M')]
+
+
+class CreatePaperTradeForm(forms.ModelForm):
+    class Meta:
+        model = PaperTrade
+        fields = ['name', 'initial_balance', 'exchange', 'coin', 'type', 'timeframe', 'cron_timeframe', 'lookback_period']
+
+    def __init__(self, *args, **kwargs):
+        super().__init__(*args, **kwargs)
+        self.fields['exchange'].choices = [(exchange.id_char, exchange.name) for exchange in Exchange.objects.all()]
+        self.fields['coin'].choices = []
+        self.fields['timeframe'].choices = []

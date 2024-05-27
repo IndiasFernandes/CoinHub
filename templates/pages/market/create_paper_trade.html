@@ -1,0 +1,75 @@
+<!-- create_paper_trade.html -->
+{% extends 'base/base.html' %}
+{% load static %}
+{% load widget_tweaks %}
+{% block content %}
+<link rel="stylesheet" href="{% static 'css/bulma.min.css' %}">
+<script src="{% static 'js/vue.min.js' %}"></script>
+
+<div class="container">
+    <h1 class="title">Create New Paper Trade</h1>
+    <div class="box">
+        <form method="POST" id="createPaperTradeForm">
+            {% csrf_token %}
+            {{ form|crispy }}
+            <div class="field">
+                <div class="control">
+                    <button type="submit" class="button is-link">Create Trade</button>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+
+<script>
+function updateMarkets() {
+    const exchangeId = document.getElementById('id_exchange').value;
+    fetch(`/market/ajax/load-markets/?exchange=${exchangeId}`)
+    .then(response => response.json())
+    .then(data => {
+        const marketSelect = document.getElementById('id_market');
+        marketSelect.innerHTML = '<option value="">Select Market</option>';
+        data.forEach(market => {
+            const option = document.createElement('option');
+            option.value = market.id;
+            option.textContent = market.market_type;
+            marketSelect.appendChild(option);
+        });
+        updateSymbolsAndTimeframes();
+    })
+    .catch(error => console.error('Error loading markets:', error));
+}
+
+function updateSymbolsAndTimeframes() {
+    const marketId = document.getElementById('id_market').value;
+    fetch(`/market/ajax/load-symbols-timeframes/?market=${marketId}`)
+    .then(response => response.json())
+    .then(data => {
+        const coinSelect = document.getElementById('id_coin');
+        const timeframeSelect = document.getElementById('id_timeframe');
+        coinSelect.innerHTML = '<option value="">Select Coin</option>';
+        timeframeSelect.innerHTML = '<option value="">Select Timeframe</option>';
+
+        data.symbols.forEach(symbol => {
+            const option = document.createElement('option');
+            option.value = symbol.id;
+            option.textContent = symbol.symbol;
+            coinSelect.appendChild(option);
+        });
+
+        data.timeframes.forEach(timeframe => {
+            const option = document.createElement('option');
+            option.value = timeframe;
+            option.textContent = timeframe;
+            timeframeSelect.appendChild(option);
+        });
+    })
+    .catch(error => console.error('Error loading symbols and timeframes:', error));
+}
+
+document.addEventListener('DOMContentLoaded', function() {
+    document.getElementById('id_exchange').addEventListener('change', updateMarkets);
+    document.getElementById('id_market').addEventListener('change', updateSymbolsAndTimeframes);
+});
+</script>
+{% endblock %}

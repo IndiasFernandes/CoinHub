@@ -4,6 +4,7 @@ from random import random
 
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
+from django.utils.decorators import method_decorator
 from django.utils.html import format_html
 from django.views import View
 from django.shortcuts import render, redirect, get_object_or_404
@@ -202,7 +203,6 @@ def optimize_detail_view(request, optimize_id):
         'section': 'optimize_detail',
         'show_sidebar': True
     })
-
 class PaperTradingDashboardView(View):
     def get(self, request):
         paper_trades = PaperTrade.objects.all()
@@ -218,23 +218,25 @@ class PaperTradingDashboardView(View):
         return render(request, 'pages/market/paper_trading_dashboard.html', context)
 
 class CreatePaperTradeView(View):
+    def get(self, request):
+        form = CreatePaperTradeForm()
+        return render(request, 'pages/market/create_paper_trade.html', {'form': form})
+
     def post(self, request):
-        trade_name = request.POST.get('trade_name')
-        initial_balance = request.POST.get('initial_balance')
+        form = CreatePaperTradeForm(request.POST)
+        if form.is_valid():
+            form.save()
+            messages.success(request, "Paper trade created successfully!")
+            return redirect('market:paper_trading_dashboard')
+        else:
+            messages.error(request, "Error creating paper trade.")
+            return render(request, 'pages/market/create_paper_trade.html', {'form': form})
 
-        if trade_name and initial_balance:
-            PaperTrade.objects.create(
-                name=trade_name,
-                initial_balance=initial_balance,
-                created_at=timezone.now()
-            )
-        return redirect('market:paper_trading_dashboard')
-
-
+@method_decorator(login_required, name='dispatch')
 class TogglePaperTradingView(View):
     def post(self, request, trade_id):
-        paper_trade = PaperTrade.objects.get(id=trade_id)
-        paper_trade.trading_enabled = not paper_trade.trading_enabled
+        paper_trade = get_object_or_404(PaperTrade, pk=trade_id)
+        paper_trade.is_active = not paper_trade.is_active
         paper_trade.save()
-        return redirect('market:paper_trading_dashboard')
-
+        print()
+        return JsonResponse({"status": "success", "is_active": paper_trade.is_active})

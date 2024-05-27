@@ -17,7 +17,7 @@ def create_or_update_paper_trade_task(sender, instance, created, **kwargs):
         name=task_name,
         defaults={
             'interval': schedule,
-            'task': 'market.tasks.run_paper_trading_task',
+            'task': 'apps.market.tasks.run_paper_trading_task',
             'args': json.dumps([instance.id]),
         }
     )
