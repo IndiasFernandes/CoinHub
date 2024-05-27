@@ -75,15 +75,6 @@ class Optimize(models.Model):
         verbose_name_plural = "Optimizations"
 
 
-class AccountHistory(models.Model):
-    paper_trade = models.ForeignKey(PaperTrade, on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(default=timezone.now)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
-    super_trend_status = models.CharField(max_length=10)  # 'long', 'short', or 'neutral'
-
-    def __str__(self):
-        return f"{self.paper_trade.name} at {self.timestamp}"
-
 class PaperTrade(models.Model):
     name = models.CharField(max_length=100)
     exchange = models.ForeignKey(Exchange, on_delete=models.CASCADE)
