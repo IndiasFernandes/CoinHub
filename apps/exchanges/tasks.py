@@ -19,11 +19,7 @@ def record_exchange_info():
     except subprocess.CalledProcessError as e:
         print(f"Error executing script: {e}")
 
-@shared_task
-def run_paper_trading_task(trade_id):
-    trade = PaperTrade.objects.get(id=trade_id)
-    if trade.is_active:
-        execute_trade(trade)
+
 
 
 
