@@ -17,5 +17,3 @@ python-dotenv
 psycopg2-binary
 django-celery-beat
 django-cors-headers
-python-dotenv
-```

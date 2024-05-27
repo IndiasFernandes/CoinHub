@@ -13,7 +13,10 @@ app.autodiscover_tasks()
 app.conf.beat_schedule = {
     'record_exchange_info_every_30_seconds': {
         'task': 'apps.exchanges.tasks.record_exchange_info',
-        'schedule': 600.0,  # Execute every 30 seconds
+        'schedule': 600.0,  # Execute every 10 minutes
     },
 }
+
+app.conf.beat_scheduler = 'django_celery_beat.schedulers:DatabaseScheduler'
+
 app.conf.timezone = 'UTC'

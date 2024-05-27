@@ -3,6 +3,9 @@ from apps.exchanges.utils.hyperliquid.bot import BotAccount
 from celery import shared_task
 import subprocess
 
+from apps.market.models import PaperTrade
+
+
 @shared_task
 def record_exchange_info():
     try:
@@ -15,6 +18,12 @@ def record_exchange_info():
         print(output)
     except subprocess.CalledProcessError as e:
         print(f"Error executing script: {e}")
+
+@shared_task
+def run_paper_trading_task(trade_id):
+    trade = PaperTrade.objects.get(id=trade_id)
+    if trade.is_active:
+        execute_trade(trade)
 
 
 
