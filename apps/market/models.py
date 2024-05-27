@@ -3,7 +3,8 @@ from datetime import timedelta
 from django.db import models
 from django.utils import timezone
 
-from apps.exchanges.models import Exchange
+from apps.exchanges.models import Exchange, Coin
+
 
 def default_start_date():
     return timezone.now() - timedelta(days=60)
@@ -79,13 +80,12 @@ class PaperTrade(models.Model):
     name = models.CharField(max_length=100)
     exchange = models.ForeignKey(Exchange, on_delete=models.CASCADE)
     coin = models.ForeignKey(Coin, on_delete=models.CASCADE)
-    type = models.CharField(max_length=50)  # Could be 'long', 'short', etc.
+    type = models.CharField(max_length=50)
     timeframe = models.CharField(max_length=50)
     initial_balance = models.DecimalField(max_digits=20, decimal_places=2)
     update_time = models.DateTimeField(default=timezone.now)
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
-    trading_enabled = models.BooleanField(default=True)  # Toggle for trading on/off
 
     def __str__(self):
         return self.name
@@ -93,7 +93,8 @@ class PaperTrade(models.Model):
 class MarketData(models.Model):
     paper_trade = models.ForeignKey(PaperTrade, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(default=timezone.now)
-    price = models.DecimalField(max_digits=10, decimal_places=2)
+    price = models.DecimalField(max_digits=10, decimal_places=6)
+    st = models.DecimalField(max_digits=10, decimal_places=6)
     super_trend_status = models.CharField(max_length=10)  # 'long', 'short', or 'neutral'
     trade_indicator = models.BooleanField(default=False)
 
