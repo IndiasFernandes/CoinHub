@@ -83,7 +83,7 @@ class PaperTrade(models.Model):
     type = models.CharField(max_length=50)
     timeframe = models.CharField(max_length=50)
     initial_balance = models.DecimalField(max_digits=20, decimal_places=2)
-    update_time = models.DateTimeField(default=timezone.now)
+    cron_timeframe = models.DecimalField(max_digits=20, decimal_places=0)
     created_at = models.DateTimeField(auto_now_add=True)
     is_active = models.BooleanField(default=True)
 
