@@ -74,15 +74,6 @@ class Optimize(models.Model):
         verbose_name = "Optimization"
         verbose_name_plural = "Optimizations"
 
-class PaperTrade(models.Model):
-    name = models.CharField(max_length=100)
-    initial_balance = models.DecimalField(max_digits=20, decimal_places=2)
-    created_at = models.DateTimeField(default=timezone.now)
-    is_active = models.BooleanField(default=True)
-    trading_enabled = models.BooleanField(default=True)  # Toggle for trading on/off
-
-    def __str__(self):
-        return self.name
 
 class AccountHistory(models.Model):
     paper_trade = models.ForeignKey(PaperTrade, on_delete=models.CASCADE)
@@ -93,12 +84,38 @@ class AccountHistory(models.Model):
     def __str__(self):
         return f"{self.paper_trade.name} at {self.timestamp}"
 
-class MarketData(models.Model):
-    symbol = models.CharField(max_length=10, null=True, blank=True)
-    price = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    change = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    volume = models.BigIntegerField(null=True, blank=True)
-
+class PaperTrade(models.Model):
+    name = models.CharField(max_length=100)
+    exchange = models.ForeignKey(Exchange, on_delete=models.CASCADE)
+    coin = models.ForeignKey(Coin, on_delete=models.CASCADE)
+    type = models.CharField(max_length=50)  # Could be 'long', 'short', etc.
+    timeframe = models.CharField(max_length=50)
+    initial_balance = models.DecimalField(max_digits=20, decimal_places=2)
+    update_time = models.DateTimeField(default=timezone.now)
+    created_at = models.DateTimeField(auto_now_add=True)
+    is_active = models.BooleanField(default=True)
+    trading_enabled = models.BooleanField(default=True)  # Toggle for trading on/off
 
     def __str__(self):
-        return self.symbol
+        return self.name
+
+class MarketData(models.Model):
+    paper_trade = models.ForeignKey(PaperTrade, on_delete=models.CASCADE)
+    timestamp = models.DateTimeField(default=timezone.now)
+    price = models.DecimalField(max_digits=10, decimal_places=2)
+    super_trend_status = models.CharField(max_length=10)  # 'long', 'short', or 'neutral'
+    trade_indicator = models.BooleanField(default=False)
+
+    def check_trade(self):
+        # Add logic to determine the trade indicator based on last and current super_trend_status
+        # This method should be called every time new data is saved and update `trade_indicator` accordingly
+        last_data = MarketData.objects.filter(paper_trade=self.paper_trade).order_by('-timestamp').first()
+        if last_data:
+            # Example logic, should be adjusted as per actual trading algorithm
+            if (last_data.super_trend_status == 'long' and last_data.price < self.price) or \
+               (last_data.super_trend_status == 'short' and last_data.price > self.price):
+                self.trade_indicator = True
+            self.save()
+
+    def __str__(self):
+        return f"{self.paper_trade.name} - {self.timestamp} - {self.price} - {self.trade_indicator}"
