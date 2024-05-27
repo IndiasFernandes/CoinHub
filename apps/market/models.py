@@ -99,5 +99,6 @@ class MarketData(models.Model):
     change = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
     volume = models.BigIntegerField(null=True, blank=True)
 
+
     def __str__(self):
         return self.symbol

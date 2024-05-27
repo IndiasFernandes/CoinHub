@@ -1,5 +1,7 @@
 import os
 import warnings
+from random import random
+
 from django.contrib.auth.decorators import login_required
 from django.utils import timezone
 from django.utils.html import format_html
@@ -8,7 +10,7 @@ from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
 from django.http import JsonResponse
 import numpy as np
-from .models import PaperTrade, MarketData, Backtest, Optimize
+from .models import PaperTrade, MarketData, Backtest, Optimize, AccountHistory
 from .forms import BacktestForm, OptimizeForm
 from ..exchanges.utils.utils import run_exchange
 from ..exchanges.utils.hyperliquid.download_data import download_data

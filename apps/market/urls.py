@@ -17,4 +17,5 @@ urlpatterns = [
     path('create-paper-trade/', CreatePaperTradeView.as_view(), name='create_paper_trade'),
     path('ajax/load-markets/', load_markets, name='ajax_load_markets'),
     path('ajax/load-symbols-timeframes/', load_symbols_and_timeframes, name='ajax_load_symbols_timeframes'),
+
 ]
