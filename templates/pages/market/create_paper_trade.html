@@ -1,17 +1,89 @@
 <!-- create_paper_trade.html -->
 {% extends 'base/base.html' %}
 {% load static %}
-{% load widget_tweaks %}
 {% block content %}
 <link rel="stylesheet" href="{% static 'css/bulma.min.css' %}">
-<script src="{% static 'js/vue.min.js' %}"></script>
 
 <div class="container">
     <h1 class="title">Create New Paper Trade</h1>
     <div class="box">
         <form method="POST" id="createPaperTradeForm">
             {% csrf_token %}
-            {{ form|crispy }}
+            {{ form.non_field_errors }}
+            <div class="field">
+                <label class="label">{{ form.name.label }}</label>
+                <div class="control">
+                    <input class="input" type="text" name="{{ form.name.name }}" id="{{ form.name.id_for_label }}" required>
+                </div>
+                {{ form.name.errors }}
+            </div>
+            <div class="field">
+                <label class="label">{{ form.initial_balance.label }}</label>
+                <div class="control">
+                    <input class="input" type="number" name="{{ form.initial_balance.name }}" id="{{ form.initial_balance.id_for_label }}" required>
+                </div>
+                {{ form.initial_balance.errors }}
+            </div>
+            <div class="field">
+                <label class="label">{{ form.exchange.label }}</label>
+                <div class="control">
+                    <div class="select is-fullwidth">
+                        <select id="exchangeSelect" name="{{ form.exchange.name }}" required onchange="updateMarkets();">
+                            <option value="">Select Exchange</option>
+                            {% for exchange in form.fields.exchange.choices %}
+                                <option value="{{ exchange.0 }}">{{ exchange.1 }}</option>
+                            {% endfor %}
+                        </select>
+                    </div>
+                </div>
+                {{ form.exchange.errors }}
+            </div>
+            <div class="field">
+                <label class="label">Market:</label>
+                <div class="control">
+                    <div class="select is-fullwidth">
+                        <select id="marketSelect" name="market" required onchange="updateSymbolsAndTimeframes();">
+                            <option value="">Select Market</option>
+                        </select>
+                    </div>
+                </div>
+            </div>
+            <div class="field">
+                <label class="label">{{ form.coin.label }}</label>
+                <div class="control">
+                    <div class="select is-fullwidth">
+                        <select id="coinSelect" name="{{ form.coin.name }}" required>
+                            <option value="">Select Coin</option>
+                        </select>
+                    </div>
+                </div>
+                {{ form.coin.errors }}
+            </div>
+            <div class="field">
+                <label class="label">{{ form.timeframe.label }}</label>
+                <div class="control">
+                    <div class="select is-fullwidth">
+                        <select id="timeframeSelect" name="{{ form.timeframe.name }}" required>
+                            <option value="">Select Timeframe</option>
+                        </select>
+                    </div>
+                </div>
+                {{ form.timeframe.errors }}
+            </div>
+            <div class="field">
+                <label class="label">{{ form.cron_timeframe.label }}</label>
+                <div class="control">
+                    <input class="input" type="number" name="{{ form.cron_timeframe.name }}" id="{{ form.cron_timeframe.id_for_label }}" required>
+                </div>
+                {{ form.cron_timeframe.errors }}
+            </div>
+            <div class="field">
+                <label class="label">{{ form.lookback_period.label }}</label>
+                <div class="control">
+                    <input class="input" type="number" name="{{ form.lookback_period.name }}" id="{{ form.lookback_period.id_for_label }}" required>
+                </div>
+                {{ form.lookback_period.errors }}
+            </div>
             <div class="field">
                 <div class="control">
                     <button type="submit" class="button is-link">Create Trade</button>
@@ -23,11 +95,17 @@
 
 <script>
 function updateMarkets() {
-    const exchangeId = document.getElementById('id_exchange').value;
+    const exchangeId = document.getElementById('exchangeSelect').value;
+    if (!exchangeId) {
+        document.getElementById('marketSelect').innerHTML = '<option value="">Select Market</option>';
+        document.getElementById('coinSelect').innerHTML = '<option value="">Select Coin</option>';
+        document.getElementById('timeframeSelect').innerHTML = '<option value="">Select Timeframe</option>';
+        return;
+    }
     fetch(`/market/ajax/load-markets/?exchange=${exchangeId}`)
     .then(response => response.json())
     .then(data => {
-        const marketSelect = document.getElementById('id_market');
+        const marketSelect = document.getElementById('marketSelect');
         marketSelect.innerHTML = '<option value="">Select Market</option>';
         data.forEach(market => {
             const option = document.createElement('option');
@@ -35,18 +113,24 @@ function updateMarkets() {
             option.textContent = market.market_type;
             marketSelect.appendChild(option);
         });
-        updateSymbolsAndTimeframes();
+        document.getElementById('coinSelect').innerHTML = '<option value="">Select Coin</option>';
+        document.getElementById('timeframeSelect').innerHTML = '<option value="">Select Timeframe</option>';
     })
     .catch(error => console.error('Error loading markets:', error));
 }
 
 function updateSymbolsAndTimeframes() {
-    const marketId = document.getElementById('id_market').value;
+    const marketId = document.getElementById('marketSelect').value;
+    if (!marketId) {
+        document.getElementById('coinSelect').innerHTML = '<option value="">Select Coin</option>';
+        document.getElementById('timeframeSelect').innerHTML = '<option value="">Select Timeframe</option>';
+        return;
+    }
     fetch(`/market/ajax/load-symbols-timeframes/?market=${marketId}`)
     .then(response => response.json())
     .then(data => {
-        const coinSelect = document.getElementById('id_coin');
-        const timeframeSelect = document.getElementById('id_timeframe');
+        const coinSelect = document.getElementById('coinSelect');
+        const timeframeSelect = document.getElementById('timeframeSelect');
         coinSelect.innerHTML = '<option value="">Select Coin</option>';
         timeframeSelect.innerHTML = '<option value="">Select Timeframe</option>';
 
@@ -68,8 +152,8 @@ function updateSymbolsAndTimeframes() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('id_exchange').addEventListener('change', updateMarkets);
-    document.getElementById('id_market').addEventListener('change', updateSymbolsAndTimeframes);
+    document.getElementById('exchangeSelect').addEventListener('change', updateMarkets);
+    document.getElementById('marketSelect').addEventListener('change', updateSymbolsAndTimeframes);
 });
 </script>
 {% endblock %}

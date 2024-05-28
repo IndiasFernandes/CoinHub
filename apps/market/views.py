@@ -12,7 +12,7 @@ from django.contrib import messages
 from django.http import JsonResponse
 import numpy as np
 from .models import PaperTrade, MarketData, Backtest, Optimize
-from .forms import BacktestForm, OptimizeForm
+from .forms import BacktestForm, OptimizeForm, CreatePaperTradeForm
 from ..exchanges.utils.utils import run_exchange
 from ..exchanges.utils.hyperliquid.download_data import download_data
 from .backtesting.backtest_utils import run_backtest
@@ -229,7 +229,7 @@ class CreatePaperTradeView(View):
             messages.success(request, "Paper trade created successfully!")
             return redirect('market:paper_trading_dashboard')
         else:
-            messages.error(request, "Error creating paper trade.")
+            messages.error(request, "Error creating paper trade. Please check the form for errors.")
             return render(request, 'pages/market/create_paper_trade.html', {'form': form})
 
 @method_decorator(login_required, name='dispatch')
