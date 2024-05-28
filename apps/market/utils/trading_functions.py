@@ -21,7 +21,7 @@ def paper_trade_execute(trade_id):
         return  # Trade is not active, do nothing
 
     # Fetch exchange details from Exchange model using id_char
-    exchange = get_object_or_404(Exchange, id_char=trade.exchange.id_char)
+    exchange = get_object_or_404(Exchange, id_char=trade.exchange.name)
     key = exchange.api_key
     secret = exchange.api_secret
 
