@@ -94,11 +94,11 @@ class OptimizeForm(forms.ModelForm):
         return [('1m', '1m'), ('5m', '5m'), ('15m', '15m'), ('30m', '30m'), ('1h', '1h'), ('4h', '4h'), ('1d', '1d'), ('1w', '1w'), ('1M', '1M')]
 
 
-
 class CreatePaperTradeForm(forms.ModelForm):
     class Meta:
         model = PaperTrade
-        fields = ['name', 'initial_balance', 'exchange', 'coin', 'type', 'timeframe', 'cron_timeframe', 'lookback_period']
+        fields = ['name', 'initial_balance', 'exchange', 'coin', 'type', 'timeframe', 'cron_timeframe',
+                  'lookback_period']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -110,3 +110,6 @@ class CreatePaperTradeForm(forms.ModelForm):
         self.fields['initial_balance'].label = "Initial Balance"
         self.fields['cron_timeframe'].label = "Cron Timeframe (in seconds)"
         self.fields['lookback_period'].label = "Lookback Period (in days)"
+
+        print("Form initialization:")
+        print("Exchange choices:", self.fields['exchange'].choices)

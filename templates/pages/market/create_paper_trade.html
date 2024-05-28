@@ -27,46 +27,40 @@
             <div class="field">
                 <label class="label">{{ form.exchange.label }}</label>
                 <div class="control">
-                    <div class="select is-fullwidth">
-                        <select id="exchangeSelect" name="{{ form.exchange.name }}" required onchange="updateMarkets();">
-                            <option value="">Select Exchange</option>
-                            {% for exchange in form.fields.exchange.choices %}
-                                <option value="{{ exchange.0 }}">{{ exchange.1 }}</option>
-                            {% endfor %}
-                        </select>
-                    </div>
+                    <select name="{{ form.exchange.name }}" id="exchange-select" class="input" required>
+                        <option value="">Select Exchange</option>
+                        {% for exchange in form.fields['exchange'].choices %}
+                            <option value="{{ exchange.0 }}" {% if form.initial.exchange == exchange.0 %}selected{% endif %}>{{ exchange.1 }}</option>
+                        {% endfor %}
+                    </select>
                 </div>
                 {{ form.exchange.errors }}
+                <p>Allowed exchanges: {{ form.fields['exchange'].choices }}</p>
+                <p>Sent exchange: <span id="sentExchange"></span></p>
             </div>
             <div class="field">
                 <label class="label">Market:</label>
                 <div class="control">
-                    <div class="select is-fullwidth">
-                        <select id="marketSelect" name="market" required onchange="updateSymbolsAndTimeframes();">
-                            <option value="">Select Market</option>
-                        </select>
-                    </div>
+                    <select id="marketSelect" name="market" class="input" required onchange="updateSymbolsAndTimeframes();">
+                        <option value="">Select Market</option>
+                    </select>
                 </div>
             </div>
             <div class="field">
                 <label class="label">{{ form.coin.label }}</label>
                 <div class="control">
-                    <div class="select is-fullwidth">
-                        <select id="coinSelect" name="{{ form.coin.name }}" required>
-                            <option value="">Select Coin</option>
-                        </select>
-                    </div>
+                    <select id="coinSelect" name="{{ form.coin.name }}" class="input" required>
+                        <option value="">Select Coin</option>
+                    </select>
                 </div>
                 {{ form.coin.errors }}
             </div>
             <div class="field">
                 <label class="label">{{ form.timeframe.label }}</label>
                 <div class="control">
-                    <div class="select is-fullwidth">
-                        <select id="timeframeSelect" name="{{ form.timeframe.name }}" required>
-                            <option value="">Select Timeframe</option>
-                        </select>
-                    </div>
+                    <select id="timeframeSelect" name="{{ form.timeframe.name }}" class="input" required>
+                        <option value="">Select Timeframe</option>
+                    </select>
                 </div>
                 {{ form.timeframe.errors }}
             </div>
@@ -95,7 +89,8 @@
 
 <script>
 function updateMarkets() {
-    const exchangeId = document.getElementById('exchangeSelect').value;
+    const exchangeId = document.getElementById('exchange-select').value;
+    document.getElementById('sentExchange').innerText = exchangeId;
     if (!exchangeId) {
         document.getElementById('marketSelect').innerHTML = '<option value="">Select Market</option>';
         document.getElementById('coinSelect').innerHTML = '<option value="">Select Coin</option>';
@@ -152,7 +147,7 @@ function updateSymbolsAndTimeframes() {
 }
 
 document.addEventListener('DOMContentLoaded', function() {
-    document.getElementById('exchangeSelect').addEventListener('change', updateMarkets);
+    document.getElementById('exchange-select').addEventListener('change', updateMarkets);
     document.getElementById('marketSelect').addEventListener('change', updateSymbolsAndTimeframes);
 });
 </script>

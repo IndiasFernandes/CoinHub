@@ -220,17 +220,19 @@ class PaperTradingDashboardView(View):
 class CreatePaperTradeView(View):
     def get(self, request):
         form = CreatePaperTradeForm()
-        return render(request, 'pages/market/create_paper_trade.html', {'form': form})
+        return render(request, 'pages/market/create_paper_trade.html', {'form': form, 'exchanges': Exchange.objects.all()})
 
     def post(self, request):
         form = CreatePaperTradeForm(request.POST)
         if form.is_valid():
+            print("Form is valid, cleaned data:", form.cleaned_data)
             form.save()
             messages.success(request, "Paper trade created successfully!")
             return redirect('market:paper_trading_dashboard')
         else:
+            print("Form is invalid, errors:", form.errors)
             messages.error(request, "Error creating paper trade. Please check the form for errors.")
-            return render(request, 'pages/market/create_paper_trade.html', {'form': form})
+            return render(request, 'pages/market/create_paper_trade.html', {'form': form, 'exchanges': Exchange.objects.all()})
 
 @method_decorator(login_required, name='dispatch')
 class TogglePaperTradingView(View):
@@ -238,5 +240,4 @@ class TogglePaperTradingView(View):
         paper_trade = get_object_or_404(PaperTrade, pk=trade_id)
         paper_trade.is_active = not paper_trade.is_active
         paper_trade.save()
-        print()
         return JsonResponse({"status": "success", "is_active": paper_trade.is_active})
