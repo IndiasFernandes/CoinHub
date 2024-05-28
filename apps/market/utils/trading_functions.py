@@ -52,8 +52,8 @@ def paper_trade_execute(trade_id):
     # Define the timeframe for data to be fetched
     end_date = timezone.now()
     start_date = end_date - timedelta(days=trade.lookback_period)
-    start_date_str = start_date.isoformat()
-    end_date_str = end_date.isoformat()
+    start_date_str = start_date.strftime('%Y-%m-%d')
+    end_date_str = end_date.strftime('%Y-%m-%d')
     print(f"Fetching data from {start_date_str} to {end_date_str}")
 
     # Download data using the utility function
