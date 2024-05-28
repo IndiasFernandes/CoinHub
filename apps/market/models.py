@@ -78,7 +78,7 @@ class Optimize(models.Model):
 
 class PaperTrade(models.Model):
     name = models.CharField(max_length=100)
-    exchange = models.ForeignKey(Exchange, on_delete=models.CASCADE)
+    exchange = models.CharField(max_length=50, null=True, blank=True)
     coin = models.ForeignKey(Coin, on_delete=models.CASCADE)
     type = models.CharField(max_length=50)
     timeframe = models.CharField(max_length=50)

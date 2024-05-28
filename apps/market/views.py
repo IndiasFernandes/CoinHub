@@ -234,7 +234,6 @@ class CreatePaperTradeView(View):
             messages.error(request, "Error creating paper trade. Please check the form for errors.")
             print(f"Form errors: {form.errors}")
             return render(request, 'pages/market/create_paper_trade.html', {'form': form, 'exchanges': Exchange.objects.all()})
-
 @method_decorator(login_required, name='dispatch')
 class TogglePaperTradingView(View):
     def post(self, request, trade_id):

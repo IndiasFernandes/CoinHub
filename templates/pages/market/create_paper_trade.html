@@ -13,29 +13,29 @@
             <div class="field">
                 <label class="label">{{ form.name.label }}</label>
                 <div class="control">
-                    <input class="input" type="text" name="{{ form.name.name }}" id="{{ form.name.id_for_label }}" required>
+                    <input class="input" type="text" name="{{ form.name.name }}" id="{{ form.name.id_for_label }}" value="{{ form.name.value|default:'Default Trade Name' }}" required>
                 </div>
                 {{ form.name.errors }}
             </div>
             <div class="field">
                 <label class="label">{{ form.initial_balance.label }}</label>
                 <div class="control">
-                    <input class="input" type="number" name="{{ form.initial_balance.name }}" id="{{ form.initial_balance.id_for_label }}" required>
+                    <input class="input" type="number" name="{{ form.initial_balance.name }}" id="{{ form.initial_balance.id_for_label }}" value="{{ form.initial_balance.value|default:1000 }}" required>
                 </div>
                 {{ form.initial_balance.errors }}
             </div>
             <div class="field">
-                <label class="label">{{ form.exchange.label }}</label>
-                <div class="control">
-                    <select name="{{ form.exchange.name }}" id="exchange-select" class="input" required>
-                        <option value="">Select Exchange</option>
-                        {% for exchange in exchanges %}
-                            <option value="{{ exchange.id_char }}" {% if form.initial.exchange == exchange.id_char %}selected{% endif %}>{{ exchange.name }}</option>
-                        {% endfor %}
-                    </select>
-                </div>
-                {{ form.exchange.errors }}
-            </div>
+    <label class="label">{{ form.exchange.label }}</label>
+    <div class="control">
+        <select name="{{ form.exchange.name }}" id="exchange-select" class="input" required>
+            <option value="">Select Exchange</option>
+            {% for exchange in exchanges %}
+                <option value="{{ exchange.id_char }}" data-char-id="{{ exchange.id_char }}" {% if form.initial.exchange == exchange.id %}selected{% endif %}>{{ exchange.name }}</option>
+            {% endfor %}
+        </select>
+    </div>
+    {{ form.exchange.errors }}
+</div>
             <div class="field">
                 <label class="label">Market:</label>
                 <div class="control">
@@ -65,14 +65,14 @@
             <div class="field">
                 <label class="label">{{ form.cron_timeframe.label }}</label>
                 <div class="control">
-                    <input class="input" type="number" name="{{ form.cron_timeframe.name }}" id="{{ form.cron_timeframe.id_for_label }}" required>
+                    <input class="input" type="number" name="{{ form.cron_timeframe.name }}" id="{{ form.cron_timeframe.id_for_label }}" value="{{ form.cron_timeframe.value|default:60 }}" required>
                 </div>
                 {{ form.cron_timeframe.errors }}
             </div>
             <div class="field">
                 <label class="label">{{ form.lookback_period.label }}</label>
                 <div class="control">
-                    <input class="input" type="number" name="{{ form.lookback_period.name }}" id="{{ form.lookback_period.id_for_label }}" required>
+                    <input class="input" type="number" name="{{ form.lookback_period.name }}" id="{{ form.lookback_period.id_for_label }}" value="{{ form.lookback_period.value|default:30 }}" required>
                 </div>
                 {{ form.lookback_period.errors }}
             </div>
@@ -94,7 +94,8 @@ function updateMarkets() {
         document.getElementById('timeframeSelect').innerHTML = '<option value="">Select Timeframe</option>';
         return;
     }
-    fetch(`/market/ajax/load-markets/?exchange=${exchangeId}`)
+    const exchangeCharId = document.querySelector(`#exchange-select option[value="${exchangeId}"]`).dataset.charId;
+    fetch(`/market/ajax/load-markets/?exchange=${exchangeCharId}`)
     .then(response => response.json())
     .then(data => {
         const marketSelect = document.getElementById('marketSelect');
