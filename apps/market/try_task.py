@@ -4,7 +4,7 @@ import django
 from celery import Celery
 
 # Set up Django settings and initialize Django
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CoinHub.settings')
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'OnCoins.settings_production')
 django.setup()
 
 # Initialize Celery
