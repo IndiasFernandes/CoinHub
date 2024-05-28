@@ -229,7 +229,7 @@ class CreatePaperTradeView(View):
         print(f"POST data: {request.POST}")
         print(f"Form valid: {form.is_valid()}")
 
-        # Log all initial data received in the form
+        # Log all initial data received in the form s
         for field_name, field_value in form.cleaned_data.items():
             print(f"Initial data for {field_name}: {field_value}")
 
