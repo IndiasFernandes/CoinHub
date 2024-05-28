@@ -47,7 +47,7 @@ def paper_trade_execute(trade_id):
     print(f"Exchange: {exchange_instance}, Type: {type(exchange_instance)}")
 
     # Download data using the utility function
-    df = download_data(trade.coin, trade.timeframe, start_date_str, end_date_str, str(trade.exchange))
+    df = download_data(trade.coin, trade.timeframe, start_date_str, end_date_str, exchange_instance)
     print(f"Downloaded data: {df}, Type: {type(df)}")
 
 
