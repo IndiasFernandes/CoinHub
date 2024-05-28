@@ -99,7 +99,7 @@ class CreatePaperTradeForm(forms.ModelForm):
         model = PaperTrade
         fields = ['name', 'initial_balance', 'exchange', 'coin', 'type', 'timeframe', 'cron_timeframe',
                   'lookback_period']
-    # s
+
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['exchange'].queryset = Exchange.objects.all()
