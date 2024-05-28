@@ -94,22 +94,43 @@ class OptimizeForm(forms.ModelForm):
         return [('1m', '1m'), ('5m', '5m'), ('15m', '15m'), ('30m', '30m'), ('1h', '1h'), ('4h', '4h'), ('1d', '1d'), ('1w', '1w'), ('1M', '1M')]
 
 
+
 class CreatePaperTradeForm(forms.ModelForm):
     class Meta:
         model = PaperTrade
-        fields = ['name', 'initial_balance', 'exchange', 'coin', 'type', 'timeframe', 'cron_timeframe',
-                  'lookback_period']
+        fields = ['name', 'initial_balance', 'exchange', 'coin', 'type', 'timeframe', 'cron_timeframe', 'lookback_period']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['exchange'].choices = [(exchange.id_char, exchange.name) for exchange in Exchange.objects.all()]
+        self.fields['exchange'].queryset = Exchange.objects.all()
         self.fields['coin'].choices = []
         self.fields['timeframe'].choices = []
+
+        if 'exchange' in self.data:
+            try:
+                exchange_id = self.data.get('exchange')
+                self.fields['coin'].choices = self.get_coin_choices(exchange_id)
+                self.fields['timeframe'].choices = self.get_timeframe_choices(exchange_id)
+            except (ValueError, TypeError):
+                pass
 
         self.fields['name'].label = "Trade Name"
         self.fields['initial_balance'].label = "Initial Balance"
         self.fields['cron_timeframe'].label = "Cron Timeframe (in seconds)"
         self.fields['lookback_period'].label = "Lookback Period (in days)"
 
-        print("Form initialization:")
-        print("Exchange choices:", self.fields['exchange'].choices)
+        print(f"Form initialization:")
+        print(f"Exchange choices: {self.fields['exchange'].queryset}")
+
+    def get_coin_choices(self, exchange_id):
+        coins = Coin.objects.filter(markets__exchange_id=exchange_id).distinct()
+        return [(coin.id, coin.symbol) for coin in coins]
+
+    def get_timeframe_choices(self, exchange_id):
+        return [('1m', '1m'), ('5m', '5m'), ('15m', '15m'), ('30m', '30m'), ('1h', '1h'), ('4h', '4h'), ('1d', '1d'), ('1w', '1w'), ('1M', '1M')]
+
+    def clean(self):
+        cleaned_data = super().clean()
+        exchange = cleaned_data.get("exchange")
+        print(f"Cleaned exchange: {exchange}")
+        return cleaned_data

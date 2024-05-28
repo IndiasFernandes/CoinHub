@@ -224,14 +224,15 @@ class CreatePaperTradeView(View):
 
     def post(self, request):
         form = CreatePaperTradeForm(request.POST)
+        print(f"POST data: {request.POST}")
+        print(f"Form valid: {form.is_valid()}")
         if form.is_valid():
-            print("Form is valid, cleaned data:", form.cleaned_data)
             form.save()
             messages.success(request, "Paper trade created successfully!")
             return redirect('market:paper_trading_dashboard')
         else:
-            print("Form is invalid, errors:", form.errors)
             messages.error(request, "Error creating paper trade. Please check the form for errors.")
+            print(f"Form errors: {form.errors}")
             return render(request, 'pages/market/create_paper_trade.html', {'form': form, 'exchanges': Exchange.objects.all()})
 
 @method_decorator(login_required, name='dispatch')

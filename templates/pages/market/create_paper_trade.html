@@ -29,14 +29,12 @@
                 <div class="control">
                     <select name="{{ form.exchange.name }}" id="exchange-select" class="input" required>
                         <option value="">Select Exchange</option>
-                        {% for exchange in form.fields['exchange'].choices %}
-                            <option value="{{ exchange.0 }}" {% if form.initial.exchange == exchange.0 %}selected{% endif %}>{{ exchange.1 }}</option>
+                        {% for exchange in exchanges %}
+                            <option value="{{ exchange.id_char }}" {% if form.initial.exchange == exchange.id_char %}selected{% endif %}>{{ exchange.name }}</option>
                         {% endfor %}
                     </select>
                 </div>
                 {{ form.exchange.errors }}
-                <p>Allowed exchanges: {{ form.fields['exchange'].choices }}</p>
-                <p>Sent exchange: <span id="sentExchange"></span></p>
             </div>
             <div class="field">
                 <label class="label">Market:</label>
@@ -90,7 +88,6 @@
 <script>
 function updateMarkets() {
     const exchangeId = document.getElementById('exchange-select').value;
-    document.getElementById('sentExchange').innerText = exchangeId;
     if (!exchangeId) {
         document.getElementById('marketSelect').innerHTML = '<option value="">Select Market</option>';
         document.getElementById('coinSelect').innerHTML = '<option value="">Select Coin</option>';
