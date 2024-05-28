@@ -74,7 +74,7 @@ class OptimizeForm(forms.ModelForm):
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
-        self.fields['exchange'].queryset = Exchange.objects.all()
+        self.fields['exchange'].choices = [(exchange.id_char, exchange.name) for exchange in Exchange.objects.all()]
         self.fields['symbol'].choices = []
         self.fields['timeframe'].choices = []
 
@@ -105,6 +105,7 @@ class CreatePaperTradeForm(forms.ModelForm):
         self.fields['exchange'].queryset = Exchange.objects.all()
         self.fields['coin'].choices = []
         self.fields['timeframe'].choices = []
+        self.fields['type'].choices = []
 
         self.fields['name'].initial = "Default Trade Name"
         self.fields['initial_balance'].initial = 1000
