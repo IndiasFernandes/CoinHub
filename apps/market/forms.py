@@ -103,9 +103,9 @@ class CreatePaperTradeForm(forms.ModelForm):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
         self.fields['exchange'].queryset = Exchange.objects.all()
-        self.fields['coin'].choices = [(coin.symbol, coin.symbol) for coin in Coin.objects.all()]
+        self.fields['coin'].choices = []
         self.fields['timeframe'].choices = []
-        self.fields['type'].choices = [(market.id, market.market_type) for market in Exchange.objects.all().values('id', 'market_type')]
+        self.fields['type'].choices = []
 
         self.fields['name'].initial = "Default Trade Name"
         self.fields['initial_balance'].initial = 1000
