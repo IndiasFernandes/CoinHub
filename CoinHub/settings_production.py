@@ -27,7 +27,7 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'django_celery_beat',
     'corsheaders',
-    'apps.market.apps.MarketConfig'
+    'apps.market.apps.MarketConfig',
 ]
 
 MIDDLEWARE = [

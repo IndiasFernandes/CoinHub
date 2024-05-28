@@ -21,7 +21,7 @@ class Command(BaseCommand):
             task, created = PeriodicTask.objects.get_or_create(
                 interval=schedule,
                 name=f'Paper Trade {trade.id} - {trade.name}',
-                task='apps.market.tasks.run_paper_trading_mark',
+                task='apps.market.tasks.run_paper_trading_task',
                 defaults={'args': json.dumps([trade.id])}
             )
             if not created:
