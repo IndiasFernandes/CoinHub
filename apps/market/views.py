@@ -234,7 +234,10 @@ class CreatePaperTradeView(View):
             print(f"Initial data for {field_name}: {field_value}")
 
         if form.is_valid():
-            form.save()
+            paper_trade = form.save(commit=False)
+            paper_trade.coin = request.POST.get('coin')
+            paper_trade.market_type = request.POST.get('type')
+            paper_trade.save()
             messages.success(request, "Paper trade created successfully!")
             return redirect('market:paper_trading_dashboard')
         else:
