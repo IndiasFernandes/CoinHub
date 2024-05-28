@@ -35,7 +35,7 @@ def paper_trade_execute(trade_id):
     key = exchange.secret_key
     secret = exchange.api_secret
 
-    # Initialize the exchange instance, assuming CCXT usage
+    # Initialize the exchange instance, assuming CCXT usag e
     try:
         exchange_class = getattr(ccxt, exchange.name.lower())  # Ensure the name matches the CCXT identifier
         exchange_instance = exchange_class({
