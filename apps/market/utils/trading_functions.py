@@ -22,7 +22,7 @@ def paper_trade_execute(trade_id):
     exchange = get_object_or_404(Exchange, id_char=trade.exchange)
     print(f"Exchange: {exchange}, Type: {type(exchange)}")
     key = exchange.api_key
-    secret = exchange.api_secret
+    secret = exchange.secret_key
 
     # Initialize the exchange instance, assuming CCXT usage
     exchange_class = getattr(ccxt, exchange.name)  # Ensure the name matches the CCXT identifier
