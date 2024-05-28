@@ -1,4 +1,4 @@
-from datetime import timedelta, timezone
+from datetime import timedelta, timezone, datetime
 import ccxt
 from django.shortcuts import get_object_or_404
 from apps.exchanges.models import Exchange
@@ -35,7 +35,7 @@ def paper_trade_execute(trade_id):
     print(f"Exchange Instance: {exchange_instance}, Type: {type(exchange_instance)}")
 
     # Define the timeframe for data to be fetched
-    end_date = timezone.now()
+    end_date = datetime.now()
     start_date = end_date - timedelta(days=trade.lookback_period)
     start_date_str = start_date.strftime('%Y-%m-%d')
     end_date_str = end_date.strftime('%Y-%m-%d')
