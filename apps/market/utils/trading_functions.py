@@ -25,7 +25,7 @@ def paper_trade_execute(trade_id):
 
     # Fetch exchange details from Exchange model using id_char
     try:
-        exchange = get_object_or_404(Exchange, name=trade.exchange)
+        exchange = get_object_or_404(Exchange, id_char=trade.exchange)
         print(f"Exchange found: {exchange}")
     except Exchange.DoesNotExist:
         print(f"Exchange with name {trade.exchange} not found.")
