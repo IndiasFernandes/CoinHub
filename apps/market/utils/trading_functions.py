@@ -50,9 +50,9 @@ def paper_trade_execute(trade_id):
     df = download_data(trade.coin, trade.timeframe, start_date_str, end_date_str, exchange_instance)
     print(f"Downloaded data: {df}, Type: {type(df)}")
 
-
+    # TODO: To implement comission and openbrowser
     # Run backtest using the utility function
-    st, price = run_backtest(trade.coin, df, trade.timeframe, trade.initial_balance, trade.commission, trade.openbrowser)
+    st, price = run_backtest(trade.coin, df, trade.timeframe, trade.initial_balance, commission=0.08, openbrowser=False)
     print(f"Backtest results: st: {st}, Type: {type(st)}, price: {price}, Type: {type(price)}")
 
     # Create or update the MarketData
