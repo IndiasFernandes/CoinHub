@@ -222,21 +222,34 @@ class CreatePaperTradeView(View):
     def get(self, request):
         form = CreatePaperTradeForm()
         return render(request, 'pages/market/create_paper_trade.html',
-                      {'form': form, 'exchanges': Exchange.objects.all()})
+                      {'form': form, 'exchanges': Exchange.objects.all(), 'markets': Market.objects.all(),
+                       'symbols': Coin.objects.all()})
 
     def post(self, request):
         form = CreatePaperTradeForm(request.POST)
         print(f"POST data: {request.POST}")
         print(f"Form valid: {form.is_valid()}")
 
-        # Log all initial data received in the form s
-        for field_name, field_value in form.cleaned_data.items():
-            print(f"Initial data for {field_name}: {field_value}")
-
         if form.is_valid():
+            # Manually set the coin and market_type as strings from the form
             paper_trade = form.save(commit=False)
-            paper_trade.coin = request.POST.get('coin')
-            paper_trade.market_type = request.POST.get('type')
+
+            # Retrieve the Coin symbol and Market type name based on IDs
+            coin_id = request.POST.get('coin')
+            market_id = request.POST.get('type')
+
+            try:
+                coin = Coin.objects.get(id=coin_id)
+                market = Market.objects.get(id=market_id)
+
+                paper_trade.coin = coin.symbol
+                paper_trade.type = market.market_type
+            except (Coin.DoesNotExist, Market.DoesNotExist):
+                messages.error(request, "Selected coin or market does not exist.")
+                return render(request, 'pages/market/create_paper_trade.html',
+                              {'form': form, 'exchanges': Exchange.objects.all(), 'markets': Market.objects.all(),
+                               'symbols': Coin.objects.all()})
+
             paper_trade.save()
             messages.success(request, "Paper trade created successfully!")
             return redirect('market:paper_trading_dashboard')
@@ -247,7 +260,9 @@ class CreatePaperTradeView(View):
             messages.error(request, "Error creating paper trade. Please check the form for errors.")
             print(f"Form errors: {form.errors}")
             return render(request, 'pages/market/create_paper_trade.html',
-                          {'form': form, 'exchanges': Exchange.objects.all()})
+                          {'form': form, 'exchanges': Exchange.objects.all(), 'markets': Market.objects.all(),
+                           'symbols': Coin.objects.all()})
+
 
 @method_decorator(login_required, name='dispatch')
 class TogglePaperTradingView(View):
