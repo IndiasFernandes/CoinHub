@@ -94,8 +94,8 @@ class PaperTrade(models.Model):
 class MarketData(models.Model):
     paper_trade = models.ForeignKey(PaperTrade, on_delete=models.CASCADE)
     timestamp = models.DateTimeField(default=timezone.now)
-    price = models.DecimalField(max_digits=10, decimal_places=6)
-    st = models.DecimalField(max_digits=10, decimal_places=6)
+    price = models.DecimalField(max_digits=50, decimal_places=6)
+    st = models.DecimalField(max_digits=50, decimal_places=6)
     super_trend_status = models.CharField(max_length=10)  # 'long', 'short', or 'neutral'
     trade_indicator = models.BooleanField(default=False)
 
