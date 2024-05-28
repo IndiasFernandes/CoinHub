@@ -37,7 +37,7 @@ def download_data(symbol, timeframe, start_date, end_date, exchange):
         start_timestamp = int(datetime.strptime(start_date, "%Y-%m-%d").timestamp() * 1000)
         end_timestamp = int(datetime.strptime(end_date, "%Y-%m-%d").timestamp() * 1000)
 
-        data_dir = os.path.join(settings.BASE_DIR, 'static', 'data', exchange, timeframe)
+        data_dir = os.path.join(settings.BASE_DIR, 'static', 'data', str(exchange), timeframe)
         ensure_dir(data_dir)
         file_path = os.path.join(data_dir, f'{symbol.replace("/", "_")}.csv')
         #fetch_ohlcv = exchange.fetch_ohlcv(symbol="AAVE/USDC:USDC", timeframe='5m',

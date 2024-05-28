@@ -48,6 +48,7 @@ class DownloadDataForm(forms.Form):
         if not self.fields['end_date'].initial:
             self.fields['end_date'].initial = (datetime.now() - timedelta(days=1)).strftime('%Y-%m-%d')
 
+
 class ExchangeForm(forms.ModelForm):
     class Meta:
         model = Exchange

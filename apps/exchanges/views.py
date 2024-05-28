@@ -174,7 +174,7 @@ def download_data_view(request):
                         logger.info(f"Deleted existing file: {file_path}")
 
                     print(f"Downloading data for {symbol} ({timeframe})")
-                    download_data([symbol], [timeframe], start_date, end_date, exchange_instance)
+                    download_data(symbol, timeframe, start_date, end_date, exchange_instance)
                     downloaded_symbols.append(f"{symbol} ({timeframe})")
 
             end_time = datetime.now()
