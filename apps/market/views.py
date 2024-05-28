@@ -78,10 +78,16 @@ def run_backtest_view(request):
             }
             print("Backtest Form Data:", form_data)
 
+            # Ensure symbols and timeframes are always lists, even if only one item is passed
+            if not isinstance(symbols, list):
+                symbols = [symbols]  # Convert to list if it's a single symbol
+            if not isinstance(timeframes, list):
+                timeframes = [timeframes]  # Convert to list if it's a single timeframe
+
             for symbol in symbols:
                 for timeframe in timeframes:
                     print(f"Running backtest for {symbol} ({timeframe})")
-                    df = download_data([symbol], [timeframe], start_date, end_date, exchange_instance)
+                    df = download_data(symbol, timeframe, start_date, end_date, exchange_instance)
                     print("Downloaded data.")
                     st, price = run_backtest(symbol, df, timeframe, cash, commission, openbrowser)
                     print("Backtest results: st: ", st, ", price:", price)
@@ -139,6 +145,12 @@ def run_optimization_view(request):
             atr_multiplier_range = np.arange(min_multiplier, max_multiplier + interval_multiplier, interval_multiplier)
             timerSymbol = 1
             timerTimeframe = 1
+            # Ensure symbols and timeframes are always lists, even if only one item is passed
+            if not isinstance(symbols, list):
+                symbols = [symbols]  # Convert to list if it's a single symbol
+            if not isinstance(timeframes, list):
+                timeframes = [timeframes]  # Convert to list if it's a single timeframe
+
             for symbol in symbols:
                 print(f"{timerSymbol}/{len(symbols)}: Symbol {symbol}")
                 timerSymbol += 1

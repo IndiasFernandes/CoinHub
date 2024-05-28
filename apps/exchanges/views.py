@@ -166,6 +166,12 @@ def download_data_view(request):
             downloaded_symbols = []
             start_time = datetime.now()
 
+            # Ensure symbols and timeframes are always lists, even if only one item is passed
+            if not isinstance(symbols, list):
+                symbols = [symbols]  # Convert to list if it's a single symbol
+            if not isinstance(timeframes, list):
+                timeframes = [timeframes]  # Convert to list if it's a single timeframe
+
             for symbol in symbols:
                 for timeframe in timeframes:
                     file_path = f"static/data/{exchange_id}/{timeframe}/{symbol.replace('/', '_')}.csv"
