@@ -32,7 +32,7 @@ def paper_trade_execute(trade_id):
         'timeout': 30000,
         'enableRateLimit': True,
     })
-    print(f"Exchange Instance: {exchange_instance}, Type: {type(exchange_instance)}")
+    print(f"Exchange Instance: {trade.exchange}, Type: {type(trade.exchange)}")
 
     # Define the timeframe for data to be fetched
     end_date = datetime.now()
@@ -47,7 +47,7 @@ def paper_trade_execute(trade_id):
     print(f"Timeframe: {trade.timeframe}, Type: {type(trade.timeframe)}")
 
     # Download data using the utility function
-    df = download_data([trade.coin], [trade.timeframe], start_date_str, end_date_str, exchange_instance)
+    df = download_data([trade.coin], [trade.timeframe], start_date_str, end_date_str, str(trade.exchange))
     print(f"Downloaded data: {df}, Type: {type(df)}")
 
     # Run backtest using the utility function
