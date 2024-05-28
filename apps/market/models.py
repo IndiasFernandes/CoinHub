@@ -79,7 +79,7 @@ class Optimize(models.Model):
 class PaperTrade(models.Model):
     name = models.CharField(max_length=100)
     exchange = models.CharField(max_length=50, null=True, blank=True)
-    symbol = models.CharField(max_length=50, null=True, blank=True)
+    coin = models.CharField(max_length=50, null=True, blank=True)
     type = models.CharField(max_length=50)
     timeframe = models.CharField(max_length=50)
     initial_balance = models.DecimalField(max_digits=20, decimal_places=2)
