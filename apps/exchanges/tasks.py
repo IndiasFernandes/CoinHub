@@ -8,6 +8,7 @@ from apps.market.models import PaperTrade
 
 @shared_task
 def record_exchange_info():
+    print("Starting the task execution...")
     try:
         # Specify the path to your script
         script_path = "/path/to/your/script.sh"
@@ -20,9 +21,21 @@ def record_exchange_info():
         print(f"Error executing script: {e}")
 
 
+    # Import the task
+    from apps.market.tasks import run_paper_trading_task
 
+    def main(trade_id):
+        print("Starting the task execution...")
+        try:
+            result = run_paper_trading_task.apply_async(args=[trade_id])
+            print(f'Task ID: {result.id}')
+            print('Task has been triggered. Check your Celery worker logs for execution details.')
+        except Exception as e:
+            print(f"An error occurred: {e}")
 
-
+    if __name__ == '__main__':
+        trade_id = 1  # Replace with the trade_id you want to test
+        main(trade_id)
 
     # bot_account = BotAccount()  # Initialize your bot account
     #
