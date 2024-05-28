@@ -32,8 +32,8 @@ def paper_trade_execute(trade_id):
         print(f"Exchange with name {trade.exchange} not found.")
         return  # Optionally log this error
 
-    key = exchange.secret_key
-    secret = exchange.api_secret
+    key = exchange.api_key
+    secret = exchange.secret_key
 
     # Initialize the exchange instance, assuming CCXT usag e
     try:
