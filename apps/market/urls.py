@@ -1,7 +1,8 @@
 from django.urls import path
-from .views import PaperTradingDashboardView, CreatePaperTradeView, run_backtest_view, run_optimization_view, \
+from .views import CreatePaperTradeView, run_backtest_view, run_optimization_view, \
     backtests_list_view, backtest_detail_view, optimize_list_view, optimize_detail_view, market_dashboard_view, \
-    load_markets, load_symbols_and_timeframes, TogglePaperTradingView, paper_trade_detail_view, delete_paper_trade
+    load_markets, load_symbols_and_timeframes, TogglePaperTradingView, paper_trade_detail_view, delete_paper_trade, \
+    paper_trading_dashboard_view
 
 app_name = 'market'
 
