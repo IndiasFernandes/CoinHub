@@ -68,7 +68,6 @@ def run_backtest_view(request):
             cash = form.cleaned_data['cash']
             commission = form.cleaned_data['commission']
             openbrowser = form.cleaned_data['openbrowser']
-            results = []
 
             form_data = {
                 "exchange": exchange_id,
@@ -92,11 +91,9 @@ def run_backtest_view(request):
                     print(f"Running backtest for {symbol} ({timeframe})")
                     df = download_data(symbol, timeframe, start_date, end_date, exchange_instance)
                     print("Downloaded data.")
-                    st, price = run_backtest(symbol, df, timeframe, cash, commission, openbrowser)
-                    print("Backtest results: st: ", st, ", price:", price)
-                    results.append({"symbol": symbol, "timeframe": timeframe, "st": st, "price": price})
+                    run_backtest(symbol, df, timeframe, cash, commission, openbrowser)
+                    print("Backtest completed successfully.")
 
-            messages.success(request, "Backtest completed successfully.")
             return redirect('market:run_backtest')
         else:
             print("Form is invalid.")
