@@ -218,19 +218,18 @@ def optimize_detail_view(request, optimize_id):
         'show_sidebar': True
     })
 @login_required
-class PaperTradingDashboardView(View):
-    def get(self, request):
-        paper_trades = PaperTrade.objects.all()
-        market_data = MarketData.objects.all()
+def paper_trading_dashboard_view(request):
+    paper_trades = PaperTrade.objects.all()
+    market_data = MarketData.objects.all()
 
-        context = {
-            'paper_trades': paper_trades,
-            'market_data': market_data,
-            'current_section': 'market',
-            'section': 'paper_trading_dashboard',
-            'show_sidebar': True
-        }
-        return render(request, 'pages/market/paper_trade_dashboard.html', context)
+    context = {
+        'paper_trades': paper_trades,
+        'market_data': market_data,
+        'current_section': 'market',
+        'section': 'paper_trading_dashboard',
+        'show_sidebar': True
+    }
+    return render(request, 'pages/market/paper_trade_dashboard.html', context)
 
 @login_required
 class CreatePaperTradeView(View):
