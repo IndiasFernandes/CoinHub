@@ -1,12 +1,12 @@
 from celery import shared_task
 from django.core.management import call_command
 
-@shared_task(bind=True, max_retries=3, soft_time_limit=60)
+@shared_task(bind=True, max_retries=3, default_retry_delay=60)
 def run_read_hyperliquid_command(self):
     try:
         call_command('read_hyperliquid')
     except Exception as e:
-        self.retry(exc=e, countdown=60)
+        self.retry(exc=e)
 
 
 # from celery import shared_task
