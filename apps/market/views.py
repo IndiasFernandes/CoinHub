@@ -1,11 +1,11 @@
-import os
+import json
+
+from django.core.serializers.json import DjangoJSONEncoder
+from django_celery_beat.models import PeriodicTask
 import warnings
-from random import random
 
 from django.contrib.auth.decorators import login_required
-from django.utils import timezone
 from django.utils.decorators import method_decorator
-from django.utils.html import format_html
 from django.views import View
 from django.shortcuts import render, redirect, get_object_or_404
 from django.contrib import messages
@@ -227,13 +227,13 @@ class PaperTradingDashboardView(View):
             'section': 'paper_trading_dashboard',
             'show_sidebar': True
         }
-        return render(request, 'pages/market/paper_trading_dashboard.html', context)
+        return render(request, 'pages/market/paper_trade_dashboard.html', context)
 
 
 class CreatePaperTradeView(View):
     def get(self, request):
         form = CreatePaperTradeForm()
-        return render(request, 'pages/market/create_paper_trade.html',
+        return render(request, 'pages/market/paper_trade_create.html',
                       {'form': form, 'exchanges': Exchange.objects.all(), 'markets': Market.objects.all(),
                        'symbols': Coin.objects.all()})
 
@@ -258,7 +258,7 @@ class CreatePaperTradeView(View):
                 paper_trade.type = market.market_type
             except (Coin.DoesNotExist, Market.DoesNotExist):
                 messages.error(request, "Selected coin or market does not exist.")
-                return render(request, 'pages/market/create_paper_trade.html',
+                return render(request, 'pages/market/paper_trade_create.html',
                               {'form': form, 'exchanges': Exchange.objects.all(), 'markets': Market.objects.all(),
                                'symbols': Coin.objects.all()})
 
@@ -271,10 +271,25 @@ class CreatePaperTradeView(View):
                 print(f"Error in {field}: {errors}")
             messages.error(request, "Error creating paper trade. Please check the form for errors.")
             print(f"Form errors: {form.errors}")
-            return render(request, 'pages/market/create_paper_trade.html',
+            return render(request, 'pages/market/paper_trade_create.html',
                           {'form': form, 'exchanges': Exchange.objects.all(), 'markets': Market.objects.all(),
                            'symbols': Coin.objects.all()})
 
+@login_required
+def paper_trade_detail_view(request, trade_id):
+    paper_trade = get_object_or_404(PaperTrade, pk=trade_id)
+    market_data = MarketData.objects.filter(paper_trade_id=trade_id).order_by('timestamp')
+
+    # Ensure dates are in ISO format
+    timestamps = [md.timestamp.isoformat() for md in market_data]
+    prices = [float(md.price) for md in market_data]
+
+    context = {
+        'paper_trade': paper_trade,
+        'timestamps': json.dumps(timestamps, cls=DjangoJSONEncoder),  # Encoding datetime to JSON-safe format
+        'prices': json.dumps(prices),
+    }
+    return render(request, 'pages/market/paper_trade_detail.html', context)
 
 @method_decorator(login_required, name='dispatch')
 class TogglePaperTradingView(View):
@@ -282,4 +297,17 @@ class TogglePaperTradingView(View):
         paper_trade = get_object_or_404(PaperTrade, pk=trade_id)
         paper_trade.is_active = not paper_trade.is_active
         paper_trade.save()
-        return JsonResponse({"status": "success", "is_active": paper_trade.is_active})
+
+        # Update the corresponding Celery task
+        task_name = f'Paper Trade {paper_trade.id} - {paper_trade.name}'
+        try:
+            task = PeriodicTask.objects.get(name=task_name)
+            task.enabled = paper_trade.is_active
+            task.save()
+            message = f"{'Activated' if paper_trade.is_active else 'Deactivated'} task {task_name}."
+            print(message)  # Debugging output
+        except PeriodicTask.DoesNotExist:
+            message = f"No periodic task found for {task_name}."
+            print(message)  # Debugging output
+
+        return JsonResponse({"status": "success", "is_active": paper_trade.is_active, "message": message})

@@ -1,0 +1,77 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="columns is-multiline">
+        <div class="column is-12">
+            <article class="message is-info">
+                <div class="message-header">
+                    <p>Paper Trade Details</p>
+                </div>
+                <div class="message-body">
+                    <strong>Coin:</strong> {{ paper_trade.coin }}<br>
+                    <strong>Exchange:</strong> {{ paper_trade.exchange }}<br>
+                    <strong>Status:</strong> {{ paper_trade.is_active|yesno:"Active,Inactive" }}<br>
+                    <strong>Strategy:</strong> {{ paper_trade.strategy }}<br>
+                </div>
+            </article>
+        </div>
+        <div class="column is-12">
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        Market Data for {{ paper_trade.coin }} on {{ paper_trade.exchange }}
+                    </p>
+                </header>
+                <div class="card-content">
+                    <canvas id="myChart"></canvas>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Load Luxon -->
+<script src="https://cdn.jsdelivr.net/npm/luxon@2.3.1/build/global/luxon.min.js"></script>
+
+<!-- Load Chart.js and its Luxon adapter -->
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
+
+<script>
+document.addEventListener('DOMContentLoaded', function() {
+    const rawTimestamps = JSON.parse('{{ timestamps|safe }}');
+    const timestamps = rawTimestamps.map(ts => luxon.DateTime.fromISO(ts).toJSDate());
+    const prices = JSON.parse('{{ prices|safe }}');
+
+    const ctx = document.getElementById('myChart').getContext('2d');
+    const myChart = new Chart(ctx, {
+        type: 'line',
+        data: {
+            labels: timestamps,
+            datasets: [{
+                label: 'Price over Time',
+                data: prices,
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+            }]
+        },
+        options: {
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        unit: 'day',
+                        tooltipFormat: 'DD T'
+                    }
+                },
+                y: {
+                    beginAtZero: false
+                }
+            }
+        }
+    });
+});
+</script>
+
+{% endblock %}
