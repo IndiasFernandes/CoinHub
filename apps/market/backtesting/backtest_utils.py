@@ -24,16 +24,19 @@ def run_backtest(symbol, df, timeperiod, exchange, cash=100000, commission=.008,
         created_at=datetime.now(),
     )
 
-    bt = BT(df, SuperTrendBacktest, cash=cash, commission=commission, exclusive_orders=True)
-    bt.strategy.backtest_id = backtest_instance.id  # Pass the backtest ID to the strategy
+    # Create the backtest with the backtest_id passed to the strategy
+    bt = BT(df, SuperTrendBacktest, cash=cash, commission=commission, exclusive_orders=True, backtest_id=backtest_instance.id)
     main_path = os.path.join('static', 'backtest', 'backtest_results',
                              f'{symbol.replace("/", "_")}_{datetime.now().isoformat()}')
     bt_path = os.path.join(settings.BASE_DIR, main_path)
     stats = bt.run()
     bt.plot(open_browser=openbrowser, filename=bt_path)
 
+    # Access latest values from the strategy instance
+    st_value = bt.strategy[0].st_value
+    price_value = bt.strategy[0].price
 
-    save_backtest_instance(backtest_instance, stats, main_path)
+    save_backtest_instance(backtest_instance, stats, main_path, st_value, price_value)
 
     return st_value, price_value
 

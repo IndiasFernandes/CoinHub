@@ -12,7 +12,8 @@ class SuperTrendBacktest(Strategy):
     atr_multiplier = 0.79
     atr_method = True
 
-    def init(self):
+    def init(self, backtest_id=None):
+        self.backtest_id = backtest_id
         self.st_value = None
         self.price = None
         self.counter = 0
