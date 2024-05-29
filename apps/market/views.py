@@ -309,8 +309,8 @@ class TogglePaperTradingView(View):
         paper_trade.is_active = not paper_trade.is_active
         paper_trade.save()
 
-        # Update the corresponding Celery task
-        task_name = f'Paper Trade {paper_trade.id} - {paper_trade.name}'
+        # Consistent task naming with signals
+        task_name = f'PaperTrade_{paper_trade.id}_task'  # Match the naming used in signals
         try:
             task = PeriodicTask.objects.get(name=task_name)
             task.enabled = paper_trade.is_active
@@ -322,6 +322,7 @@ class TogglePaperTradingView(View):
             print(message)  # Debugging output
 
         return JsonResponse({"status": "success", "is_active": paper_trade.is_active, "message": message})
+
 
 @require_POST
 @login_required
