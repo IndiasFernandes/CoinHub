@@ -35,6 +35,8 @@ class Backtest(models.Model):
     graph_link = models.URLField(blank=True, null=True)
     created_at = models.DateTimeField(auto_now_add=True, blank=True, null=True)
     openbrowser = models.BooleanField(default=False)  # Add this field
+    end_price_value = models.DecimalField(max_digits=20, decimal_places=10, null=True, blank=True)  # Add this field
+    st_value = models.DecimalField(max_digits=20, decimal_places=10, null=True, blank=True)  # Add this field
 
     class Meta:
         verbose_name = "Backtest"
