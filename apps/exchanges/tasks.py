@@ -6,21 +6,23 @@ import subprocess
 from apps.market.models import PaperTrade
 
 
-@shared_task
-def record_exchange_info():
-    print("Starting the task execution...")
-    bot_account = BotAccount()
-    try:
-        bot_account.update_exchange_info()
-        bot_account.print_info()
+# TODO: WAS WORKING - take out bot and make it through ccxt
 
-        # Capture the account value here if needed
-        account_value = bot_account.get_account_value()
-        print(f"Account Value: {account_value}")
-    except Exception as e:
-        # Log the error
-        print(f"Error occurred: {e}")
-
+# @shared_task
+# def record_exchange_info():
+#     print("Starting the task execution...")
+#     bot_account = BotAccount()
+#     try:
+#         bot_account.update_exchange_info()
+#         bot_account.print_info()
+#
+#         # Capture the account value here if needed
+#         account_value = bot_account.get_account_value()
+#         print(f"Account Value: {account_value}")
+#     except Exception as e:
+#         # Log the error
+#         print(f"Error occurred: {e}")
+#
 
 
 
