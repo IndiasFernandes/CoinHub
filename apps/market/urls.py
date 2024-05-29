@@ -4,7 +4,7 @@ from .views import (
     backtests_list_view, backtest_detail_view, optimize_list_view, optimize_detail_view,
     market_dashboard_view, load_markets, load_symbols_and_timeframes,
     TogglePaperTradingView, delete_paper_trade,
-    paper_trading_dashboard_view
+    paper_trading_dashboard_view, paper_trade_detail_view
 )
 
 app_name = 'market'
