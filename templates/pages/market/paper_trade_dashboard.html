@@ -13,18 +13,6 @@
             </div>
         </div>
 
-        <!-- Existing Card Layout for Account Value Chart -->
-        <div class="card">
-            <header class="card-header">
-                <p class="card-header-title subtitle">Account Value Chart</p>
-            </header>
-            <div class="card-content">
-                <div class="content">
-                    <canvas id="myChart"></canvas>
-                </div>
-            </div>
-        </div>
-
         <!-- Display Existing Paper Trades -->
         <div class="box">
             <h2 class="subtitle">Existing Paper Trades</h2>
@@ -63,6 +51,18 @@
             </table>
         </div>
 
+        <!-- Existing Card Layout for Account Value Chart -->
+        <div class="card">
+            <header class="card-header">
+                <p class="card-header-title subtitle">Account Value Chart</p>
+            </header>
+            <div class="card-content">
+                <div class="content">
+                    <canvas id="myChart"></canvas>
+                </div>
+            </div>
+        </div>
+
         <!-- Display Market Data (Optional Visualization) -->
         <div class="box">
             <h2 class="subtitle">Market Data</h2>
@@ -72,54 +72,74 @@
 </section>
 
 <script>
-function toggleTrade(tradeId) {
-    const checkbox = document.querySelector(`input[data-id="${tradeId}"]`);
-    const isActive = checkbox.checked;
-    const url = checkbox.getAttribute('data-toggle-url');
-    fetch(url, {
-        method: 'POST',
-        headers: {
-            'Content-Type': 'application/json',
-            'X-CSRFToken': '{{ csrf_token }}'
-        },
-        body: JSON.stringify({ is_active: isActive })
-    })
-    .then(response => response.json())
-    .then(data => {
-        console.log('Success:', data);
-        // Optionally update the checkbox status based on the response
-    })
-    .catch(error => {
-        console.error('Error:', error);
-        checkbox.checked = !isActive;
-    });
-}
-document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('myChart').getContext('2d');
-    const timestamps = {{ timestamps|safe }};
-    const accountValues = {{ account_values|safe }}.map(value => parseFloat(value));
+    function toggleTrade(tradeId) {
+        const checkbox = document.querySelector(`input[data-id="${tradeId}"]`);
+        const isActive = checkbox.checked;
+        const url = checkbox.getAttribute('data-toggle-url');
+        fetch(url, {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+                'X-CSRFToken': '{{ csrf_token }}'
+            },
+            body: JSON.stringify({ is_active: isActive })
+        })
+        .then(response => response.json())
+        .then(data => {
+            console.log('Success:', data);
+        })
+        .catch(error => {
+            console.error('Error:', error);
+            checkbox.checked = !isActive;
+        });
+    }
 
-    new Chart(ctx, {
-        type: 'line',
-        data: {
-            labels: timestamps,
-            datasets: [{
-                label: 'Account Value',
-                backgroundColor: 'rgba(255, 99, 132, 0.2)',
-                borderColor: 'rgba(255, 99, 132, 1)',
-                data: accountValues,
-                fill: false,
-            }]
-        },
-        options: {
-            responsive: true,
-            scales: {
-                y: {
-                    beginAtZero: false
+    document.addEventListener('DOMContentLoaded', function() {
+        const ctx = document.getElementById('myChart').getContext('2d');
+
+        // Check if the context is successfully retrieved
+        if (!ctx) {
+            console.error('Failed to get the context of the canvas');
+            return;
+        }
+
+        try {
+            const timestamps = JSON.parse('{{ timestamps|safe }}');
+            const accountValues = JSON.parse('{{ account_values|safe }}').map(value => parseFloat(value));
+
+            console.log('Timestamps:', timestamps);
+            console.log('Account Values:', accountValues);
+
+            new Chart(ctx, {
+                type: 'line',
+                data: {
+                    labels: timestamps,
+                    datasets: [{
+                        label: 'Account Value',
+                        backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                        borderColor: 'rgba(255, 99, 132, 1)',
+                        data: accountValues,
+                        fill: false,
+                    }]
+                },
+                options: {
+                    responsive: true,
+                    scales: {
+                        x: {
+                            type: 'time',
+                            time: {
+                                unit: 'day'
+                            }
+                        },
+                        y: {
+                            beginAtZero: false
+                        }
+                    }
                 }
-            }
+            });
+        } catch (error) {
+            console.error('Error initializing the chart:', error);
         }
     });
-});
 </script>
 {% endblock %}

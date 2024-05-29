@@ -1,7 +1,7 @@
 from django.urls import path
 from .views import PaperTradingDashboardView, CreatePaperTradeView, run_backtest_view, run_optimization_view, \
     backtests_list_view, backtest_detail_view, optimize_list_view, optimize_detail_view, market_dashboard_view, \
-    load_markets, load_symbols_and_timeframes, TogglePaperTradingView, paper_trade_detail_view
+    load_markets, load_symbols_and_timeframes, TogglePaperTradingView, paper_trade_detail_view, delete_paper_trade
 
 app_name = 'market'
 
@@ -15,6 +15,7 @@ urlpatterns = [
     path('optimize/<int:optimize_id>/', optimize_detail_view, name='optimize_detail'),
     path('paper-trading/', PaperTradingDashboardView.as_view(), name='paper_trading_dashboard'),
     path('paper-trades/<int:trade_id>/', paper_trade_detail_view, name='paper_trade_detail'),
+    path('delete-paper-trade/<int:trade_id>/', delete_paper_trade, name='delete_paper_trade'),
     path('create-paper-trade/', CreatePaperTradeView.as_view(), name='create_paper_trade'),
     path('ajax/load-markets/', load_markets, name='ajax_load_markets'),
     path('ajax/load-symbols-timeframes/', load_symbols_and_timeframes, name='ajax_load_symbols_timeframes'),

@@ -1,6 +1,7 @@
 import json
 
 from django.core.serializers.json import DjangoJSONEncoder
+from django.views.decorators.http import require_POST
 from django_celery_beat.models import PeriodicTask
 import warnings
 
@@ -319,3 +320,10 @@ class TogglePaperTradingView(View):
             print(message)  # Debugging output
 
         return JsonResponse({"status": "success", "is_active": paper_trade.is_active, "message": message})
+
+@require_POST
+@login_required
+def delete_paper_trade(request, trade_id):
+    trade = get_object_or_404(PaperTrade, pk=trade_id)
+    trade.delete()
+    return JsonResponse({'status': 'success', 'message': 'Trade deleted successfully'})
