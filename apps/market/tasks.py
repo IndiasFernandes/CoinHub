@@ -2,7 +2,7 @@ from celery import shared_task
 from apps.market.models import PaperTrade
 from apps.market.utils.trading_functions import paper_trade_execute
 
-@shared_task(bind=True, max_retries=3, soft_time_limit=60)
+@shared_task(bind=True, max_retries=3, default_retry_delay=60)
 def run_paper_trading_task(self, trade_id):
     print('TASK TEST - Running Paper Trading Task')
     try:
