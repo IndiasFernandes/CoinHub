@@ -8,6 +8,14 @@ def run_read_hyperliquid_command(self):
     except Exception as e:
         self.retry(exc=e)
 
+@shared_task
+def run_read_hyperliquid_command():
+    redis_client = redis.StrictRedis(host='localhost', port=6379, db=0)
+    lock_name = 'run_read_hyperliquid_command_lock'
+
+    with redis_client.lock(lock_name, blocking_timeout=30):
+        call_command('read_hyperliquid')
+
 
 # from celery import shared_task
 # from apps.exchanges.utils.hyperliquid.bot import BotAccount
