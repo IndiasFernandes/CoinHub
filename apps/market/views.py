@@ -20,6 +20,7 @@ from .backtesting.backtest_utils import run_backtest
 from .backtesting.optimize_utils import run_optimization
 from ..exchanges.models import Exchange, Market, Coin
 
+@login_required
 def market_dashboard_view(request):
     return render(request, 'pages/market/dashboard.html', {
         'current_section': 'market',
@@ -180,7 +181,7 @@ def run_optimization_view(request):
         'section': 'run_optimization',
         'show_sidebar': True
     })
-
+@login_required
 def backtests_list_view(request):
     backtests = Backtest.objects.all()
     return render(request, 'pages/market/backtests_list.html', {
@@ -189,7 +190,7 @@ def backtests_list_view(request):
         'section': 'backtests_list',
         'show_sidebar': True
     })
-
+@login_required
 def backtest_detail_view(request, backtest_id):
     backtest = get_object_or_404(Backtest, id=backtest_id)
     return render(request, 'pages/market/backtest_detail.html', {
@@ -198,7 +199,7 @@ def backtest_detail_view(request, backtest_id):
         'section': 'backtest_detail',
         'show_sidebar': True
     })
-
+@login_required
 def optimize_list_view(request):
     optimizations = Optimize.objects.all()
     return render(request, 'pages/market/optimize_list.html', {
@@ -207,7 +208,7 @@ def optimize_list_view(request):
         'section': 'optimize_list',
         'show_sidebar': True
     })
-
+@login_required
 def optimize_detail_view(request, optimize_id):
     optimization = get_object_or_404(Optimize, id=optimize_id)
     return render(request, 'pages/market/optimize_detail.html', {
@@ -216,6 +217,7 @@ def optimize_detail_view(request, optimize_id):
         'section': 'optimize_detail',
         'show_sidebar': True
     })
+@login_required
 class PaperTradingDashboardView(View):
     def get(self, request):
         paper_trades = PaperTrade.objects.all()
@@ -230,7 +232,7 @@ class PaperTradingDashboardView(View):
         }
         return render(request, 'pages/market/paper_trade_dashboard.html', context)
 
-
+@login_required
 class CreatePaperTradeView(View):
     def get(self, request):
         form = CreatePaperTradeForm()
