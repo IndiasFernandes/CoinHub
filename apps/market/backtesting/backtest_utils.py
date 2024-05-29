@@ -1,10 +1,10 @@
+# apps/market/backtesting/backtest_utils.py
 import os
-from _decimal import Decimal
+from decimal import Decimal
 from datetime import datetime
 from backtesting import Backtest as BT
 
 from CoinHub import settings
-from apps.exchanges.utils.utils import import_csv
 from .strategy.SuperTrend_Strategy_Backtest import SuperTrendBacktest
 from ..models import Backtest
 
@@ -21,8 +21,8 @@ def run_backtest(symbol, df, timeperiod, exchange, cash=100000, commission=.008,
     stats = bt.run()
 
     # Access latest values from the strategy instance
-    st_value = bt._strategy[0].st_value
-    price_value = bt._strategy[0].price
+    st_value = bt._strategy.st_value
+    price_value = bt._strategy.price
 
     bt.plot(open_browser=openbrowser, filename=bt_path)
 
@@ -31,7 +31,7 @@ def run_backtest(symbol, df, timeperiod, exchange, cash=100000, commission=.008,
     return st_value, price_value
 
 
-def save_backtest_instance(exchange, stats, symbol, cash, commission, timeperiod, main_path, st_value, end_price_value):
+def save_backtest_instance(exchange, stats, symbol, cash, commission, timeperiod, main_path):
     if stats['# Trades'] > 1:
         Backtest.objects.create(
             exchange=exchange,
@@ -56,7 +56,5 @@ def save_backtest_instance(exchange, stats, symbol, cash, commission, timeperiod
             sqn=stats['SQN'],
             created_at=datetime.now(),
             graph_link=main_path + '.html',
-            timeframe=timeperiod,
-            st_value=st_value,
-            end_price_value=end_price_value,
+            timeframe=timeperiod
         )

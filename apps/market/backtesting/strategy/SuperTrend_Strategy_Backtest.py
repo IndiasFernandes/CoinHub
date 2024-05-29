@@ -27,7 +27,7 @@ class SuperTrendBacktest(Strategy):
         print('timeperiod: ', timeperiod)
 
         self.st, self.s_upt, self.st_dt = self.I(get_supertrend, self.data.df['High'], self.data.df['Low'], self.data.df['Close'], self.atr_timeperiod,
-                                                            self.atr_multiplier, self.atr_timeperiod)
+                                                 self.atr_multiplier, self.atr_timeperiod)
 
         self.st = self.st[1:]
         self.s_upt = self.s_upt[1:]
