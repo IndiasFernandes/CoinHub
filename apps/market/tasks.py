@@ -1,5 +1,4 @@
 from celery import shared_task
-import logging
 from apps.market.models import PaperTrade
 from apps.market.utils.trading_functions import paper_trade_execute
 
