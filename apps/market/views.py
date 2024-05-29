@@ -1,17 +1,19 @@
-import json
 
-from django.core.serializers.json import DjangoJSONEncoder
+import numpy as np
+import warnings
 from django.views.decorators.http import require_POST
 from django_celery_beat.models import PeriodicTask
-import warnings
-
-from django.contrib.auth.decorators import login_required
 from django.utils.decorators import method_decorator
 from django.views import View
-from django.shortcuts import render, redirect, get_object_or_404
+from django.shortcuts import  redirect
 from django.contrib import messages
 from django.http import JsonResponse
-import numpy as np
+
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+import json
+from django.core.serializers.json import DjangoJSONEncoder
+
 from .models import PaperTrade, MarketData, Backtest, Optimize
 from .forms import BacktestForm, OptimizeForm, CreatePaperTradeForm
 from ..exchanges.utils.utils import run_exchange
@@ -28,11 +30,10 @@ def market_dashboard_view(request):
         'show_sidebar': True
     })
 
-
 @login_required
 def load_markets(request):
     exchange_id = request.GET.get('exchange')
-    exchange = get_object_or_404(Exchange, id_char=exchange_id)  # Ensure correct field used for lookup
+    exchange = get_object_or_404(Exchange, id_char=exchange_id)
     markets = Market.objects.filter(exchange=exchange).values('id', 'market_type')
     return JsonResponse(list(markets), safe=False)
 
@@ -46,6 +47,7 @@ def load_symbols_and_timeframes(request):
         'timeframes': timeframes
     }
     return JsonResponse(data)
+
 @login_required
 def run_backtest_view(request):
     warnings.simplefilter(action='ignore', category=FutureWarning)
@@ -80,11 +82,10 @@ def run_backtest_view(request):
             }
             print("Backtest Form Data:", form_data)
 
-            # Ensure symbols and timeframes are always lists, even if only one item is passed
             if not isinstance(symbols, list):
-                symbols = [symbols]  # Convert to list if it's a single symbol
+                symbols = [symbols]
             if not isinstance(timeframes, list):
-                timeframes = [timeframes]  # Convert to list if it's a single timeframe
+                timeframes = [timeframes]
 
             for symbol in symbols:
                 for timeframe in timeframes:
@@ -147,11 +148,11 @@ def run_optimization_view(request):
             atr_multiplier_range = np.arange(min_multiplier, max_multiplier + interval_multiplier, interval_multiplier)
             timerSymbol = 1
             timerTimeframe = 1
-            # Ensure symbols and timeframes are always lists, even if only one item is passed
+
             if not isinstance(symbols, list):
-                symbols = [symbols]  # Convert to list if it's a single symbol
+                symbols = [symbols]
             if not isinstance(timeframes, list):
-                timeframes = [timeframes]  # Convert to list if it's a single timeframe
+                timeframes = [timeframes]
 
             for symbol in symbols:
                 print(f"{timerSymbol}/{len(symbols)}: Symbol {symbol}")
@@ -161,7 +162,6 @@ def run_optimization_view(request):
                     timerTimeframe += 1
                     df = download_data(symbol, timeframe, start_date, end_date, exchange_instance)
                     stats, heatmap = run_optimization(symbol, timeframe, cash, commission, openbrowser, df, max_tries, atr_timeperiod_range, atr_multiplier_range, exchange_instance)
-
 
             messages.success(request, "Optimization completed successfully.")
             return redirect('market:run_optimization')
@@ -181,6 +181,7 @@ def run_optimization_view(request):
         'section': 'run_optimization',
         'show_sidebar': True
     })
+
 @login_required
 def backtests_list_view(request):
     backtests = Backtest.objects.all()
@@ -190,6 +191,7 @@ def backtests_list_view(request):
         'section': 'backtests_list',
         'show_sidebar': True
     })
+
 @login_required
 def backtest_detail_view(request, backtest_id):
     backtest = get_object_or_404(Backtest, id=backtest_id)
@@ -199,6 +201,7 @@ def backtest_detail_view(request, backtest_id):
         'section': 'backtest_detail',
         'show_sidebar': True
     })
+
 @login_required
 def optimize_list_view(request):
     optimizations = Optimize.objects.all()
@@ -208,6 +211,7 @@ def optimize_list_view(request):
         'section': 'optimize_list',
         'show_sidebar': True
     })
+
 @login_required
 def optimize_detail_view(request, optimize_id):
     optimization = get_object_or_404(Optimize, id=optimize_id)
@@ -217,6 +221,7 @@ def optimize_detail_view(request, optimize_id):
         'section': 'optimize_detail',
         'show_sidebar': True
     })
+
 @login_required
 def paper_trading_dashboard_view(request):
     paper_trades = PaperTrade.objects.all()
@@ -231,13 +236,17 @@ def paper_trading_dashboard_view(request):
     }
     return render(request, 'pages/market/paper_trade_dashboard.html', context)
 
-@login_required
+@method_decorator(login_required, name='dispatch')
 class CreatePaperTradeView(View):
     def get(self, request):
         form = CreatePaperTradeForm()
-        return render(request, 'pages/market/paper_trade_create.html',
-                      {'form': form, 'exchanges': Exchange.objects.all(), 'markets': Market.objects.all(),
-                       'symbols': Coin.objects.all()})
+        context = {
+            'form': form,
+            'exchanges': Exchange.objects.all(),
+            'markets': Market.objects.all(),
+            'symbols': Coin.objects.all()
+        }
+        return render(request, 'pages/market/paper_trade_create.html', context)
 
     def post(self, request):
         form = CreatePaperTradeForm(request.POST)
@@ -245,10 +254,7 @@ class CreatePaperTradeView(View):
         print(f"Form valid: {form.is_valid()}")
 
         if form.is_valid():
-            # Manually set the coin and market_type as strings from the form
             paper_trade = form.save(commit=False)
-
-            # Retrieve the Coin symbol and Market type name based on IDs
             coin_id = request.POST.get('coin')
             market_id = request.POST.get('type')
 
@@ -260,28 +266,28 @@ class CreatePaperTradeView(View):
                 paper_trade.type = market.market_type
             except (Coin.DoesNotExist, Market.DoesNotExist):
                 messages.error(request, "Selected coin or market does not exist.")
-                return render(request, 'pages/market/paper_trade_create.html',
-                              {'form': form, 'exchanges': Exchange.objects.all(), 'markets': Market.objects.all(),
-                               'symbols': Coin.objects.all()})
+                context = {
+                    'form': form,
+                    'exchanges': Exchange.objects.all(),
+                    'markets': Market.objects.all(),
+                    'symbols': Coin.objects.all()
+                }
+                return render(request, 'pages/market/paper_trade_create.html', context)
 
             paper_trade.save()
             messages.success(request, "Paper trade created successfully!")
             return redirect('market:paper_trading_dashboard')
         else:
-            # Log detailed errors
             for field, errors in form.errors.items():
-                print(f"Error in {field}: {errors}")
+                for error in errors:
+                    print(f"Error in {form[field].label}: {error}")
             messages.error(request, "Error creating paper trade. Please check the form for errors.")
             print(f"Form errors: {form.errors}")
             return render(request, 'pages/market/paper_trade_create.html',
                           {'form': form, 'exchanges': Exchange.objects.all(), 'markets': Market.objects.all(),
                            'symbols': Coin.objects.all()})
 
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
-from .models import MarketData, PaperTrade
-import json
-from django.core.serializers.json import DjangoJSONEncoder
+
 
 @login_required
 def paper_trade_detail_view(request, trade_id):
@@ -308,20 +314,18 @@ class TogglePaperTradingView(View):
         paper_trade.is_active = not paper_trade.is_active
         paper_trade.save()
 
-        # Consistent task naming with signals
-        task_name = f'PaperTrade_{paper_trade.id}_task'  # Match the naming used in signals
+        task_name = f'PaperTrade_{paper_trade.id}_task'
         try:
             task = PeriodicTask.objects.get(name=task_name)
             task.enabled = paper_trade.is_active
             task.save()
             message = f"{'Activated' if paper_trade.is_active else 'Deactivated'} task {task_name}."
-            print(message)  # Debugging output
+            print(message)
         except PeriodicTask.DoesNotExist:
             message = f"No periodic task found for {task_name}."
-            print(message)  # Debugging output
+            print(message)
 
         return JsonResponse({"status": "success", "is_active": paper_trade.is_active, "message": message})
-
 
 @require_POST
 @login_required
