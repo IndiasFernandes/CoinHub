@@ -105,7 +105,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Function to fetch new data and update the chart
     function updateChart() {
-        fetch("{% url 'your_data_fetching_url' %}")  // Replace 'your_data_fetching_url' with the actual URL
+        fetch("{% url 'market:fetch_market_data' paper_trade.id %}")
             .then(response => response.json())
             .then(data => {
                 const newTimestamps = data.timestamps.map(ts => luxon.DateTime.fromISO(ts).toJSDate());

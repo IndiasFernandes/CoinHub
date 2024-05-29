@@ -306,6 +306,19 @@ def paper_trade_detail_view(request, trade_id):
     }
     return render(request, 'pages/market/paper_trade_detail.html', context)
 
+def fetch_market_data(request, trade_id):
+    market_data = MarketData.objects.filter(paper_trade_id=trade_id).order_by('timestamp')
+    timestamps = [md.timestamp.isoformat() for md in market_data]
+    prices = [float(md.price) for md in market_data]
+    st_values = [float(md.st) for md in market_data]
+
+    data = {
+        'timestamps': json.dumps(timestamps, cls=DjangoJSONEncoder),
+        'prices': json.dumps(prices),
+        'st_values': json.dumps(st_values),
+    }
+    return data
+
 
 @method_decorator(login_required, name='dispatch')
 class TogglePaperTradingView(View):

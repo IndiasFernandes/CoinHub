@@ -4,7 +4,7 @@ from .views import (
     backtests_list_view, backtest_detail_view, optimize_list_view, optimize_detail_view,
     market_dashboard_view, load_markets, load_symbols_and_timeframes,
     TogglePaperTradingView, delete_paper_trade,
-    paper_trading_dashboard_view, paper_trade_detail_view
+    paper_trading_dashboard_view, paper_trade_detail_view, fetch_market_data
 )
 
 app_name = 'market'
@@ -24,4 +24,5 @@ urlpatterns = [
     path('ajax/load-markets/', load_markets, name='ajax_load_markets'),
     path('ajax/load-symbols-timeframes/', load_symbols_and_timeframes, name='ajax_load_symbols_timeframes'),
     path('toggle-trade-active/<int:trade_id>/', TogglePaperTradingView.as_view(), name='toggle_trade_active'),
+    path('fetch-market-data/<int:trade_id>/', fetch_market_data, name='fetch_market_data'),
 ]
