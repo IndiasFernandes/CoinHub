@@ -19,22 +19,17 @@ def run_backtest(symbol, df, timeperiod, exchange, cash=100000, commission=.008,
                              f'{symbol.replace("/", "_")}_{datetime.now().isoformat()}')
     bt_path = os.path.join(settings.BASE_DIR, main_path)
     stats = bt.run()
+
+    # Get latest values from the strategy instance
+    st_value = bt._strategy.st_value
+    price_value = bt._strategy.price
+
     bt.plot(open_browser=openbrowser, filename=bt_path)
 
-    price_value, st_value = fetch_latest_values('backtest')
-    save_backtest_instance(exchange, stats, symbol, cash, commission, timeperiod, main_path, st_value, price_value)
+    save_backtest_instance(exchange, stats, symbol, cash, commission, timeperiod, main_path)
 
     return st_value, price_value
 
-
-def fetch_latest_values(folder):
-    price_path = os.path.join(settings.BASE_DIR, f'static/{folder}/last_price.csv')
-    st_path = os.path.join(settings.BASE_DIR, f'static/{folder}/last_st.csv')
-
-    price_value = float(import_csv(price_path)[0][0]) if os.path.exists(price_path) else 0
-    st_value = float(import_csv(st_path)[0][0]) if os.path.exists(st_path) else 0
-
-    return price_value, st_value
 
 def save_backtest_instance(exchange, stats, symbol, cash, commission, timeperiod, main_path, st_value, end_price_value):
     if stats['# Trades'] > 1:
