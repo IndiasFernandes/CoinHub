@@ -46,8 +46,8 @@ class Optimize(models.Model):
     timeframe = models.CharField(max_length=50, null=True, blank=True)
     cash = models.DecimalField(max_digits=20, decimal_places=2, null=True, blank=True)
     commission = models.DecimalField(max_digits=5, decimal_places=4, null=True, blank=True)
-    atr_timeperiod = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
-    atr_multiplier = models.DecimalField(max_digits=10, decimal_places=2, null=True, blank=True)
+    atr_timeperiod = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
+    atr_multiplier = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
     sharpe_ratio = models.FloatField(null=True, blank=True)
     return_percent = models.FloatField(null=True, blank=True)
     max_drawdown_percent = models.FloatField(null=True, blank=True)
@@ -87,6 +87,8 @@ class PaperTrade(models.Model):
     created_at = models.DateTimeField(auto_now_add=True)
     lookback_period = models.IntegerField(default=7)
     is_active = models.BooleanField(default=True)
+    atr_timeperiod = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
+    atr_multiplier = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
 
     def __str__(self):
         return self.name

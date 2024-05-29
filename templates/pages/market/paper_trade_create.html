@@ -23,17 +23,17 @@
                 {{ form.initial_balance.errors }}
             </div>
             <div class="field">
-    <label class="label">{{ form.exchange.label }}</label>
-    <div class="control">
-        <select name="{{ form.exchange.name }}" id="exchange-select" class="input" required>
-            <option value="">Select Exchange</option>
-            {% for exchange in exchanges %}
-                <option value="{{ exchange.id_char }}" data-char-id="{{ exchange.id_char }}" {% if form.initial.exchange == exchange.id %}selected{% endif %}>{{ exchange.name }}</option>
-            {% endfor %}
-        </select>
-    </div>
-    {{ form.exchange.errors }}
-</div>
+                <label class="label">{{ form.exchange.label }}</label>
+                <div class="control">
+                    <select name="{{ form.exchange.name }}" id="exchange-select" class="input" required>
+                        <option value="">Select Exchange</option>
+                        {% for exchange in exchanges %}
+                            <option value="{{ exchange.id_char }}" data-char-id="{{ exchange.id_char }}" {% if form.initial.exchange == exchange.id %}selected{% endif %}>{{ exchange.name }}</option>
+                        {% endfor %}
+                    </select>
+                </div>
+                {{ form.exchange.errors }}
+            </div>
             <div class="field">
                 <label class="label">Market:</label>
                 <div class="control">
@@ -75,11 +75,61 @@
                 {{ form.lookback_period.errors }}
             </div>
             <div class="field">
+                <label class="label">{{ form.atr_timeperiod.label }}</label>
+                <div class="control">
+                    <input class="input" type="number" step="0.01" name="{{ form.atr_timeperiod.name }}" id="{{ form.atr_timeperiod.id_for_label }}" value="{{ form.atr_timeperiod.value|default:14 }}" required>
+                </div>
+                {{ form.atr_timeperiod.errors }}
+            </div>
+            <div class="field">
+                <label class="label">{{ form.atr_multiplier.label }}</label>
+                <div class="control">
+                    <input class="input" type="number" step="0.01" name="{{ form.atr_multiplier.name }}" id="{{ form.atr_multiplier.id_for_label }}" value="{{ form.atr_multiplier.value|default:1.5 }}" required>
+                </div>
+                {{ form.atr_multiplier.errors }}
+            </div>
+            <div class="field">
                 <div class="control">
                     <button type="submit" class="button is-link">Create Trade</button>
                 </div>
             </div>
         </form>
+    </div>
+
+    <h2 class="title">Optimization Results</h2>
+    <div class="box">
+        <table class="table is-striped is-fullwidth">
+            <thead>
+                <tr>
+                    <th>Exchange</th>
+                    <th>Symbol</th>
+                    <th>Timeframe</th>
+                    <th>Return [%]</th>
+                    <th>Sharpe Ratio</th>
+                    <th>Max Drawdown [%]</th>
+                    <th>Duration</th>
+                    <th>Number of Trades</th>
+                    <th>Action</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for optimization in optimizations %}
+                    <tr>
+                        <td>{{ optimization.exchange }}</td>
+                        <td>{{ optimization.symbol }}</td>
+                        <td>{{ optimization.timeframe }}</td>
+                        <td>{{ optimization.return_percent|floatformat:2 }}</td>
+                        <td>{{ optimization.sharpe_ratio|floatformat:2 }}</td>
+                        <td>{{ optimization.max_drawdown_percent|floatformat:2 }}</td>
+                        <td>{{ optimization.duration }}</td>
+                        <td>{{ optimization.number_of_trades }}</td>
+                        <td>
+                            <button class="button is-small is-link" onclick="populateForm('{{ optimization.exchange }}', '{{ optimization.symbol }}', '{{ optimization.timeframe }}', '{{ optimization.commission }}', '{{ optimization.atr_timeperiod }}', '{{ optimization.atr_multiplier }}')">Use</button>
+                        </td>
+                    </tr>
+                {% endfor %}
+            </tbody>
+        </table>
     </div>
 </div>
 
@@ -140,6 +190,18 @@ function updateSymbolsAndTimeframes() {
         });
     })
     .catch(error => console.error('Error loading symbols and timeframes:', error));
+}
+
+function populateForm(exchange, symbol, timeframe, commission, atr_timeperiod, atr_multiplier) {
+    document.getElementById('exchange-select').value = exchange;
+    updateMarkets();  // Update markets based on the selected exchange
+    setTimeout(function() {
+        document.getElementById('coinSelect').value = symbol;
+        document.getElementById('timeframeSelect').value = timeframe;
+    }, 500);  // Adjust timeout as needed
+    document.getElementById('{{ form.atr_timeperiod.id_for_label }}').value = atr_timeperiod;
+    document.getElementById('{{ form.atr_multiplier.id_for_label }}').value = atr_multiplier;
+    document.getElementById('commission').value = commission;
 }
 
 document.addEventListener('DOMContentLoaded', function() {

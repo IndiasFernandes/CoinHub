@@ -98,7 +98,7 @@ class CreatePaperTradeForm(forms.ModelForm):
     class Meta:
         model = PaperTrade
         fields = ['name', 'initial_balance', 'exchange', 'coin', 'type', 'timeframe', 'cron_timeframe',
-                  'lookback_period']
+                  'lookback_period', 'atr_timeperiod', 'atr_multiplier']
 
     def __init__(self, *args, **kwargs):
         super().__init__(*args, **kwargs)
@@ -116,3 +116,5 @@ class CreatePaperTradeForm(forms.ModelForm):
         self.fields['initial_balance'].label = "Initial Balance"
         self.fields['cron_timeframe'].label = "Cron Timeframe (in seconds)"
         self.fields['lookback_period'].label = "Lookback Period (in days)"
+        self.fields['atr_timeperiod'].label = "ATR Timeperiod"
+        self.fields['atr_multiplier'].label = "ATR Multiplier"

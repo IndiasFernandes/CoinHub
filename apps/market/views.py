@@ -245,7 +245,8 @@ class CreatePaperTradeView(View):
             'form': form,
             'exchanges': Exchange.objects.all(),
             'markets': Market.objects.all(),
-            'symbols': Coin.objects.all()
+            'symbols': Coin.objects.all(),
+            'optimizations': Optimize.objects.all()  # Fetch all optimizations to display in the table
         }
         return render(request, 'pages/market/paper_trade_create.html', context)
 
@@ -271,7 +272,8 @@ class CreatePaperTradeView(View):
                     'form': form,
                     'exchanges': Exchange.objects.all(),
                     'markets': Market.objects.all(),
-                    'symbols': Coin.objects.all()
+                    'symbols': Coin.objects.all(),
+                    'optimizations': Optimize.objects.all()  # Fetch all optimizations to display in the table
                 }
                 return render(request, 'pages/market/paper_trade_create.html', context)
 
@@ -284,10 +286,14 @@ class CreatePaperTradeView(View):
                     print(f"Error in {form[field].label}: {error}")
             messages.error(request, "Error creating paper trade. Please check the form for errors.")
             print(f"Form errors: {form.errors}")
-            return render(request, 'pages/market/paper_trade_create.html',
-                          {'form': form, 'exchanges': Exchange.objects.all(), 'markets': Market.objects.all(),
-                           'symbols': Coin.objects.all()})
-
+            context = {
+                'form': form,
+                'exchanges': Exchange.objects.all(),
+                'markets': Market.objects.all(),
+                'symbols': Coin.objects.all(),
+                'optimizations': Optimize.objects.all()  # Fetch all optimizations to display in the table
+            }
+            return render(request, 'pages/market/paper_trade_create.html', context)
 
 
 @login_required
