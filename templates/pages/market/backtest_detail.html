@@ -71,9 +71,8 @@
                                     <td><strong>Graph Link</strong></td>
                                     <td>
                                         {% if backtest.graph_link %}
-    <a href="{% url 'market:fetch_graph' backtest.graph_link %}" class="button is-info" target="_blank">View Graph</a>
-{% else %}
-
+                                            <a href="http://localhost:8000/{{ backtest.graph_link }}" class="button is-info" target="_blank">View Graph</a>
+                                        {% else %}
                                             <span class="tag is-light">No Graph Available</span>
                                         {% endif %}
                                     </td>

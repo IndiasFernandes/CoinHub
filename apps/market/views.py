@@ -215,6 +215,7 @@ def optimize_list_view(request):
 @login_required
 def optimize_detail_view(request, optimize_id):
     optimization = get_object_or_404(Optimize, id=optimize_id)
+
     return render(request, 'pages/market/optimize_detail.html', {
         'optimization': optimization,
         'current_section': 'market',

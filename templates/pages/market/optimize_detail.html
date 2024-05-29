@@ -113,19 +113,19 @@
 
                             <div>
                                 <div class="buttons is-centered">
-                                    <div class="buttons has-addons">
-                                        {% if optimization.graph_link %}
-                                            <a href="{% url 'market:fetch_graph' optimization.graph_link %}" class="button is-link is-outlined" target="_blank">View Graph</a>
-                                        {% else %}
-                                            <button class="button is-light" disabled>No Graph Available</button>
-                                        {% endif %}
-                                        {% if optimization.heat_map_link %}
-                                            <a href="{% url 'market:fetch_heat_map' optimization.heat_map_link %}" class="button is-link is-outlined" target="_blank">View Heat Map</a>
-                                        {% else %}
-                                            <button class="button is-light" disabled>No Heat Map Available</button>
-                                        {% endif %}
-                                    </div>
-                                </div>
+            <div class="buttons has-addons">
+                            {% if optimization.graph_link %}
+                                <a href="http://localhost:8000/{{ optimization.graph_link }}" class="button is-link is-outlined" target="_blank">View Graph</a>
+                            {% else %}
+                                <button class="button is-light" disabled>No Graph Available</button>
+                            {% endif %}
+                            {% if optimization.heat_map_link %}
+                                <a href="http://localhost:8000/{{ optimization.heat_map_link }}" class="button is-link is-outlined" target="_blank">View Heat Map</a>
+                            {% else %}
+                                <button class="button is-light" disabled>No Heat Map Available</button>
+                            {% endif %}
+                        </div>
+            </div>
                             </div><!-- List Best Variables -->
                                     </tbody>
                                 </table>
