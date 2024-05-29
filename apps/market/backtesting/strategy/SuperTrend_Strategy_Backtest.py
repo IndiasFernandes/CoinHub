@@ -33,6 +33,10 @@ class SuperTrendBacktest(Strategy):
         self.s_upt = self.s_upt[1:]
         self.st_dt = self.st_dt[1:]
 
+        # Initialize latest values
+        self.price = None
+        self.st_value = None
+
     def next(self):
         previous_price = self.data.Close[-2]
         self.price = self.data.Close[-1]

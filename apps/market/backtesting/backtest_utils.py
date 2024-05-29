@@ -20,9 +20,9 @@ def run_backtest(symbol, df, timeperiod, exchange, cash=100000, commission=.008,
     bt_path = os.path.join(settings.BASE_DIR, main_path)
     stats = bt.run()
 
-    # Get latest values from the strategy instance
-    st_value = bt._strategy.st_value
-    price_value = bt._strategy.price
+    # Access latest values from the strategy instance
+    st_value = bt._strategy[0].st_value
+    price_value = bt._strategy[0].price
 
     bt.plot(open_browser=openbrowser, filename=bt_path)
 
