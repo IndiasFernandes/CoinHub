@@ -31,32 +31,41 @@
     </div>
 </div>
 
-<!-- Load Luxon -->
+<!-- Load Luxon and Chart.js with Luxon adapter and Zoom plugin -->
 <script src="https://cdn.jsdelivr.net/npm/luxon@2.3.1/build/global/luxon.min.js"></script>
-
-<!-- Load Chart.js and its Luxon adapter -->
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
+<script src="https://cdn.jsdelivr.net/npm/chartjs-plugin-zoom"></script>
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
     const rawTimestamps = JSON.parse('{{ timestamps|safe }}');
     const timestamps = rawTimestamps.map(ts => luxon.DateTime.fromISO(ts).toJSDate());
     const prices = JSON.parse('{{ prices|safe }}');
+    const stValues = JSON.parse('{{ st_values|safe }}');
 
     const ctx = document.getElementById('myChart').getContext('2d');
     const myChart = new Chart(ctx, {
         type: 'line',
         data: {
             labels: timestamps,
-            datasets: [{
-                label: 'Price over Time',
-                data: prices,
-                borderColor: 'rgba(75, 192, 192, 1)',
-                borderWidth: 1
-            }]
+            datasets: [
+                {
+                    label: 'Price',
+                    data: prices,
+                    borderColor: 'rgba(75, 192, 192, 1)',
+                    borderWidth: 1
+                },
+                {
+                    label: 'ST Value',
+                    data: stValues,
+                    borderColor: 'rgba(153, 102, 255, 1)',
+                    borderWidth: 1
+                }
+            ]
         },
         options: {
+            responsive: true,
             scales: {
                 x: {
                     type: 'time',
@@ -66,12 +75,28 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 y: {
-                    beginAtZero: false
+                    beginAtZero: true
+                }
+            },
+            plugins: {
+                zoom: {
+                    pan: {
+                        enabled: true,
+                        mode: 'xy'
+                    },
+                    zoom: {
+                        wheel: {
+                            enabled: true
+                        },
+                        pinch: {
+                            enabled: true
+                        },
+                        mode: 'xy'
+                    }
                 }
             }
         }
     });
 });
 </script>
-
 {% endblock %}

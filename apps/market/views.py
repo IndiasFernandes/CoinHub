@@ -275,21 +275,29 @@ class CreatePaperTradeView(View):
                           {'form': form, 'exchanges': Exchange.objects.all(), 'markets': Market.objects.all(),
                            'symbols': Coin.objects.all()})
 
+from django.shortcuts import render, get_object_or_404
+from django.contrib.auth.decorators import login_required
+from .models import MarketData, PaperTrade
+import json
+from django.core.serializers.json import DjangoJSONEncoder
+
 @login_required
 def paper_trade_detail_view(request, trade_id):
     paper_trade = get_object_or_404(PaperTrade, pk=trade_id)
     market_data = MarketData.objects.filter(paper_trade_id=trade_id).order_by('timestamp')
 
-    # Ensure dates are in ISO format
     timestamps = [md.timestamp.isoformat() for md in market_data]
     prices = [float(md.price) for md in market_data]
+    st_values = [float(md.st) for md in market_data]
 
     context = {
         'paper_trade': paper_trade,
-        'timestamps': json.dumps(timestamps, cls=DjangoJSONEncoder),  # Encoding datetime to JSON-safe format
+        'timestamps': json.dumps(timestamps, cls=DjangoJSONEncoder),
         'prices': json.dumps(prices),
+        'st_values': json.dumps(st_values),
     }
     return render(request, 'pages/market/paper_trade_detail.html', context)
+
 
 @method_decorator(login_required, name='dispatch')
 class TogglePaperTradingView(View):
