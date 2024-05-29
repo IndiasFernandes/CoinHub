@@ -3,11 +3,13 @@ import os
 from celery import Celery
 from celery.schedules import crontab
 
-os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CoinHub.settings_production')
+from CoinHub import settings
+
+os.environ.setdefault('DJANGO_SETTINGS_MODULE', 'CoinHub.settings')
 
 app = Celery('CoinHub')
 app.config_from_object('django.conf:settings', namespace='CELERY')
-app.autodiscover_tasks()
+app.autodiscover_tasks(lambda: settings.INSTALLED_APPS)
 
 app.conf.beat_schedule = {
     'run_read_hyperliquid_command_every_minute': {

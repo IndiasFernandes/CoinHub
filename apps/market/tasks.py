@@ -1,14 +1,12 @@
-# tasks.py
 from celery import shared_task
 import logging
-
 from apps.market.models import PaperTrade
 from apps.market.utils.trading_functions import paper_trade_execute
 
 logger = logging.getLogger('celery')
 
-@shared_task
-def run_paper_trading_task(trade_id):
+@shared_task(bind=True, max_retries=3, soft_time_limit=60)
+def run_paper_trading_task(self, trade_id):
     logger.info('Running Paper Trading Task')
     try:
         trade = PaperTrade.objects.get(id=trade_id)
@@ -23,3 +21,4 @@ def run_paper_trading_task(trade_id):
         logger.error(f"No PaperTrade found for ID: {trade_id}")
     except Exception as e:
         logger.error(f"An error occurred: {str(e)}")
+        self.retry(exc=e, countdown=60)
