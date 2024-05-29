@@ -1,3 +1,11 @@
+from celery import shared_task
+from django.core.management import call_command
+
+@shared_task
+def run_read_hyperliquid_command():
+    call_command('read_hyperliquid')
+
+
 # from celery import shared_task
 # from apps.exchanges.utils.hyperliquid.bot import BotAccount
 # from celery import shared_task
