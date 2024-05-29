@@ -13,12 +13,13 @@ def create_or_update_paper_trade_task(sender, instance, created, **kwargs):
         period=IntervalSchedule.SECONDS,
     )
 
-    task, task_created = PeriodicTask.objects.get_or_create(
+    task, task_created = PeriodicTask.objects.update_or_create(
         name=task_name,
         defaults={
             'interval': schedule,
             'task': 'apps.market.tasks.run_paper_trading_task',
             'args': json.dumps([instance.id]),
+            'enabled': instance.is_active  # Make sure to enable/disable based on the active status
         }
     )
 
