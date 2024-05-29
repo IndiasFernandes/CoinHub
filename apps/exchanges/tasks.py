@@ -25,6 +25,7 @@ def record_exchange_info():
 
 
     #  BEFORE:
+    # goo
     # try:
     #     # Specify the path to your script
     #     script_path = "/path/to/your/script.sh"
