@@ -13,8 +13,10 @@ class Command(BaseCommand):
                 bot_account.update_exchange_info()
                 bot_account.print_info()
 
+                # Sleep for 10 minutes (600 seconds) before the next record
+                time.sleep(60)
             except Exception as e:
                 self.stderr.write(f"Error occurred: {e}")
                 # Optional: Log the error to a file or monitoring system
-                time.sleep(600)  # Continue to wait and try again after 10 minutes
+                time.sleep(60)  # Continue to wait and try again after 10 minutes
 
