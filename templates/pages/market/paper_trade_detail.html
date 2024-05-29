@@ -31,7 +31,7 @@
     </div>
 </div>
 
-<!-- Load Luxon and Chart.js with Luxon adapter and Zoom plugin -->
+<!-- Load Luxon, Chart.js with Luxon adapter and Zoom plugin -->
 <script src="https://cdn.jsdelivr.net/npm/luxon@2.3.1/build/global/luxon.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
@@ -54,13 +54,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     label: 'Price',
                     data: prices,
                     borderColor: 'rgba(75, 192, 192, 1)',
-                    borderWidth: 1
+                    borderWidth: 1,
+                    fill: false
                 },
                 {
                     label: 'ST Value',
                     data: stValues,
                     borderColor: 'rgba(153, 102, 255, 1)',
-                    borderWidth: 1
+                    borderWidth: 1,
+                    fill: false
                 }
             ]
         },
@@ -75,7 +77,10 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 y: {
-                    beginAtZero: true
+                    beginAtZero: false,  // Do not start y-axis at 0
+                    ticks: {
+                        beginAtZero: false
+                    }
                 }
             },
             plugins: {
