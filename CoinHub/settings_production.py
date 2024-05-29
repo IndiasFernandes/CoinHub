@@ -1,4 +1,6 @@
 import os
+from .settings import BASE_DIR, STATIC_URL, STATICFILES_DIRS, STATIC_ROOT, STATICFILES_STORAGE
+
 
 # Ensure the log directory exists
 log_dir = os.path.join(BASE_DIR, 'staticfiles/logs')
