@@ -279,6 +279,7 @@ def update_exchange_in_db(exchange_id):
         defaults={'name': exchange_class.name}
     )
 
+
     if not created:
         Market.objects.filter(exchange=exchange).delete()
 

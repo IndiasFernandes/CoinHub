@@ -1,5 +1,5 @@
 import os
-from .settings import BASE_DIR, STATIC_URL, STATICFILES_DIRS, STATIC_ROOT, STATICFILES_STORAGE
+from .settings import BASE_DIR, STATIC_URL, STATICFILES_DIRS, STATIC_ROOT, STATICFILES_STORAGE, MEDIA_URL, MEDIA_ROOT
 
 # Ensure the log directory exists
 log_dir = os.path.join(BASE_DIR, 'staticfiles/logs')
@@ -25,7 +25,8 @@ INSTALLED_APPS = [
     'widget_tweaks',
     'django_celery_beat',
     'corsheaders',
-    'apps.market'
+    'apps.market',
+    'app_gytis'
 ]
 
 SECURE_CROSS_ORIGIN_OPENER_POLICY = None

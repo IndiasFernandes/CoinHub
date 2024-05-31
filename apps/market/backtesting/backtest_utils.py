@@ -1,46 +1,43 @@
-# apps/market/backtesting/backtest_utils.py
-
 import os
 from decimal import Decimal
 from datetime import datetime
 from backtesting import Backtest as BT
-
 from CoinHub import settings
+from apps.exchanges.utils.utils import import_csv
 from .strategy.SuperTrend_Strategy_Backtest import SuperTrendBacktest
 from ..models import Backtest
+
 
 def run_backtest(symbol, df, timeperiod, exchange, cash=100000, commission=.008, openbrowser=False):
     # Convert Decimal to float
     cash = float(cash) if isinstance(cash, Decimal) else cash
     commission = float(commission) if isinstance(commission, Decimal) else commission
 
-    # Save a preliminary Backtest instance
     backtest_instance = Backtest.objects.create(
         exchange=exchange,
         symbol=symbol,
         cash=cash,
         commission=commission,
         timeframe=timeperiod,
-        created_at=datetime.now(),
+        created_at=datetime.now()
     )
 
-    # Create the backtest with the backtest_id passed to the strategy
-    bt = BT(df, SuperTrendBacktest, cash=cash, commission=commission, exclusive_orders=True, backtest_id=backtest_instance.id)
+    bt = BT(df, SuperTrendBacktest, cash=cash, commission=commission, exclusive_orders=True)
+    bt.strategy.backtest_id = backtest_instance.id  # Pass the backtest ID to the strategy
+
     main_path = os.path.join('static', 'backtest', 'backtest_results',
                              f'{symbol.replace("/", "_")}_{datetime.now().isoformat()}')
     bt_path = os.path.join(settings.BASE_DIR, main_path)
     stats = bt.run()
     bt.plot(open_browser=openbrowser, filename=bt_path)
 
-    # Access latest values from the strategy instance
-    st_value = bt.strategy[0].st_value
-    price_value = bt.strategy[0].price
-
-    save_backtest_instance(backtest_instance, stats, main_path, st_value, price_value)
+    st_value, price_value = bt.strategy.get_last_values()  # Fetch latest values from the strategy
+    save_backtest_instance(backtest_instance, stats, st_value, price_value, main_path)
 
     return st_value, price_value
 
-def save_backtest_instance(backtest_instance, stats, main_path, st_value, price_value):
+
+def save_backtest_instance(backtest_instance, stats, st_value, price_value, main_path):
     if stats['# Trades'] > 1:
         backtest_instance.start_date = stats['_trades'].iloc[0]['EntryTime'] if not stats['_trades'].empty else None
         backtest_instance.end_date = stats['_trades'].iloc[-1]['ExitTime'] if not stats['_trades'].empty else None
@@ -59,4 +56,7 @@ def save_backtest_instance(backtest_instance, stats, main_path, st_value, price_
         backtest_instance.avg_trade_percent = stats['Avg. Trade [%]']
         backtest_instance.sqn = stats['SQN']
         backtest_instance.graph_link = main_path + '.html'
+        backtest_instance.last_st_value = st_value
+        backtest_instance.last_price_value = price_value
         backtest_instance.save()
+

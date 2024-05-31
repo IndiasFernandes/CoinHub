@@ -1,5 +1,5 @@
 import os
-from .settings import BASE_DIR, STATIC_URL, STATICFILES_DIRS, STATIC_ROOT, STATICFILES_STORAGE
+from .settings import BASE_DIR, STATIC_URL, STATICFILES_DIRS, STATIC_ROOT, STATICFILES_STORAGE, MEDIA_URL, MEDIA_ROOT
 
 
 # Ensure the log directory exists
@@ -27,6 +27,7 @@ INSTALLED_APPS = [
     'django_celery_beat',
     'corsheaders',
     'apps.market',
+    'app_gytis'
 ]
 
 MIDDLEWARE = [
