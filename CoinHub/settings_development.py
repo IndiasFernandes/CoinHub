@@ -72,7 +72,7 @@ DATABASES = {
         'NAME': 'main_db',
         'USER': 'indiasfernandes',
         'PASSWORD': 'V28ad18@2720',
-        'HOST': '172.20.10.3',
+        'HOST': '192.168.1.40',
         'PORT': '5432',
     }
 }
