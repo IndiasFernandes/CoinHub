@@ -9,30 +9,17 @@ from django.db.models import Q
 
 
 class SuperTrendBacktest(Strategy):
-    atr_timeperiod = 1.95
-    atr_multiplier = 2.79
-    atr_method = True
-    backtest_id = None  # Placeholder for the backtest ID
+    atr_timeperiod = None
+    atr_multiplier = None
+    last_st=None
+    last_price=None
+
+
 
     def init(self):
 
-        path = os.path.join(settings.BASE_DIR, 'static', 'backtest', 'current_backtest_symbol.csv')
-        symbol = import_csv(path)[0][0]
-        path = os.path.join(settings.BASE_DIR, 'static', 'backtest', 'current_backtest_timeperiod.csv')
-        timeperiod = import_csv(path)[0][0]
-        path = os.path.join(settings.BASE_DIR, 'static', 'backtest', 'current_backtest_multiplier.csv')
-        atr_multiplier = float(import_csv(path)[0][0])
-        path = os.path.join(settings.BASE_DIR, 'static', 'backtest', 'current_backtest_atr_timeperiod.csv')
-        atr_timeperiod = float(import_csv(path)[0][0])
-
-        print('Starting Backtest with the following parameters:')
-        print('atr_timeperiod: ', atr_timeperiod)
-        print('atr_multiplier: ', atr_multiplier)
-        print('symbol: ', symbol)
-        print('timeperiod: ', timeperiod)
-
         self.st, self.s_upt, self.st_dt = self.I(get_supertrend, self.data.df['High'], self.data.df['Low'], self.data.df['Close'], self.atr_timeperiod,
-                                                 atr_multiplier, atr_timeperiod)
+                                                 self.atr_multiplier, self.atr_timeperiod)
 
         self.st = self.st[1:]
         self.s_upt = self.s_upt[1:]
@@ -50,8 +37,8 @@ class SuperTrendBacktest(Strategy):
             self.position.close()
             self.sell(size=0.99)
 
-    def get_last_values(self):
-        last_st = float(self.st[-1])
-        last_price = float(self.data.Close[-1])
-        return last_st, last_price
+
+        self.last_st = self.st[-1]
+        self.last_price = price
+
 

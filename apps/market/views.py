@@ -91,7 +91,7 @@ def run_backtest_view(request):
                     print(f"Running backtest for {symbol} ({timeframe})")
                     df = download_data(symbol, timeframe, start_date, end_date, exchange_instance)
                     print("Downloaded data.")
-                    run_backtest(symbol, df, timeframe, cash, commission, openbrowser)
+                    run_backtest(symbol, df, timeframe, exchange_id, cash, commission, openbrowser)
                     print("Backtest completed successfully.")
 
             return redirect('market:run_backtest')

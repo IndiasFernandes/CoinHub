@@ -8,7 +8,7 @@ from .strategy.SuperTrend_Strategy_Backtest import SuperTrendBacktest
 from ..models import Backtest
 
 
-def run_backtest(symbol, df, timeperiod, exchange, cash=100000, commission=.008, openbrowser=False):
+def run_backtest(symbol, df, timeperiod, exchange, cash=10000000, commission=.008, openbrowser=False, atr_timeperiod=1.95, atr_multiplier=2.79):
     # Convert Decimal to float
     cash = float(cash) if isinstance(cash, Decimal) else cash
     commission = float(commission) if isinstance(commission, Decimal) else commission
@@ -23,15 +23,17 @@ def run_backtest(symbol, df, timeperiod, exchange, cash=100000, commission=.008,
     )
 
     bt = BT(df, SuperTrendBacktest, cash=cash, commission=commission, exclusive_orders=True)
-    bt._strategy.backtest_id = backtest_instance.id  # Pass the backtest ID to the strategy
 
     main_path = os.path.join('static', 'backtest', 'backtest_results',
                              f'{symbol.replace("/", "_")}_{datetime.now().isoformat()}')
     bt_path = os.path.join(settings.BASE_DIR, main_path)
-    stats = bt.run()
+
+    stats = bt.run(atr_timeperiod=atr_timeperiod, atr_multiplier=atr_multiplier)
+    st_value = stats._strategy.last_st
+    price_value = stats._strategy.last_price
+
     bt.plot(open_browser=openbrowser, filename=bt_path)
 
-    st_value, price_value = bt._strategy.get_last_values()  # Fetch latest values from the strategy
     save_backtest_instance(backtest_instance, stats, st_value, price_value, main_path)
 
     return st_value, price_value

@@ -1,5 +1,6 @@
 from celery import shared_task
 from django.core.management import call_command
+import redis
 
 @shared_task(bind=True, max_retries=3, default_retry_delay=60)
 def run_read_hyperliquid_command(self):

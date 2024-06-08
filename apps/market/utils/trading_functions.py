@@ -18,6 +18,8 @@ def paper_trade_execute(trade_id):
         print("Trade is not active.")
         return  # Trade is not active, do nothing
 
+
+
     # Fetch exchange details from Exchange model using id_char
     exchange = get_object_or_404(Exchange, id_char=trade.exchange)
     print(f"Exchange: {exchange}, Type: {type(exchange)}")
@@ -52,7 +54,7 @@ def paper_trade_execute(trade_id):
 
     # TODO: To implement comission and openbrowser
     # Run backtest using the utility function
-    st, price = run_backtest(trade.coin, df, trade.timeframe, trade.initial_balance, commission=0.008, openbrowser=False)
+    st, price = run_backtest(trade.coin, df, trade.timeframe, trade.initial_balance, commission=0.008, openbrowser=False, atr_timeperiod=trade.atr_timeperiod, atr_multiplier=trade.atr_multiplier)
     print(f"Backtest results: st: {st}, Type: {type(st)}, price: {price}, Type: {type(price)}")
 
     # Calculate Volume and Volatility
