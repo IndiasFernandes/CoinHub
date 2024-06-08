@@ -23,7 +23,7 @@ def run_backtest(symbol, df, timeperiod, exchange, cash=100000, commission=.008,
     )
 
     bt = BT(df, SuperTrendBacktest, cash=cash, commission=commission, exclusive_orders=True)
-    bt.strategy.backtest_id = backtest_instance.id  # Pass the backtest ID to the strategy
+    bt._strategy.backtest_id = backtest_instance.id  # Pass the backtest ID to the strategy
 
     main_path = os.path.join('static', 'backtest', 'backtest_results',
                              f'{symbol.replace("/", "_")}_{datetime.now().isoformat()}')
