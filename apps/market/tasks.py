@@ -9,7 +9,7 @@ import os
 @shared_task(bind=True, max_retries=3, default_retry_delay=60)
 def run_paper_trading_task(self, trade_id):
     # Configure logging
-    log_path =  os.path.join(settings.BASE_DIR, 'logs', 'celery.log')
+    log_path =  os.path.join(settings.BASE_DIR, 'logs', 'task_paper_log.log')
     logging.basicConfig(filename=log_path, level=logging.INFO,
                         format='%(asctime)s:%(levelname)s:%(message)s')
 
