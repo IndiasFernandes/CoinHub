@@ -57,26 +57,26 @@ def paper_trade_execute(trade_id):
     st, price = run_backtest(trade.coin, df, trade.timeframe, trade.initial_balance, commission=0.008, openbrowser=False, atr_timeperiod=float(trade.atr_timeperiod), atr_multiplier=float(trade.atr_multiplier))
     print(f"Backtest results: st: {st}, Type: {type(st)}, price: {price}, Type: {type(price)}")
 
-    # Calculate Volume and Volatility
-    volume_change, volatility = calculate_volume_and_volatility(df)
-
-    # Save to MarketData
-    MarketData.objects.create(
-        paper_trade=trade,
-        timestamp=end_date,
-        price=price,
-        st=st,
-        super_trend_status='long' if st > price else 'short',
-        volume=volume_change['current'],
-        vol_5m=volatility['5m'],
-        vol_15m=volatility['15m'],
-        vol_30m=volatility['30m'],
-        vol_1h=volatility['1h'],
-        vol_change_5m=volume_change['5m'],
-        vol_change_15m=volume_change['15m'],
-        vol_change_30m=volume_change['30m'],
-        vol_change_1h=volume_change['1h']
-    )
+    # # Calculate Volume and Volatility
+    # volume_change, volatility = calculate_volume_and_volatility(df)
+    #
+    # # Save to MarketData
+    # MarketData.objects.create(
+    #     paper_trade=trade,
+    #     timestamp=end_date,
+    #     price=price,
+    #     st=st,
+    #     super_trend_status='long' if st > price else 'short',
+    #     volume=volume_change['current'],
+    #     vol_5m=volatility['5m'],
+    #     vol_15m=volatility['15m'],
+    #     vol_30m=volatility['30m'],
+    #     vol_1h=volatility['1h'],
+    #     vol_change_5m=volume_change['5m'],
+    #     vol_change_15m=volume_change['15m'],
+    #     vol_change_30m=volume_change['30m'],
+    #     vol_change_1h=volume_change['1h']
+    # )
     print("Market data saved.")
 
 def calculate_volume_and_volatility(df):
