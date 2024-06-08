@@ -301,10 +301,10 @@ def paper_trade_detail_view(request, trade_id):
     timestamps = [md.timestamp.isoformat() for md in market_data]
     prices = [float(md.price) for md in market_data]
     st_values = [float(md.st) for md in market_data]
-    vol_changes_5m = [float(md.vol_change_5m) for md in market_data]
-    vol_changes_15m = [float(md.vol_change_15m) for md in market_data]
-    vol_changes_30m = [float(md.vol_change_30m) for md in market_data]
-    vol_changes_1h = [float(md.vol_change_1h) for md in market_data]
+    vol_changes_5m = [float(md.vol_change_5m) if md.vol_change_5m is not None else 0.0 for md in market_data]
+    vol_changes_15m = [float(md.vol_change_15m) if md.vol_change_15m is not None else 0.0 for md in market_data]
+    vol_changes_30m = [float(md.vol_change_30m) if md.vol_change_30m is not None else 0.0 for md in market_data]
+    vol_changes_1h = [float(md.vol_change_1h) if md.vol_change_1h is not None else 0.0 for md in market_data]
 
     context = {
         'paper_trade': paper_trade,
