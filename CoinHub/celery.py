@@ -1,3 +1,5 @@
+from __future__ import absolute_import, unicode_literals
+from CoinHub import settings
 from celery.schedules import crontab
 import os
 from celery import Celery
@@ -26,8 +28,9 @@ logger.setLevel(logging.INFO)
 app.conf.beat_schedule = {
     'run_read_hyperliquid_command_every_minute': {
         'task': 'apps.exchanges.tasks.run_read_hyperliquid_command',
-        'schedule': crontab(),  # Executes every minute
+        'schedule': 60.0,  # Execute every 60 seconds
     },
 }
 app.conf.beat_scheduler = 'django_celery_beat.schedulers:DatabaseScheduler'
+
 app.conf.timezone = 'UTC'
