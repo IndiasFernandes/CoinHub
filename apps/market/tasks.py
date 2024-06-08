@@ -30,5 +30,5 @@ def run_paper_trading_task(self, trade_id):
     except PaperTrade.DoesNotExist:
         logger.error(f"TASK TEST ERROR - No PaperTrade found for ID: {trade_id}")
     except Exception as e:
-        logger.error(f"TASK TEST ERROR - An error occurred: {str(e)}")
+        logger.exception(f"TASK TEST ERROR - An error occurred:")  # This will log the full traceback
         self.retry(exc=e, countdown=60)
