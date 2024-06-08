@@ -102,7 +102,7 @@ class MarketData(models.Model):
     st = models.DecimalField(max_digits=20, decimal_places=6)
     super_trend_status = models.CharField(max_length=10)
     trade_indicator = models.BooleanField(default=False)
-    volume = models.DecimalField(max_digits=20, decimal_places=6)
+    volume = models.DecimalField(max_digits=20, decimal_places=6, null=True, blank=True)
     vol_5m = models.DecimalField(max_digits=20, decimal_places=6, null=True, blank=True)
     vol_15m = models.DecimalField(max_digits=20, decimal_places=6, null=True, blank=True)
     vol_30m = models.DecimalField(max_digits=20, decimal_places=6, null=True, blank=True)
