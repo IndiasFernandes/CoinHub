@@ -52,16 +52,39 @@ def paper_trade_execute(trade_id):
 
     # TODO: To implement comission and openbrowser
     # Run backtest using the utility function
-    st, price = run_backtest(trade.coin, df, trade.timeframe, trade.initial_balance, commission=0.08, openbrowser=False)
+    st, price = run_backtest(trade.coin, df, trade.timeframe, trade.initial_balance, commission=0.008, openbrowser=False)
     print(f"Backtest results: st: {st}, Type: {type(st)}, price: {price}, Type: {type(price)}")
 
-    # Create or update the MarketData
+    # Calculate Volume and Volatility
+    volume_change, volatility = calculate_volume_and_volatility(df)
+
+    # Save to MarketData
     MarketData.objects.create(
         paper_trade=trade,
         timestamp=end_date,
         price=price,
         st=st,
         super_trend_status='long' if st > price else 'short',
-        trade_indicator=False  # Set true based on your specific condition
+        volume=volume_change['current'],
+        vol_5m=volatility['5m'],
+        vol_15m=volatility['15m'],
+        vol_30m=volatility['30m'],
+        vol_1h=volatility['1h'],
+        vol_change_5m=volume_change['5m'],
+        vol_change_15m=volume_change['15m'],
+        vol_change_30m=volume_change['30m'],
+        vol_change_1h=volume_change['1h']
     )
     print("Market data saved.")
+
+def calculate_volume_and_volatility(df):
+    # Assuming df has 'Volume' and price columns for calculating changes and volatility
+    volume_change = {}
+    volatility = {}
+
+    for period in ['5m', '15m', '30m', '1h']:
+        resampled = df.resample(period).last()
+        volume_change[period] = resampled['Volume'].pct_change()[-1]
+        volatility[period] = resampled['Close'].pct_change().rolling(window=int(period[:-1])).std()[-1]
+
+    return volume_change, volatility

@@ -301,14 +301,23 @@ def paper_trade_detail_view(request, trade_id):
     timestamps = [md.timestamp.isoformat() for md in market_data]
     prices = [float(md.price) for md in market_data]
     st_values = [float(md.st) for md in market_data]
+    vol_changes_5m = [float(md.vol_change_5m) for md in market_data]
+    vol_changes_15m = [float(md.vol_change_15m) for md in market_data]
+    vol_changes_30m = [float(md.vol_change_30m) for md in market_data]
+    vol_changes_1h = [float(md.vol_change_1h) for md in market_data]
 
     context = {
         'paper_trade': paper_trade,
         'timestamps': json.dumps(timestamps, cls=DjangoJSONEncoder),
         'prices': json.dumps(prices),
         'st_values': json.dumps(st_values),
+        'vol_changes_5m': json.dumps(vol_changes_5m),
+        'vol_changes_15m': json.dumps(vol_changes_15m),
+        'vol_changes_30m': json.dumps(vol_changes_30m),
+        'vol_changes_1h': json.dumps(vol_changes_1h),
     }
     return render(request, 'pages/market/paper_trade_detail.html', context)
+
 
 def fetch_market_data(request, trade_id):
     try:

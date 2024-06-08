@@ -39,12 +39,16 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
+    const ctx = document.getElementById('myChart').getContext('2d');
     const rawTimestamps = JSON.parse('{{ timestamps|safe }}');
     const timestamps = rawTimestamps.map(ts => luxon.DateTime.fromISO(ts).toJSDate());
     const prices = JSON.parse('{{ prices|safe }}');
     const stValues = JSON.parse('{{ st_values|safe }}');
+    const volChanges5m = JSON.parse('{{ vol_changes_5m|safe }}');
+    const volChanges15m = JSON.parse('{{ vol_changes_15m|safe }}');
+    const volChanges30m = JSON.parse('{{ vol_changes_30m|safe }}');
+    const volChanges1h = JSON.parse('{{ vol_changes_1h|safe }}');
 
-    const ctx = document.getElementById('myChart').getContext('2d');
     const myChart = new Chart(ctx, {
         type: 'line',
         data: {
@@ -63,7 +67,15 @@ document.addEventListener('DOMContentLoaded', function() {
                     borderColor: 'rgba(153, 102, 255, 1)',
                     borderWidth: 1,
                     fill: false
-                }
+                },
+                {
+                    label: 'Vol Change 5m',
+                    data: volChanges5m,
+                    borderColor: 'rgba(255, 159, 64, 1)',
+                    borderWidth: 1,
+                    fill: false
+                },
+                // Repeat for other timeframes
             ]
         },
         options: {
@@ -77,7 +89,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     }
                 },
                 y: {
-                    beginAtZero: false,  // Do not start y-axis at 0
+                    beginAtZero: false,
                     ticks: {
                         beginAtZero: false
                     }
@@ -87,7 +99,7 @@ document.addEventListener('DOMContentLoaded', function() {
                 zoom: {
                     pan: {
                         enabled: true,
-                        mode: 'xy'  // Enable panning both directions
+                        mode: 'xy'
                     },
                     zoom: {
                         wheel: {
@@ -102,23 +114,6 @@ document.addEventListener('DOMContentLoaded', function() {
             }
         }
     });
-
-    // Function to fetch new data and update the chart
-    function updateChart() {
-        fetch("{% url 'market:fetch_market_data' paper_trade.id %}")
-            .then(response => response.json())
-            .then(data => {
-                const newTimestamps = data.timestamps.map(ts => luxon.DateTime.fromISO(ts).toJSDate());
-                const newPrices = data.prices;
-                const newStValues = data.st_values;
-
-                myChart.data.labels = newTimestamps;
-                myChart.data.datasets[0].data = newPrices;
-                myChart.data.datasets[1].data = newStValues;
-                myChart.update();
-            })
-            .catch(error => console.error('Error fetching data:', error));
-    }
 
     // Set interval to update the chart every 30 seconds
     setInterval(updateChart, 30000);

@@ -97,11 +97,23 @@ class PaperTrade(models.Model):
 
 class MarketData(models.Model):
     paper_trade = models.ForeignKey(PaperTrade, on_delete=models.CASCADE)
-    timestamp = models.DateTimeField(default=timezone.now)
-    price = models.DecimalField(max_digits=50, decimal_places=6)
-    st = models.DecimalField(max_digits=50, decimal_places=6)
-    super_trend_status = models.CharField(max_length=10)  # 'long', 'short', or 'neutral'
+    timestamp = models.DateTimeField(default=now)
+    price = models.DecimalField(max_digits=20, decimal_places=6)
+    st = models.DecimalField(max_digits=20, decimal_places=6)
+    super_trend_status = models.CharField(max_length=10)
     trade_indicator = models.BooleanField(default=False)
+    volume = models.DecimalField(max_digits=20, decimal_places=6)
+    vol_5m = models.DecimalField(max_digits=20, decimal_places=6, null=True, blank=True)
+    vol_15m = models.DecimalField(max_digits=20, decimal_places=6, null=True, blank=True)
+    vol_30m = models.DecimalField(max_digits=20, decimal_places=6, null=True, blank=True)
+    vol_1h = models.DecimalField(max_digits=20, decimal_places=6, null=True, blank=True)
+    vol_change_5m = models.FloatField(null=True, blank=True)
+    vol_change_15m = models.FloatField(null=True, blank=True)
+    vol_change_30m = models.FloatField(null=True, blank=True)
+    vol_change_1h = models.FloatField(null=True, blank=True)
+
+    def __str__(self):
+        return f"{self.paper_trade.name} - {self.timestamp} - {self.price} - {self.trade_indicator}"
 
     def check_trade(self):
         # Add logic to determine the trade indicator based on last and current super_trend_status
