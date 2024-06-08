@@ -31,7 +31,7 @@ def run_backtest(symbol, df, timeperiod, exchange, cash=100000, commission=.008,
     stats = bt.run()
     bt.plot(open_browser=openbrowser, filename=bt_path)
 
-    st_value, price_value = bt.strategy.get_last_values()  # Fetch latest values from the strategy
+    st_value, price_value = bt._strategy.get_last_values()  # Fetch latest values from the strategy
     save_backtest_instance(backtest_instance, stats, st_value, price_value, main_path)
 
     return st_value, price_value
