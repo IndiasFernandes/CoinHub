@@ -122,7 +122,17 @@ class CreatePaperTradeForm(forms.ModelForm):
 from django import forms
 from .models import PaperTrade
 
+from django import forms
+from .models import PaperTrade
+
 class TradeParametersForm(forms.ModelForm):
     class Meta:
         model = PaperTrade
         fields = ['take_profit', 'stop_loss', 'trading_fee', 'initial_account', 'x_prices']
+        widgets = {
+            'take_profit': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
+            'stop_loss': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
+            'trading_fee': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
+            'initial_account': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
+            'x_prices': forms.NumberInput(attrs={'step': '1', 'min': '1'})
+        }

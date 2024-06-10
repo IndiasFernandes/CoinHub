@@ -34,31 +34,31 @@
                 <div class="field">
                     <label class="label">Take Profit (%)</label>
                     <div class="control">
-                        <input class="input" type="number" name="take_profit" value="{{ form.take_profit.value }}">
+                        <input class="input" type="number" name="take_profit" step="0.01" min="0" value="{{ form.take_profit.value }}">
                     </div>
                 </div>
                 <div class="field">
                     <label class="label">Stop Loss (%)</label>
                     <div class="control">
-                        <input class="input" type="number" name="stop_loss" value="{{ form.stop_loss.value }}">
+                        <input class="input" type="number" name="stop_loss" step="0.01" min="0" value="{{ form.stop_loss.value }}">
                     </div>
                 </div>
                 <div class="field">
                     <label class="label">Trading Fee (%)</label>
                     <div class="control">
-                        <input class="input" type="number" name="trading_fee" value="{{ form.trading_fee.value }}">
+                        <input class="input" type="number" name="trading_fee" step="0.01" min="0" value="{{ form.trading_fee.value }}">
                     </div>
                 </div>
                 <div class="field">
                     <label class="label">Initial Account Balance ($)</label>
                     <div class="control">
-                        <input class="input" type="number" name="initial_account" value="{{ form.initial_account.value }}">
+                        <input class="input" type="number" name="initial_account" step="0.01" min="0" value="{{ form.initial_account.value }}">
                     </div>
                 </div>
                 <div class="field">
                     <label class="label">X Prices Above/Below Supertrend</label>
                     <div class="control">
-                        <input class="input" type="number" name="x_prices" value="{{ form.x_prices.value }}">
+                        <input class="input" type="number" name="x_prices" step="1" min="1" value="{{ form.x_prices.value }}">
                     </div>
                 </div>
                 <div class="field">
