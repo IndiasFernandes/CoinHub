@@ -7,8 +7,65 @@
             <h1 class="title">Optimize Trade Parameters</h1>
             <form method="post" class="box">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="button is-primary">Optimize</button>
+                <div class="field">
+                    <label class="label">Take Profit Min (%)</label>
+                    <div class="control">
+                        <input class="input" type="number" name="take_profit_min" step="0.01" min="0" value="{{ form.take_profit_min.value }}">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Take Profit Max (%)</label>
+                    <div class="control">
+                        <input class="input" type="number" name="take_profit_max" step="0.01" min="0" value="{{ form.take_profit_max.value }}">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Take Profit Step (%)</label>
+                    <div class="control">
+                        <input class="input" type="number" name="take_profit_step" step="0.01" min="0" value="{{ form.take_profit_step.value }}">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Stop Loss Min (%)</label>
+                    <div class="control">
+                        <input class="input" type="number" name="stop_loss_min" step="0.01" min="0" value="{{ form.stop_loss_min.value }}">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Stop Loss Max (%)</label>
+                    <div class="control">
+                        <input class="input" type="number" name="stop_loss_max" step="0.01" min="0" value="{{ form.stop_loss_max.value }}">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Stop Loss Step (%)</label>
+                    <div class="control">
+                        <input class="input" type="number" name="stop_loss_step" step="0.01" min="0" value="{{ form.stop_loss_step.value }}">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">X Prices Min</label>
+                    <div class="control">
+                        <input class="input" type="number" name="x_prices_min" step="1" min="1" value="{{ form.x_prices_min.value }}">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">X Prices Max</label>
+                    <div class="control">
+                        <input class="input" type="number" name="x_prices_max" step="1" min="1" value="{{ form.x_prices_max.value }}">
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">X Prices Step</label>
+                    <div class="control">
+                        <input class="input" type="number" name="x_prices_step" step="1" min="1" value="{{ form.x_prices_step.value }}">
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <button type="submit" class="button is-primary">Optimize</button>
+                    </div>
+                </div>
             </form>
         </div>
     </div>

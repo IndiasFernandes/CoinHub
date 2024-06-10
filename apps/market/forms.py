@@ -146,3 +146,6 @@ class OptimizationForm(forms.Form):
     stop_loss_min = forms.DecimalField(label="Stop Loss Min", max_digits=5, decimal_places=2)
     stop_loss_max = forms.DecimalField(label="Stop Loss Max", max_digits=5, decimal_places=2)
     stop_loss_step = forms.DecimalField(label="Stop Loss Step", max_digits=5, decimal_places=2)
+    x_prices_min = forms.IntegerField(label="X Prices Min")
+    x_prices_max = forms.IntegerField(label="X Prices Max")
+    x_prices_step = forms.IntegerField(label="X Prices Step")

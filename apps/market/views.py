@@ -478,14 +478,17 @@ def optimize_view(request, trade_id):
             sl_min = form.cleaned_data['stop_loss_min']
             sl_max = form.cleaned_data['stop_loss_max']
             sl_step = form.cleaned_data['stop_loss_step']
+            x_min = form.cleaned_data['x_prices_min']
+            x_max = form.cleaned_data['x_prices_max']
+            x_step = form.cleaned_data['x_prices_step']
 
             tp_range = [Decimal(tp_min) + i * Decimal(tp_step) for i in range(int((tp_max - tp_min) / tp_step) + 1)]
             sl_range = [Decimal(sl_min) + i * Decimal(sl_step) for i in range(int((sl_max - sl_min) / sl_step) + 1)]
+            x_range = [x_min + i * x_step for i in range((x_max - x_min) // x_step + 1)]
 
-            best_tp, best_sl, best_profit = optimize_parameters(paper_trade, market_data, tp_range, sl_range)
+            best_tp, best_sl, best_x, best_profit = optimize_parameters(paper_trade, market_data, tp_range, sl_range, x_range)
 
-            messages.success(request,
-                             f"Optimization completed! Best TP: {best_tp}, Best SL: {best_sl}, Profit: ${best_profit}")
+            messages.success(request, f"Optimization completed! Best TP: {best_tp}, Best SL: {best_sl}, Best X: {best_x}, Profit: ${best_profit}")
             return redirect('market:paper_trade_detail', trade_id=trade_id)
         else:
             messages.error(request, "Error in optimization parameters.")
@@ -494,33 +497,50 @@ def optimize_view(request, trade_id):
 
     return render(request, 'pages/market/optimize_form.html', {'form': form})
 
-def optimize_parameters(paper_trade, market_data, tp_range, sl_range):
+def run_backtest_pt(paper_trade, market_data):
+    calculate_profit(paper_trade, market_data)
+    total_profit = sum([md.profit for md in market_data])
+    return total_profit
+
+def optimize_parameters(paper_trade, market_data, tp_range, sl_range, x_range):
     best_profit = Decimal('-Infinity')
     best_tp = None
     best_sl = None
+    best_x = None
+    total_iterations = len(tp_range) * len(sl_range) * len(x_range)
+    iteration = 0
 
     for tp in tp_range:
         for sl in sl_range:
-            paper_trade.take_profit = tp
-            paper_trade.stop_loss = sl
-            current_profit = run_backtest(paper_trade, market_data)
+            for x in x_range:
+                iteration += 1
+                paper_trade.take_profit = tp
+                paper_trade.stop_loss = sl
+                paper_trade.x_prices = x
+                current_profit = run_backtest_pt(paper_trade, market_data)
 
-            if current_profit > best_profit:
-                best_profit = current_profit
-                best_tp = tp
-                best_sl = sl
+                print(f"Iteration {iteration}/{total_iterations}: TP={tp}, SL={sl}, X={x}, Profit={current_profit}")
 
-            # Store the result in the database
-            OptimizationResult.objects.create(
-                paper_trade=paper_trade,
-                take_profit=tp,
-                stop_loss=sl,
-                profit=current_profit
-            )
+                if current_profit > best_profit:
+                    best_profit = current_profit
+                    best_tp = tp
+                    best_sl = sl
+                    best_x = x
+
+                    print(f"New best profit found: {best_profit} with TP={best_tp}, SL={best_sl}, X={best_x}")
+
+                # Store the result in the database
+                OptimizationResult.objects.create(
+                    paper_trade=paper_trade,
+                    take_profit=tp,
+                    stop_loss=sl,
+                    profit=current_profit
+                )
 
     # Update the paper_trade with the best parameters
     paper_trade.take_profit = best_tp
     paper_trade.stop_loss = best_sl
+    paper_trade.x_prices = best_x
     paper_trade.save()
 
-    return best_tp, best_sl, best_profit
+    return best_tp, best_sl, best_x, best_profit
