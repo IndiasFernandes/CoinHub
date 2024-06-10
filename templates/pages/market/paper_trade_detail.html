@@ -13,6 +13,7 @@
                     <strong>Exchange:</strong> {{ paper_trade.exchange }}<br>
                     <strong>Status:</strong> {{ paper_trade.is_active|yesno:"Active,Inactive" }}<br>
                     <strong>Strategy:</strong> {{ paper_trade.strategy }}<br>
+                    <a class="button is-primary" href="{% url 'market:optimize' paper_trade.id %}">Optimize Parameters</a>
                 </div>
             </article>
         </div>
@@ -46,19 +47,19 @@
                 <div class="field">
                     <label class="label">Take Profit (%)</label>
                     <div class="control">
-                        <input class="input" type="number" name="take_profit" step="0.01" min="0" value="{{ form.take_profit.value }}">
+                        <input class="input" type="number" name="take_profit" step="0.001" min="0" value="{{ form.take_profit.value }}">
                     </div>
                 </div>
                 <div class="field">
                     <label class="label">Stop Loss (%)</label>
                     <div class="control">
-                        <input class="input" type="number" name="stop_loss" step="0.01" min="0" value="{{ form.stop_loss.value }}">
+                        <input class="input" type="number" name="stop_loss" step="0.001" min="0" value="{{ form.stop_loss.value }}">
                     </div>
                 </div>
                 <div class="field">
                     <label class="label">Trading Fee (%)</label>
                     <div class="control">
-                        <input class="input" type="number" name="trading_fee" step="0.01" min="0" value="{{ form.trading_fee.value }}">
+                        <input class="input" type="number" name="trading_fee" step="0.001" min="0" value="{{ form.trading_fee.value }}">
                     </div>
                 </div>
                 <div class="field">

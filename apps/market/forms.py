@@ -130,9 +130,19 @@ class TradeParametersForm(forms.ModelForm):
         model = PaperTrade
         fields = ['take_profit', 'stop_loss', 'trading_fee', 'initial_account', 'x_prices']
         widgets = {
-            'take_profit': forms.NumberInput(attrs={'step': '0.001', 'min': '0'}),
-            'stop_loss': forms.NumberInput(attrs={'step': '0.001', 'min': '0'}),
-            'trading_fee': forms.NumberInput(attrs={'step': '0.001', 'min': '0'}),
+            'take_profit': forms.NumberInput(attrs={'step': '0.0001', 'min': '0'}),
+            'stop_loss': forms.NumberInput(attrs={'step': '0.0001', 'min': '0'}),
+            'trading_fee': forms.NumberInput(attrs={'step': '0.0001', 'min': '0'}),
             'initial_account': forms.NumberInput(attrs={'step': '0.01', 'min': '0'}),
             'x_prices': forms.NumberInput(attrs={'step': '1', 'min': '1'})
         }
+
+from django import forms
+
+class OptimizationForm(forms.Form):
+    take_profit_min = forms.DecimalField(label="Take Profit Min", max_digits=5, decimal_places=2)
+    take_profit_max = forms.DecimalField(label="Take Profit Max", max_digits=5, decimal_places=2)
+    take_profit_step = forms.DecimalField(label="Take Profit Step", max_digits=5, decimal_places=2)
+    stop_loss_min = forms.DecimalField(label="Stop Loss Min", max_digits=5, decimal_places=2)
+    stop_loss_max = forms.DecimalField(label="Stop Loss Max", max_digits=5, decimal_places=2)
+    stop_loss_step = forms.DecimalField(label="Stop Loss Step", max_digits=5, decimal_places=2)

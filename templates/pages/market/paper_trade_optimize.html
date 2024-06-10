@@ -1,0 +1,16 @@
+{% extends 'base/base.html' %}
+
+{% block content %}
+<div class="container">
+    <div class="columns is-multiline">
+        <div class="column is-12">
+            <h1 class="title">Optimize Trade Parameters</h1>
+            <form method="post" class="box">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="button is-primary">Optimize</button>
+            </form>
+        </div>
+    </div>
+</div>
+{% endblock %}

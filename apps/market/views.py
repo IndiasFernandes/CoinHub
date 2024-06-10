@@ -8,7 +8,7 @@ from django.utils.decorators import method_decorator
 from django.views import View
 from django.http import JsonResponse
 from .models import Backtest, Optimize
-from .forms import BacktestForm, OptimizeForm, CreatePaperTradeForm
+from .forms import BacktestForm, OptimizeForm, CreatePaperTradeForm, OptimizationForm
 from ..exchanges.utils.utils import run_exchange
 from ..exchanges.utils.hyperliquid.download_data import download_data
 from .backtesting.backtest_utils import run_backtest
@@ -20,6 +20,8 @@ from django.contrib import messages
 from .forms import TradeParametersForm  # Ensure this line is present
 from .models import PaperTrade, MarketData
 import json
+from decimal import Decimal
+from .models import OptimizationResult
 
 @login_required
 def market_dashboard_view(request):
@@ -457,3 +459,80 @@ def delete_paper_trade(request, trade_id):
     trade.delete()
     return JsonResponse({'status': 'success', 'message': 'Trade deleted successfully'})
 
+
+from django.db import models
+
+class OptimizationResult(models.Model):
+    paper_trade = models.ForeignKey(PaperTrade, on_delete=models.CASCADE)
+    take_profit = models.DecimalField(max_digits=5, decimal_places=2)
+    stop_loss = models.DecimalField(max_digits=5, decimal_places=2)
+    profit = models.DecimalField(max_digits=20, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.paper_trade.coin} - TP: {self.take_profit} SL: {self.stop_loss} Profit: {self.profit}"
+
+def run_backtest(paper_trade, market_data):
+    calculate_profit(paper_trade, market_data)
+    total_profit = sum([md.profit for md in market_data])
+    return total_profit
+
+@login_required
+def optimize_view(request, trade_id):
+    paper_trade = get_object_or_404(PaperTrade, pk=trade_id)
+    market_data = MarketData.objects.filter(paper_trade_id=trade_id).order_by('timestamp')
+
+    if request.method == 'POST':
+        form = OptimizationForm(request.POST)
+        if form.is_valid():
+            tp_min = form.cleaned_data['take_profit_min']
+            tp_max = form.cleaned_data['take_profit_max']
+            tp_step = form.cleaned_data['take_profit_step']
+            sl_min = form.cleaned_data['stop_loss_min']
+            sl_max = form.cleaned_data['stop_loss_max']
+            sl_step = form.cleaned_data['stop_loss_step']
+
+            tp_range = [Decimal(tp_min) + i * Decimal(tp_step) for i in range(int((tp_max - tp_min) / tp_step) + 1)]
+            sl_range = [Decimal(sl_min) + i * Decimal(sl_step) for i in range(int((sl_max - sl_min) / sl_step) + 1)]
+
+            best_tp, best_sl, best_profit = optimize_parameters(paper_trade, market_data, tp_range, sl_range)
+
+            messages.success(request,
+                             f"Optimization completed! Best TP: {best_tp}, Best SL: {best_sl}, Profit: ${best_profit}")
+            return redirect('market:paper_trade_detail', trade_id=trade_id)
+        else:
+            messages.error(request, "Error in optimization parameters.")
+    else:
+        form = OptimizationForm()
+
+    return render(request, 'pages/market/optimize_form.html', {'form': form})
+
+def optimize_parameters(paper_trade, market_data, tp_range, sl_range):
+    best_profit = Decimal('-Infinity')
+    best_tp = None
+    best_sl = None
+
+    for tp in tp_range:
+        for sl in sl_range:
+            paper_trade.take_profit = tp
+            paper_trade.stop_loss = sl
+            current_profit = run_backtest(paper_trade, market_data)
+
+            if current_profit > best_profit:
+                best_profit = current_profit
+                best_tp = tp
+                best_sl = sl
+
+            # Store the result in the database
+            OptimizationResult.objects.create(
+                paper_trade=paper_trade,
+                take_profit=tp,
+                stop_loss=sl,
+                profit=current_profit
+            )
+
+    # Update the paper_trade with the best parameters
+    paper_trade.take_profit = best_tp
+    paper_trade.stop_loss = best_sl
+    paper_trade.save()
+
+    return best_tp, best_sl, best_profit

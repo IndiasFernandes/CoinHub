@@ -137,3 +137,15 @@ class MarketData(models.Model):
                     self.trade_action = 'short'
                     self.trade_indicator = True
             self.save()
+
+
+from django.db import models
+
+class OptimizationResult(models.Model):
+    paper_trade = models.ForeignKey(PaperTrade, on_delete=models.CASCADE)
+    take_profit = models.DecimalField(max_digits=5, decimal_places=2)
+    stop_loss = models.DecimalField(max_digits=5, decimal_places=2)
+    profit = models.DecimalField(max_digits=20, decimal_places=2)
+
+    def __str__(self):
+        return f"{self.paper_trade.coin} - TP: {self.take_profit} SL: {self.stop_loss} Profit: {self.profit}"
