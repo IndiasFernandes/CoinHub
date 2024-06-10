@@ -34,31 +34,31 @@
                 <div class="field">
                     <label class="label">Take Profit (%)</label>
                     <div class="control">
-                        {{ form.take_profit|as_crispy_field }}
+                        <input class="input" type="number" name="take_profit" value="{{ form.take_profit.value }}">
                     </div>
                 </div>
                 <div class="field">
                     <label class="label">Stop Loss (%)</label>
                     <div class="control">
-                        {{ form.stop_loss|as_crispy_field }}
+                        <input class="input" type="number" name="stop_loss" value="{{ form.stop_loss.value }}">
                     </div>
                 </div>
                 <div class="field">
                     <label class="label">Trading Fee (%)</label>
                     <div class="control">
-                        {{ form.trading_fee|as_crispy_field }}
+                        <input class="input" type="number" name="trading_fee" value="{{ form.trading_fee.value }}">
                     </div>
                 </div>
                 <div class="field">
                     <label class="label">Initial Account Balance ($)</label>
                     <div class="control">
-                        {{ form.initial_account|as_crispy_field }}
+                        <input class="input" type="number" name="initial_account" value="{{ form.initial_account.value }}">
                     </div>
                 </div>
                 <div class="field">
                     <label class="label">X Prices Above/Below Supertrend</label>
                     <div class="control">
-                        {{ form.x_prices|as_crispy_field }}
+                        <input class="input" type="number" name="x_prices" value="{{ form.x_prices.value }}">
                     </div>
                 </div>
                 <div class="field">

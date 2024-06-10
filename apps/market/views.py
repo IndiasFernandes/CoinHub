@@ -5,22 +5,20 @@ from django.views.decorators.http import require_POST
 from django_celery_beat.models import PeriodicTask
 from django.utils.decorators import method_decorator
 from django.views import View
-from django.shortcuts import  redirect
-from django.contrib import messages
 from django.http import JsonResponse
-
-from django.shortcuts import render, get_object_or_404
-from django.contrib.auth.decorators import login_required
-import json
-from django.core.serializers.json import DjangoJSONEncoder
-
-from .models import PaperTrade, MarketData, Backtest, Optimize
+from .models import Backtest, Optimize
 from .forms import BacktestForm, OptimizeForm, CreatePaperTradeForm
 from ..exchanges.utils.utils import run_exchange
 from ..exchanges.utils.hyperliquid.download_data import download_data
 from .backtesting.backtest_utils import run_backtest
 from .backtesting.optimize_utils import run_optimization
 from ..exchanges.models import Exchange, Market, Coin
+from django.shortcuts import render, get_object_or_404, redirect
+from django.contrib.auth.decorators import login_required
+from django.contrib import messages
+from .forms import TradeParametersForm  # Ensure this line is present
+from .models import PaperTrade, MarketData
+import json
 
 @login_required
 def market_dashboard_view(request):
@@ -327,9 +325,6 @@ def paper_trade_detail_view(request, trade_id):
         'form': form
     }
     return render(request, 'pages/market/paper_trade_detail.html', context)
-
-
-from decimal import Decimal
 
 def calculate_profit(paper_trade, market_data):
     initial_account = paper_trade.initial_account
