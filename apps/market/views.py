@@ -327,14 +327,18 @@ def paper_trade_detail_view(request, trade_id):
     }
     return render(request, 'pages/market/paper_trade_detail.html', context)
 
+from decimal import Decimal
+
 def calculate_profit(paper_trade, market_data):
     initial_account = Decimal(paper_trade.initial_account)
-    x_prices = Decimal(paper_trade.x_prices)
+    x_prices = int(paper_trade.x_prices)
     fee = Decimal(paper_trade.trading_fee) / 100
 
     current_balance = initial_account
     open_trade = None  # None, 'buy', or 'short'
     open_trade_price = Decimal('0.0')
+    consecutive_above = 0
+    consecutive_below = 0
 
     for data in market_data:
         if open_trade == 'buy' and data.price < data.st:
@@ -342,23 +346,37 @@ def calculate_profit(paper_trade, market_data):
             profit = (data.price - open_trade_price) * (1 - fee)
             current_balance += profit
             open_trade = None
+            consecutive_above = 0
+            consecutive_below = 0
         elif open_trade == 'short' and data.price > data.st:
             # Close short trade
             profit = (open_trade_price - data.price) * (1 - fee)
             current_balance += profit
             open_trade = None
+            consecutive_above = 0
+            consecutive_below = 0
         elif not open_trade:
-            if data.price > data.st * x_prices:
+            if data.price > data.st:
+                consecutive_above += 1
+                consecutive_below = 0
+            elif data.price < data.st:
+                consecutive_below += 1
+                consecutive_above = 0
+
+            if consecutive_above >= x_prices:
                 # Open buy trade
                 open_trade = 'buy'
                 open_trade_price = data.price
-            elif data.price < data.st * (Decimal('1.0') / x_prices):
+                consecutive_above = 0
+            elif consecutive_below >= x_prices:
                 # Open short trade
                 open_trade = 'short'
                 open_trade_price = data.price
+                consecutive_below = 0
 
         data.profit = current_balance - initial_account
         data.save()
+
 
 
 def fetch_market_data(request, trade_id):
