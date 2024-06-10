@@ -495,11 +495,76 @@ def optimize_view(request, trade_id):
     else:
         form = OptimizationForm()
 
-    return render(request, 'pages/market/optimize_form.html', {'form': form})
+    return render(request, 'pages/market/paper_trade_optimize.html', {'form': form})
+
+from decimal import Decimal
+
+from decimal import Decimal
 
 def run_backtest_pt(paper_trade, market_data):
-    calculate_profit(paper_trade, market_data)
-    total_profit = sum([md.profit for md in market_data])
+    trades = []
+    position = None
+    entry_price = None
+    take_profit = Decimal(paper_trade.take_profit) / 100  # Converting to fraction
+    stop_loss = Decimal(paper_trade.stop_loss) / 100  # Converting to fraction
+    x_prices = paper_trade.x_prices
+    fee = Decimal(paper_trade.trading_fee) / 100  # Trading fee as a fraction
+
+    for i in range(1, len(market_data) - x_prices):
+        current_price = market_data[i].price
+        previous_price = market_data[i - 1].price
+        current_st = market_data[i].st
+        previous_st = market_data[i - 1].st
+
+        # Check conditions for storing the price for long/short trades
+        if previous_price < previous_st and current_price > current_st:
+            potential_long_entry = current_price
+        elif previous_price > previous_st and current_price < current_st:
+            potential_short_entry = current_price
+
+        # Check conditions to enter long trade
+        if 'potential_long_entry' in locals():
+            next_prices = [market_data[j].price for j in range(i + 1, i + 1 + x_prices)]
+            next_st_values = [market_data[j].st for j in range(i + 1, i + 1 + x_prices)]
+            avg_next_prices = sum(next_prices) / x_prices
+
+            if avg_next_prices > potential_long_entry and all(p > st for p, st in zip(next_prices, next_st_values)):
+                position = 'long'
+                entry_price = potential_long_entry
+                entry_time = market_data[i + x_prices].timestamp
+                print(f"Entering Long Trade at {entry_price} on {entry_time}")
+                del potential_long_entry  # Reset after entering the trade
+
+        # Check conditions to enter short trade
+        if 'potential_short_entry' in locals():
+            next_prices = [market_data[j].price for j in range(i + 1, i + 1 + x_prices)]
+            next_st_values = [market_data[j].st for j in range(i + 1, i + 1 + x_prices)]
+            avg_next_prices = sum(next_prices) / x_prices
+
+            if avg_next_prices < potential_short_entry and all(p < st for p, st in zip(next_prices, next_st_values)):
+                position = 'short'
+                entry_price = potential_short_entry
+                entry_time = market_data[i + x_prices].timestamp
+                print(f"Entering Short Trade at {entry_price} on {entry_time}")
+                del potential_short_entry  # Reset after entering the trade
+
+        # Check for exit conditions
+        if position == 'long':
+            if market_data[i].price >= entry_price * (1 + take_profit) or market_data[i].price <= entry_price * (1 - stop_loss) or market_data[i].price < market_data[i].st:
+                profit = (market_data[i].price - entry_price) / entry_price
+                trades.append(profit)
+                position = None
+                print(f"Exiting Long Trade at {market_data[i].price} on {market_data[i].timestamp} with profit {profit}")
+
+        elif position == 'short':
+            if market_data[i].price <= entry_price * (1 - take_profit) or market_data[i].price >= entry_price * (1 + stop_loss) or market_data[i].price > market_data[i].st:
+                profit = (entry_price - market_data[i].price) / entry_price
+                trades.append(profit)
+                position = None
+                print(f"Exiting Short Trade at {market_data[i].price} on {market_data[i].timestamp} with profit {profit}")
+
+    total_profit = sum(trades)
+    print(f"Total Profit: {total_profit}")
     return total_profit
 
 def optimize_parameters(paper_trade, market_data, tp_range, sl_range, x_range):
@@ -521,21 +586,13 @@ def optimize_parameters(paper_trade, market_data, tp_range, sl_range, x_range):
 
                 print(f"Iteration {iteration}/{total_iterations}: TP={tp}, SL={sl}, X={x}, Profit={current_profit}")
 
-                if current_profit > best_profit:
-                    best_profit = current_profit
+                if Decimal(current_profit) > best_profit:
+                    best_profit = Decimal(current_profit)
                     best_tp = tp
                     best_sl = sl
                     best_x = x
 
                     print(f"New best profit found: {best_profit} with TP={best_tp}, SL={best_sl}, X={best_x}")
-
-                # Store the result in the database
-                OptimizationResult.objects.create(
-                    paper_trade=paper_trade,
-                    take_profit=tp,
-                    stop_loss=sl,
-                    profit=current_profit
-                )
 
     # Update the paper_trade with the best parameters
     paper_trade.take_profit = best_tp
