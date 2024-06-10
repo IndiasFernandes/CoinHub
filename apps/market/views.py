@@ -328,13 +328,17 @@ def paper_trade_detail_view(request, trade_id):
     }
     return render(request, 'pages/market/paper_trade_detail.html', context)
 
+
+from decimal import Decimal
+
 def calculate_profit(paper_trade, market_data):
     initial_account = paper_trade.initial_account
-    x_prices = paper_trade.x_prices
-    fee = paper_trade.trading_fee
+    x_prices = Decimal(paper_trade.x_prices)  # Convert x_prices to Decimal
+    fee = Decimal(paper_trade.trading_fee)
 
     current_balance = initial_account
     open_trade = None  # None, 'buy', or 'short'
+    open_trade_price = Decimal('0.0')
 
     for data in market_data:
         if open_trade == 'buy' and data.price < data.st:
@@ -352,13 +356,14 @@ def calculate_profit(paper_trade, market_data):
                 # Open buy trade
                 open_trade = 'buy'
                 open_trade_price = data.price
-            elif data.price < data.st * (1 / x_prices):
+            elif data.price < data.st * (Decimal('1.0') / x_prices):
                 # Open short trade
                 open_trade = 'short'
                 open_trade_price = data.price
 
         data.profit = current_balance - initial_account
         data.save()
+
 
 def fetch_market_data(request, trade_id):
     try:
