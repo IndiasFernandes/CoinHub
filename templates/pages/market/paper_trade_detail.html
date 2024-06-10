@@ -29,16 +29,49 @@
             </div>
         </div>
         <div class="column is-12">
-            <form method="post">
+            <form method="post" class="box">
                 {% csrf_token %}
-                {{ form.as_p }}
-                <button type="submit" class="button is-primary">Update Parameters</button>
+                <div class="field">
+                    <label class="label">Take Profit (%)</label>
+                    <div class="control">
+                        {{ form.take_profit|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Stop Loss (%)</label>
+                    <div class="control">
+                        {{ form.stop_loss|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Trading Fee (%)</label>
+                    <div class="control">
+                        {{ form.trading_fee|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">Initial Account Balance ($)</label>
+                    <div class="control">
+                        {{ form.initial_account|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="field">
+                    <label class="label">X Prices Above/Below Supertrend</label>
+                    <div class="control">
+                        {{ form.x_prices|as_crispy_field }}
+                    </div>
+                </div>
+                <div class="field">
+                    <div class="control">
+                        <button type="submit" class="button is-primary">Update Parameters</button>
+                    </div>
+                </div>
             </form>
         </div>
         <div class="column is-12">
-            <div id="profitDisplay">
-                <h3>Profits</h3>
-                <p>Total Profit: {{ total_profit }}</p>
+            <div id="profitDisplay" class="box">
+                <h3 class="title">Profits</h3>
+                <p>Total Profit: ${{ total_profit }}</p>
             </div>
         </div>
     </div>
