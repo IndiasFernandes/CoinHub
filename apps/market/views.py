@@ -409,11 +409,3 @@ def delete_paper_trade(request, trade_id):
     trade.delete()
     return JsonResponse({'status': 'success', 'message': 'Trade deleted successfully'})
 
-
-from django import forms
-from .models import PaperTrade
-
-class TradeParametersForm(forms.ModelForm):
-    class Meta:
-        model = PaperTrade
-        fields = ['take_profit', 'stop_loss', 'trading_fee']
