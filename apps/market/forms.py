@@ -118,3 +118,11 @@ class CreatePaperTradeForm(forms.ModelForm):
         self.fields['lookback_period'].label = "Lookback Period (in days)"
         self.fields['atr_timeperiod'].label = "ATR Timeperiod"
         self.fields['atr_multiplier'].label = "ATR Multiplier"
+
+from django import forms
+from .models import PaperTrade
+
+class TradeParametersForm(forms.ModelForm):
+    class Meta:
+        model = PaperTrade
+        fields = ['take_profit', 'stop_loss', 'trading_fee', 'initial_account', 'x_prices']

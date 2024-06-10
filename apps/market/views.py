@@ -302,6 +302,7 @@ def paper_trade_detail_view(request, trade_id):
         form = TradeParametersForm(request.POST, instance=paper_trade)
         if form.is_valid():
             form.save()
+            calculate_profit(paper_trade, market_data)  # Recalculate profit on parameter change
             messages.success(request, "Parameters updated successfully!")
             return redirect('market:paper_trade_detail', trade_id=trade_id)
         else:
@@ -327,7 +328,37 @@ def paper_trade_detail_view(request, trade_id):
     }
     return render(request, 'pages/market/paper_trade_detail.html', context)
 
+def calculate_profit(paper_trade, market_data):
+    initial_account = paper_trade.initial_account
+    x_prices = paper_trade.x_prices
+    fee = paper_trade.trading_fee
 
+    current_balance = initial_account
+    open_trade = None  # None, 'buy', or 'short'
+
+    for data in market_data:
+        if open_trade == 'buy' and data.price < data.st:
+            # Close buy trade
+            profit = (data.price - open_trade_price) * (1 - fee)
+            current_balance += profit
+            open_trade = None
+        elif open_trade == 'short' and data.price > data.st:
+            # Close short trade
+            profit = (open_trade_price - data.price) * (1 - fee)
+            current_balance += profit
+            open_trade = None
+        elif not open_trade:
+            if data.price > data.st * x_prices:
+                # Open buy trade
+                open_trade = 'buy'
+                open_trade_price = data.price
+            elif data.price < data.st * (1 / x_prices):
+                # Open short trade
+                open_trade = 'short'
+                open_trade_price = data.price
+
+        data.profit = current_balance - initial_account
+        data.save()
 
 def fetch_market_data(request, trade_id):
     try:
