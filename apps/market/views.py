@@ -303,6 +303,7 @@ def paper_trade_detail_view(request, trade_id):
         if form.is_valid():
             form.save()
             messages.success(request, "Parameters updated successfully!")
+            return redirect('market:paper_trade_detail', trade_id=trade_id)
         else:
             messages.error(request, "Error updating parameters.")
     else:
@@ -311,15 +312,21 @@ def paper_trade_detail_view(request, trade_id):
     timestamps = [md.timestamp.isoformat() for md in market_data]
     prices = [float(md.price) for md in market_data]
     st_values = [float(md.st) for md in market_data]
+    profits = [float(md.profit) for md in market_data]
+
+    total_profit = sum(profits)
 
     context = {
         'paper_trade': paper_trade,
         'timestamps': json.dumps(timestamps),
         'prices': json.dumps(prices),
         'st_values': json.dumps(st_values),
+        'profits': json.dumps(profits),
+        'total_profit': total_profit,
         'form': form
     }
     return render(request, 'pages/market/paper_trade_detail.html', context)
+
 
 
 def fetch_market_data(request, trade_id):

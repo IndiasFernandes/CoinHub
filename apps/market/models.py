@@ -107,29 +107,31 @@ class MarketData(models.Model):
     st = models.DecimalField(max_digits=20, decimal_places=6)
     super_trend_status = models.CharField(max_length=10)
     trade_indicator = models.BooleanField(default=False)
-    volume = models.DecimalField(max_digits=20, decimal_places=6, null=True, blank=True)
-    vol_5m = models.DecimalField(max_digits=20, decimal_places=6, null=True, blank=True)
-    vol_15m = models.DecimalField(max_digits=20, decimal_places=6, null=True, blank=True)
-    vol_30m = models.DecimalField(max_digits=20, decimal_places=6, null=True, blank=True)
-    vol_1h = models.DecimalField(max_digits=20, decimal_places=6, null=True, blank=True)
-    vol_change_5m = models.FloatField(null=True, blank=True)
-    vol_change_15m = models.FloatField(null=True, blank=True)
-    vol_change_30m = models.FloatField(null=True, blank=True)
-    vol_change_1h = models.FloatField(null=True, blank=True)
+    trade_action = models.CharField(max_length=10, blank=True, null=True)  # 'buy', 'sell', 'short', 'cover'
+    profit = models.DecimalField(max_digits=20, decimal_places=6, default=0)
 
     def __str__(self):
         return f"{self.paper_trade.name} - {self.timestamp} - {self.price} - {self.trade_indicator}"
 
-    def check_trade(self):
-        # Add logic to determine the trade indicator based on last and current super_trend_status
-        # This method should be called every time new data is saved and update `trade_indicator` accordingly
+    def check_trade(self, x_multiplier, fee):
         last_data = MarketData.objects.filter(paper_trade=self.paper_trade).order_by('-timestamp').first()
         if last_data:
-            # Example logic, should be adjusted as per actual trading algorithm
-            if (last_data.super_trend_status == 'long' and last_data.price < self.price) or \
-               (last_data.super_trend_status == 'short' and last_data.price > self.price):
-                self.trade_indicator = True
+            if last_data.trade_action in ['buy', 'short']:
+                # Close the trade
+                if (last_data.trade_action == 'buy' and self.price < last_data.st) or \
+                   (last_data.trade_action == 'short' and self.price > last_data.st):
+                    self.trade_indicator = False
+                    self.trade_action = 'sell' if last_data.trade_action == 'buy' else 'cover'
+                    profit = (self.price - last_data.price) if self.trade_action == 'sell' else (last_data.price - self.price)
+                    self.profit = profit - (fee * profit)
+                else:
+                    self.trade_indicator = True
+            else:
+                # Open a new trade
+                if self.price > self.st * x_multiplier:
+                    self.trade_action = 'buy'
+                    self.trade_indicator = True
+                elif self.price < self.st * (1 / x_multiplier):
+                    self.trade_action = 'short'
+                    self.trade_indicator = True
             self.save()
-
-    def __str__(self):
-        return f"{self.paper_trade.name} - {self.timestamp} - {self.price} - {self.trade_indicator}"
