@@ -332,6 +332,8 @@ from decimal import Decimal
 def calculate_profit(paper_trade, market_data):
     initial_account = Decimal(paper_trade.initial_account)
     x_prices = int(paper_trade.x_prices)
+    take_profit = Decimal(paper_trade.take_profit) / 100  # Converting to a fraction
+    stop_loss = Decimal(paper_trade.stop_loss) / 100  # Converting to a fraction
     fee = Decimal(paper_trade.trading_fee) / 100
 
     current_balance = initial_account
@@ -341,20 +343,52 @@ def calculate_profit(paper_trade, market_data):
     consecutive_below = 0
 
     for data in market_data:
-        if open_trade == 'buy' and data.price < data.st:
-            # Close buy trade
-            profit = (data.price - open_trade_price) * (1 - fee)
-            current_balance += profit
-            open_trade = None
-            consecutive_above = 0
-            consecutive_below = 0
-        elif open_trade == 'short' and data.price > data.st:
-            # Close short trade
-            profit = (open_trade_price - data.price) * (1 - fee)
-            current_balance += profit
-            open_trade = None
-            consecutive_above = 0
-            consecutive_below = 0
+        if open_trade == 'buy':
+            if data.price < data.st:
+                # Close buy trade when price drops below supertrend
+                profit = (data.price - open_trade_price) * (1 - fee)
+                current_balance += profit
+                open_trade = None
+                consecutive_above = 0
+                consecutive_below = 0
+            elif (data.price - open_trade_price) / open_trade_price >= take_profit:
+                # Close buy trade when take profit is reached
+                profit = (data.price - open_trade_price) * (1 - fee)
+                current_balance += profit
+                open_trade = None
+                consecutive_above = 0
+                consecutive_below = 0
+            elif (open_trade_price - data.price) / open_trade_price >= stop_loss:
+                # Close buy trade when stop loss is reached
+                profit = (data.price - open_trade_price) * (1 - fee)
+                current_balance += profit
+                open_trade = None
+                consecutive_above = 0
+                consecutive_below = 0
+
+        elif open_trade == 'short':
+            if data.price > data.st:
+                # Close short trade when price rises above supertrend
+                profit = (open_trade_price - data.price) * (1 - fee)
+                current_balance += profit
+                open_trade = None
+                consecutive_above = 0
+                consecutive_below = 0
+            elif (open_trade_price - data.price) / open_trade_price >= take_profit:
+                # Close short trade when take profit is reached
+                profit = (open_trade_price - data.price) * (1 - fee)
+                current_balance += profit
+                open_trade = None
+                consecutive_above = 0
+                consecutive_below = 0
+            elif (data.price - open_trade_price) / open_trade_price >= stop_loss:
+                # Close short trade when stop loss is reached
+                profit = (open_trade_price - data.price) * (1 - fee)
+                current_balance += profit
+                open_trade = None
+                consecutive_above = 0
+                consecutive_below = 0
+
         elif not open_trade:
             if data.price > data.st:
                 consecutive_above += 1
