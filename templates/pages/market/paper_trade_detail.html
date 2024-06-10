@@ -24,7 +24,19 @@
                     </p>
                 </header>
                 <div class="card-content">
-                    <canvas id="myChart"></canvas>
+                    <canvas id="priceChart"></canvas>
+                </div>
+            </div>
+        </div>
+        <div class="column is-12">
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        Profit Over Time
+                    </p>
+                </header>
+                <div class="card-content">
+                    <canvas id="profitChart"></canvas>
                 </div>
             </div>
         </div>
@@ -70,7 +82,7 @@
         </div>
         <div class="column is-12">
             <div id="profitDisplay" class="box">
-                <h3 class="title">Profits</h3>
+                <h3 class="title">Total Profit</h3>
                 <p>Total Profit: ${{ total_profit }}</p>
             </div>
         </div>
@@ -84,14 +96,15 @@
 
 <script>
 document.addEventListener('DOMContentLoaded', function() {
-    const ctx = document.getElementById('myChart').getContext('2d');
+    const priceCtx = document.getElementById('priceChart').getContext('2d');
+    const profitCtx = document.getElementById('profitChart').getContext('2d');
     const rawTimestamps = JSON.parse('{{ timestamps|safe }}');
     const timestamps = rawTimestamps.map(ts => luxon.DateTime.fromISO(ts).toJSDate());
     const prices = JSON.parse('{{ prices|safe }}');
     const stValues = JSON.parse('{{ st_values|safe }}');
     const profits = JSON.parse('{{ profits|safe }}');
 
-    const myChart = new Chart(ctx, {
+    const priceChart = new Chart(priceCtx, {
         type: 'line',
         data: {
             labels: timestamps,
@@ -109,7 +122,51 @@ document.addEventListener('DOMContentLoaded', function() {
                     borderColor: 'rgba(153, 102, 255, 1)',
                     borderWidth: 1,
                     fill: false
+                }
+            ]
+        },
+        options: {
+            responsive: true,
+            scales: {
+                x: {
+                    type: 'time',
+                    time: {
+                        unit: 'day',
+                        tooltipFormat: 'DD T'
+                    }
                 },
+                y: {
+                    beginAtZero: false,
+                    ticks: {
+                        beginAtZero: false
+                    }
+                }
+            },
+            plugins: {
+                zoom: {
+                    pan: {
+                        enabled: true,
+                        mode: 'xy'
+                    },
+                    zoom: {
+                        wheel: {
+                            enabled: true
+                        },
+                        pinch: {
+                            enabled: true
+                        },
+                        mode: 'xy'
+                    }
+                }
+            }
+        }
+    });
+
+    const profitChart = new Chart(profitCtx, {
+        type: 'line',
+        data: {
+            labels: timestamps,
+            datasets: [
                 {
                     label: 'Profit',
                     data: profits,
@@ -156,8 +213,13 @@ document.addEventListener('DOMContentLoaded', function() {
         }
     });
 
+    // Function to update charts periodically
+    function updateCharts() {
+        // Logic to fetch and update chart data can be added here
+    }
+
     // Set interval to update the chart every 30 seconds
-    setInterval(updateChart, 30000);
+    setInterval(updateCharts, 30000);
 });
 </script>
 {% endblock %}

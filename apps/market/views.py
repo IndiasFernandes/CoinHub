@@ -303,7 +303,7 @@ def paper_trade_detail_view(request, trade_id):
             form.save()
             calculate_profit(paper_trade, market_data)  # Recalculate profit on parameter change
             messages.success(request, "Parameters updated successfully!")
-            return redirect('market:paper_trade_detail', trade_id=trade_id)
+            return redirect('market:paper_trade_detail', trade_id=trade_id)  # Refresh the page
         else:
             messages.error(request, "Error updating parameters.")
     else:
@@ -328,9 +328,9 @@ def paper_trade_detail_view(request, trade_id):
     return render(request, 'pages/market/paper_trade_detail.html', context)
 
 def calculate_profit(paper_trade, market_data):
-    initial_account = paper_trade.initial_account
-    x_prices = Decimal(paper_trade.x_prices)  # Convert x_prices to Decimal
-    fee = Decimal(paper_trade.trading_fee)
+    initial_account = Decimal(paper_trade.initial_account)
+    x_prices = Decimal(paper_trade.x_prices)
+    fee = Decimal(paper_trade.trading_fee) / 100
 
     current_balance = initial_account
     open_trade = None  # None, 'buy', or 'short'
