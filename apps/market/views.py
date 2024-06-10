@@ -1,5 +1,5 @@
 from _decimal import Decimal
-
+from django.core.cache import cache
 import numpy as np
 import warnings
 from django.views.decorators.http import require_POST
@@ -294,7 +294,6 @@ class CreatePaperTradeView(View):
             return render(request, 'pages/market/paper_trade_create.html', context)
 
 
-@login_required
 def paper_trade_detail_view(request, trade_id):
     paper_trade = get_object_or_404(PaperTrade, pk=trade_id)
     market_data = MarketData.objects.filter(paper_trade_id=trade_id).order_by('timestamp')
@@ -303,13 +302,25 @@ def paper_trade_detail_view(request, trade_id):
         form = TradeParametersForm(request.POST, instance=paper_trade)
         if form.is_valid():
             form.save()
-            calculate_profit(paper_trade, market_data)  # Recalculate profit on parameter change
+            calculate_profit(paper_trade, market_data)
             messages.success(request, "Parameters updated successfully!")
-            return redirect('market:paper_trade_detail', trade_id=trade_id)  # Refresh the page
+            return redirect('market:paper_trade_detail', trade_id=trade_id)
         else:
             messages.error(request, "Error updating parameters.")
     else:
         form = TradeParametersForm(instance=paper_trade)
+
+    optimization_form = OptimizationForm(initial={
+        'take_profit_min': 0.1,
+        'take_profit_max': 0.5,
+        'take_profit_step': 0.01,
+        'stop_loss_min': 0.01,
+        'stop_loss_max': 0.1,
+        'stop_loss_step': 0.01,
+        'x_prices_min': 2,
+        'x_prices_max': 7,
+        'x_prices_step': 1
+    })
 
     timestamps = [md.timestamp.isoformat() for md in market_data]
     prices = [float(md.price) for md in market_data]
@@ -325,7 +336,8 @@ def paper_trade_detail_view(request, trade_id):
         'st_values': json.dumps(st_values),
         'profits': json.dumps(profits),
         'total_profit': total_profit,
-        'form': form
+        'form': form,
+        'optimization_form': optimization_form
     }
     return render(request, 'pages/market/paper_trade_detail.html', context)
 
@@ -459,94 +471,37 @@ def delete_paper_trade(request, trade_id):
     trade.delete()
     return JsonResponse({'status': 'success', 'message': 'Trade deleted successfully'})
 
-
-from django.db import models
-
-
-
-@login_required
-def optimize_view(request, trade_id):
-    paper_trade = get_object_or_404(PaperTrade, pk=trade_id)
-    market_data = MarketData.objects.filter(paper_trade_id=trade_id).order_by('timestamp')
-
-    if request.method == 'POST':
-        form = OptimizationForm(request.POST)
-        if form.is_valid():
-            tp_min = form.cleaned_data['take_profit_min']
-            tp_max = form.cleaned_data['take_profit_max']
-            tp_step = form.cleaned_data['take_profit_step']
-            sl_min = form.cleaned_data['stop_loss_min']
-            sl_max = form.cleaned_data['stop_loss_max']
-            sl_step = form.cleaned_data['stop_loss_step']
-            x_min = form.cleaned_data['x_prices_min']
-            x_max = form.cleaned_data['x_prices_max']
-            x_step = form.cleaned_data['x_prices_step']
-
-            tp_range = [Decimal(tp_min) + i * Decimal(tp_step) for i in range(int((tp_max - tp_min) / tp_step) + 1)]
-            sl_range = [Decimal(sl_min) + i * Decimal(sl_step) for i in range(int((sl_max - sl_min) / sl_step) + 1)]
-            x_range = [x_min + i * x_step for i in range((x_max - x_min) // x_step + 1)]
-
-            best_tp, best_sl, best_x, best_profit = optimize_parameters(paper_trade, market_data, tp_range, sl_range, x_range)
-
-            messages.success(request, f"Optimization completed! Best TP: {best_tp}, Best SL: {best_sl}, Best X: {best_x}, Profit: ${best_profit}")
-            return redirect('market:paper_trade_detail', trade_id=trade_id)
-        else:
-            messages.error(request, "Error in optimization parameters.")
-    else:
-        form = OptimizationForm()
-
-    return render(request, 'pages/market/paper_trade_optimize.html', {'form': form})
-
 from decimal import Decimal
-
-from decimal import Decimal
+from django.http import JsonResponse
 
 def run_backtest_pt(paper_trade, market_data):
     trades = []
     position = None
     entry_price = None
-    take_profit = Decimal(paper_trade.take_profit) / 100  # Converting to fraction
-    stop_loss = Decimal(paper_trade.stop_loss) / 100  # Converting to fraction
+    entry_time = None
+    take_profit = Decimal(paper_trade.take_profit)
+    stop_loss = Decimal(paper_trade.stop_loss)
     x_prices = paper_trade.x_prices
-    fee = Decimal(paper_trade.trading_fee) / 100  # Trading fee as a fraction
 
-    for i in range(1, len(market_data) - x_prices):
-        current_price = market_data[i].price
-        previous_price = market_data[i - 1].price
-        current_st = market_data[i].st
-        previous_st = market_data[i - 1].st
+    for i in range(len(market_data) - x_prices):
+        prices = [market_data[j].price for j in range(i, i + x_prices)]
+        avg_price = sum(prices) / x_prices
 
-        # Check conditions for storing the price for long/short trades
-        if previous_price < previous_st and current_price > current_st:
-            potential_long_entry = current_price
-        elif previous_price > previous_st and current_price < current_st:
-            potential_short_entry = current_price
-
-        # Check conditions to enter long trade
-        if 'potential_long_entry' in locals():
-            next_prices = [market_data[j].price for j in range(i + 1, i + 1 + x_prices)]
-            next_st_values = [market_data[j].st for j in range(i + 1, i + 1 + x_prices)]
-            avg_next_prices = sum(next_prices) / x_prices
-
-            if avg_next_prices > potential_long_entry and all(p > st for p, st in zip(next_prices, next_st_values)):
+        # Long Trade Condition
+        if all(p > market_data[i + j].st for j, p in enumerate(prices)) and avg_price > market_data[i].price:
+            if position is None:
                 position = 'long'
-                entry_price = potential_long_entry
-                entry_time = market_data[i + x_prices].timestamp
+                entry_price = market_data[i + x_prices - 1].price
+                entry_time = market_data[i + x_prices - 1].timestamp
                 print(f"Entering Long Trade at {entry_price} on {entry_time}")
-                del potential_long_entry  # Reset after entering the trade
 
-        # Check conditions to enter short trade
-        if 'potential_short_entry' in locals():
-            next_prices = [market_data[j].price for j in range(i + 1, i + 1 + x_prices)]
-            next_st_values = [market_data[j].st for j in range(i + 1, i + 1 + x_prices)]
-            avg_next_prices = sum(next_prices) / x_prices
-
-            if avg_next_prices < potential_short_entry and all(p < st for p, st in zip(next_prices, next_st_values)):
+        # Short Trade Condition
+        elif all(p < market_data[i + j].st for j, p in enumerate(prices)) and avg_price < market_data[i].price:
+            if position is None:
                 position = 'short'
-                entry_price = potential_short_entry
-                entry_time = market_data[i + x_prices].timestamp
+                entry_price = market_data[i + x_prices - 1].price
+                entry_time = market_data[i + x_prices - 1].timestamp
                 print(f"Entering Short Trade at {entry_price} on {entry_time}")
-                del potential_short_entry  # Reset after entering the trade
 
         # Check for exit conditions
         if position == 'long':
@@ -584,7 +539,9 @@ def optimize_parameters(paper_trade, market_data, tp_range, sl_range, x_range):
                 paper_trade.x_prices = x
                 current_profit = run_backtest_pt(paper_trade, market_data)
 
-                print(f"Iteration {iteration}/{total_iterations}: TP={tp}, SL={sl}, X={x}, Profit={current_profit}")
+                # Update the progress bar
+                progress = (iteration / total_iterations) * 100
+                print(f"Progress: {progress:.2f}%")
 
                 if Decimal(current_profit) > best_profit:
                     best_profit = Decimal(current_profit)
@@ -601,3 +558,79 @@ def optimize_parameters(paper_trade, market_data, tp_range, sl_range, x_range):
     paper_trade.save()
 
     return best_tp, best_sl, best_x, best_profit
+
+@login_required
+def optimize_view(request, trade_id):
+    paper_trade = get_object_or_404(PaperTrade, pk=trade_id)
+    market_data = MarketData.objects.filter(paper_trade_id=trade_id).order_by('timestamp')
+
+    if request.method == 'POST':
+        form = OptimizationForm(request.POST)
+        if form.is_valid():
+            tp_min = form.cleaned_data['take_profit_min']
+            tp_max = form.cleaned_data['take_profit_max']
+            tp_step = form.cleaned_data['take_profit_step']
+            sl_min = form.cleaned_data['stop_loss_min']
+            sl_max = form.cleaned_data['stop_loss_max']
+            sl_step = form.cleaned_data['stop_loss_step']
+            x_min = form.cleaned_data['x_prices_min']
+            x_max = form.cleaned_data['x_prices_max']
+            x_step = form.cleaned_data['x_prices_step']
+
+            tp_range = [Decimal(tp_min) + i * Decimal(tp_step) for i in range(int((tp_max - tp_min) / tp_step) + 1)]
+            sl_range = [Decimal(sl_min) + i * Decimal(sl_step) for i in range(int((sl_max - sl_min) / sl_step) + 1)]
+            x_range = [x_min + i * x_step for i in range((x_max - x_min) // x_step + 1)]
+
+            best_tp, best_sl, best_x, best_profit = optimize_parameters(paper_trade, market_data, tp_range, sl_range, x_range)
+
+            messages.success(request, f"Optimization completed! Best TP: {best_tp}, Best SL: {best_sl}, Best X: {best_x}, Profit: ${best_profit}")
+            return redirect('market:paper_trade_detail', trade_id=trade_id)
+        else:
+            messages.error(request, "Error in optimization parameters.")
+    else:
+        form = OptimizationForm()
+
+    return render(request, 'pages/market/paper_trade_optimize.html', {'form': form})
+
+
+
+
+def optimize_parameters(paper_trade, market_data, tp_range, sl_range, x_range):
+    best_profit = Decimal('-Infinity')
+    best_tp = None
+    best_sl = None
+    best_x = None
+    total_iterations = len(tp_range) * len(sl_range) * len(x_range)
+    iteration = 0
+
+    for tp in tp_range:
+        for sl in sl_range:
+            for x in x_range:
+                iteration += 1
+                paper_trade.take_profit = tp
+                paper_trade.stop_loss = sl
+                paper_trade.x_prices = x
+                current_profit = run_backtest_pt(paper_trade, market_data)
+
+                progress = (iteration / total_iterations) * 100
+                cache.set(f'optimization_progress_{paper_trade.id}', progress)
+
+                if Decimal(current_profit) > best_profit:
+                    best_profit = Decimal(current_profit)
+                    best_tp = tp
+                    best_sl = sl
+                    best_x = x
+                    print(f"Best Optimization Found! Profit:{best_profit}")
+
+    # Update the paper_trade with the best parameters
+    paper_trade.take_profit = best_tp
+    paper_trade.stop_loss = best_sl
+    paper_trade.x_prices = best_x
+    paper_trade.save()
+
+    return best_tp, best_sl, best_x, best_profit
+
+@login_required
+def get_optimization_progress(request, trade_id):
+    progress = cache.get(f'optimization_progress_{trade_id}', 0)
+    return JsonResponse({'progress': progress})

@@ -6,7 +6,7 @@
         <div class="column is-12">
             <article class="message is-info">
                 <div class="message-header">
-                    <p>Paper Trade Details</p>
+                    <p>{{ paper_trade.name }}</p>
                 </div>
                 <div class="message-body">
                     <strong>Coin:</strong> {{ paper_trade.coin }}<br>
@@ -42,18 +42,18 @@
             </div>
         </div>
         <div class="column is-12">
-            <form method="post" class="box">
+            <form method="post" class="box" id="updateParametersForm">
                 {% csrf_token %}
                 <div class="field">
                     <label class="label">Take Profit (%)</label>
                     <div class="control">
-                        <input class="input" type="number" name="take_profit" step="0.001" min="0" value="{{ form.take_profit.value }}">
+                        <input class="input" type="number" name="take_profit" step="0.01" min="0.1" max="0.5" value="{{ form.take_profit.value }}">
                     </div>
                 </div>
                 <div class="field">
                     <label class="label">Stop Loss (%)</label>
                     <div class="control">
-                        <input class="input" type="number" name="stop_loss" step="0.001" min="0" value="{{ form.stop_loss.value }}">
+                        <input class="input" type="number" name="stop_loss" step="0.01" min="0.01" max="0.1" value="{{ form.stop_loss.value }}">
                     </div>
                 </div>
                 <div class="field">
@@ -71,7 +71,7 @@
                 <div class="field">
                     <label class="label">X Prices Above/Below Supertrend</label>
                     <div class="control">
-                        <input class="input" type="number" name="x_prices" step="1" min="1" value="{{ form.x_prices.value }}">
+                        <input class="input" type="number" name="x_prices" step="1" min="2" max="7" value="{{ form.x_prices.value }}">
                     </div>
                 </div>
                 <div class="field">
@@ -85,6 +85,90 @@
             <div id="profitDisplay" class="box">
                 <h3 class="title">Total Profit</h3>
                 <p>Total Profit: ${{ total_profit }}</p>
+            </div>
+        </div>
+        <div class="column is-12">
+            <div class="card">
+                <header class="card-header">
+                    <p class="card-header-title">
+                        Optimize Parameters
+                    </p>
+                </header>
+                <div class="card-content">
+                    <form method="post" action="{% url 'market:optimize' paper_trade.id %}" id="optimizeForm">
+                        {% csrf_token %}
+                        <div class="columns">
+                            <div class="column">
+                                <div class="field">
+                                    <label class="label">Min Take Profit (%)</label>
+                                    <div class="control">
+                                        <input class="input" type="number" name="take_profit_min" step="0.01" min="0.1" max="0.5" value="0.1">
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label class="label">Max Take Profit (%)</label>
+                                    <div class="control">
+                                        <input class="input" type="number" name="take_profit_max" step="0.01" min="0.1" max="0.5" value="0.5">
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label class="label">Take Profit Step (%)</label>
+                                    <div class="control">
+                                        <input class="input" type="number" name="take_profit_step" step="0.01" min="0.01" value="0.01">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="field">
+                                    <label class="label">Min Stop Loss (%)</label>
+                                    <div class="control">
+                                        <input class="input" type="number" name="stop_loss_min" step="0.01" min="0.01" max="0.1" value="0.01">
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label class="label">Max Stop Loss (%)</label>
+                                    <div class="control">
+                                        <input class="input" type="number" name="stop_loss_max" step="0.01" min="0.01" max="0.1" value="0.1">
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label class="label">Stop Loss Step (%)</label>
+                                    <div class="control">
+                                        <input class="input" type="number" name="stop_loss_step" step="0.01" min="0.01" value="0.01">
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="column">
+                                <div class="field">
+                                    <label class="label">Min X Prices</label>
+                                    <div class="control">
+                                        <input class="input" type="number" name="x_prices_min" step="1" min="2" max="7" value="2">
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label class="label">Max X Prices</label>
+                                    <div class="control">
+                                        <input class="input" type="number" name="x_prices_max" step="1" min="2" max="7" value="7">
+                                    </div>
+                                </div>
+                                <div class="field">
+                                    <label class="label">X Prices Step</label>
+                                    <div class="control">
+                                        <input class="input" type="number" name="x_prices_step" step="1" min="1" value="1">
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <div class="control">
+                                <button type="submit" class="button is-primary">Optimize</button>
+                            </div>
+                        </div>
+                        <div class="field">
+                            <progress class="progress is-primary" id="optimizationProgress" value="0" max="100">0%</progress>
+                        </div>
+                    </form>
+                </div>
             </div>
         </div>
     </div>
@@ -221,6 +305,34 @@ document.addEventListener('DOMContentLoaded', function() {
 
     // Set interval to update the chart every 30 seconds
     setInterval(updateCharts, 30000);
+
+    // Handle optimization form submission
+    document.getElementById('optimizeForm').addEventListener('submit', function(event) {
+        event.preventDefault();
+        const formData = new FormData(this);
+        const xhr = new XMLHttpRequest();
+        xhr.open('POST', this.action, true);
+        xhr.setRequestHeader('X-Requested-With', 'XMLHttpRequest');
+
+        xhr.upload.addEventListener('progress', function(event) {
+            if (event.lengthComputable) {
+                const percentComplete = (event.loaded / event.total) * 100;
+                document.getElementById('optimizationProgress').value = percentComplete;
+                document.getElementById('optimizationProgress').innerText = `${percentComplete}%`;
+            }
+        });
+
+        xhr.onreadystatechange = function() {
+            if (xhr.readyState === 4 && xhr.status === 200) {
+                // Update progress to 100% when done
+                document.getElementById('optimizationProgress').value = 100;
+                document.getElementById('optimizationProgress').innerText = '100%';
+                // Handle response if needed
+            }
+        };
+
+        xhr.send(formData);
+    });
 });
 </script>
 {% endblock %}

@@ -140,12 +140,12 @@ class TradeParametersForm(forms.ModelForm):
 from django import forms
 
 class OptimizationForm(forms.Form):
-    take_profit_min = forms.DecimalField(label="Take Profit Min", max_digits=5, decimal_places=2)
-    take_profit_max = forms.DecimalField(label="Take Profit Max", max_digits=5, decimal_places=2)
-    take_profit_step = forms.DecimalField(label="Take Profit Step", max_digits=5, decimal_places=2)
-    stop_loss_min = forms.DecimalField(label="Stop Loss Min", max_digits=5, decimal_places=2)
-    stop_loss_max = forms.DecimalField(label="Stop Loss Max", max_digits=5, decimal_places=2)
-    stop_loss_step = forms.DecimalField(label="Stop Loss Step", max_digits=5, decimal_places=2)
-    x_prices_min = forms.IntegerField(label="X Prices Min")
-    x_prices_max = forms.IntegerField(label="X Prices Max")
-    x_prices_step = forms.IntegerField(label="X Prices Step")
+    take_profit_min = forms.DecimalField(min_value=0.0, max_value=1.0, decimal_places=2, initial=0.1)
+    take_profit_max = forms.DecimalField(min_value=0.0, max_value=1.0, decimal_places=2, initial=0.5)
+    take_profit_step = forms.DecimalField(min_value=0.0, max_value=1.0, decimal_places=2, initial=0.01)
+    stop_loss_min = forms.DecimalField(min_value=0.0, max_value=1.0, decimal_places=2, initial=0.01)
+    stop_loss_max = forms.DecimalField(min_value=0.0, max_value=1.0, decimal_places=2, initial=0.1)
+    stop_loss_step = forms.DecimalField(min_value=0.0, max_value=1.0, decimal_places=2, initial=0.01)
+    x_prices_min = forms.IntegerField(min_value=1, max_value=100, initial=2)  # Adjust the max_value as needed
+    x_prices_max = forms.IntegerField(min_value=1, max_value=100, initial=7)  # Adjust the max_value as needed
+    x_prices_step = forms.IntegerField(min_value=1, max_value=10, initial=1)

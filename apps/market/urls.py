@@ -4,7 +4,7 @@ from .views import (
     backtests_list_view, backtest_detail_view, optimize_list_view, optimize_detail_view,
     market_dashboard_view, load_markets, load_symbols_and_timeframes,
     TogglePaperTradingView, delete_paper_trade,
-    paper_trading_dashboard_view, paper_trade_detail_view, fetch_market_data, optimize_view
+    paper_trading_dashboard_view, paper_trade_detail_view, fetch_market_data, optimize_view, get_optimization_progress
 )
 
 app_name = 'market'
@@ -26,4 +26,5 @@ urlpatterns = [
     path('toggle-trade-active/<int:trade_id>/', TogglePaperTradingView.as_view(), name='toggle_trade_active'),
     path('fetch-market-data/<int:trade_id>/', fetch_market_data, name='fetch_market_data'),
     path('paper-trades/<int:trade_id>/optimize/', optimize_view, name='optimize'),
+    path('paper-trades/<int:trade_id>/progress/', get_optimization_progress, name='get_optimization_progress'),
 ]
