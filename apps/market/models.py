@@ -91,6 +91,11 @@ class PaperTrade(models.Model):
     is_active = models.BooleanField(default=True)
     atr_timeperiod = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
     atr_multiplier = models.DecimalField(max_digits=15, decimal_places=10, null=True, blank=True)
+    is_active = models.BooleanField(default=True)
+    strategy = models.CharField(max_length=100)
+    take_profit = models.DecimalField(max_digits=5, decimal_places=2, default=1.5)  # Example default value
+    stop_loss = models.DecimalField(max_digits=5, decimal_places=2, default=1.5)  # Example default value
+    trading_fee = models.DecimalField(max_digits=5, decimal_places=2, default=0.1)  # Example default value
 
     def __str__(self):
         return self.name

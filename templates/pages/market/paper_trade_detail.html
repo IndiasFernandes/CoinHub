@@ -28,10 +28,16 @@
                 </div>
             </div>
         </div>
+        <div class="column is-12">
+            <form method="post">
+                {% csrf_token %}
+                {{ form.as_p }}
+                <button type="submit" class="button is-primary">Update Parameters</button>
+            </form>
+        </div>
     </div>
 </div>
 
-<!-- Load Luxon, Chart.js with Luxon adapter and Zoom plugin -->
 <script src="https://cdn.jsdelivr.net/npm/luxon@2.3.1/build/global/luxon.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/chartjs-adapter-luxon"></script>
@@ -44,10 +50,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const timestamps = rawTimestamps.map(ts => luxon.DateTime.fromISO(ts).toJSDate());
     const prices = JSON.parse('{{ prices|safe }}');
     const stValues = JSON.parse('{{ st_values|safe }}');
-    const volChanges5m = JSON.parse('{{ vol_changes_5m|safe }}');
-    const volChanges15m = JSON.parse('{{ vol_changes_15m|safe }}');
-    const volChanges30m = JSON.parse('{{ vol_changes_30m|safe }}');
-    const volChanges1h = JSON.parse('{{ vol_changes_1h|safe }}');
 
     const myChart = new Chart(ctx, {
         type: 'line',
@@ -67,15 +69,7 @@ document.addEventListener('DOMContentLoaded', function() {
                     borderColor: 'rgba(153, 102, 255, 1)',
                     borderWidth: 1,
                     fill: false
-                },
-                {
-                    label: 'Vol Change 5m',
-                    data: volChanges5m,
-                    borderColor: 'rgba(255, 159, 64, 1)',
-                    borderWidth: 1,
-                    fill: false
-                },
-                // Repeat for other timeframes
+                }
             ]
         },
         options: {
